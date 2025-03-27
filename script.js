@@ -415,14 +415,15 @@ function displaySavedProducts() {
             </div>
         </div>`).join('');
 
-    // Add event listeners for cart buttons
+    // ✅ Fix: Add event listeners for "Add to Cart" in Saved Items
     document.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', function() {
-            addToCart(parseInt(this.closest('.product-card').dataset.productId));
+            const productId = parseInt(this.closest('.product-card').dataset.productId);
+            addToCart(productId);
         });
     });
 
-    // Add event listeners for save buttons
+    // ✅ Fix: Add event listeners for "Remove Save"
     document.querySelectorAll('.btn-save').forEach(button => {
         button.addEventListener('click', function() {
             toggleSave(parseInt(this.dataset.id), this);
