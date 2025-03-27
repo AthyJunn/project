@@ -69,30 +69,49 @@ function initSearch() {
 function initAccountDropdown() {
     const accountButton = document.getElementById('account-button');
     const accountDropdown = document.getElementById('account-dropdown');
+    const addAccountBtn = document.getElementById('add-account-btn');
+    const logoutBtn = document.getElementById('logout-btn');
 
     if (!accountButton || !accountDropdown) {
         console.error("Account button or dropdown not found!");
         return;
     }
 
-    console.log("Account dropdown initialized."); // ✅ Debugging
-
     // Toggle dropdown visibility when clicking the button
-    accountButton.addEventListener('click', function (e) {
+    accountButton.addEventListener('click', function(e) {
         e.stopPropagation();
         accountDropdown.classList.toggle('show');
-        console.log("Dropdown toggled:", accountDropdown.classList.contains('show')); // ✅ Debugging
-    });
-
-    // Prevent dropdown from closing when clicking inside
-    accountDropdown.addEventListener('click', function (e) {
-        e.stopPropagation();
     });
 
     // Close dropdown when clicking outside
-    document.addEventListener('click', function () {
-        accountDropdown.classList.remove('show');
+    document.addEventListener('click', function(e) {
+        if (!accountDropdown.contains(e.target) && !accountButton.contains(e.target)) {
+            accountDropdown.classList.remove('show');
+        }
     });
+
+    // Handle Add Account click
+    if (addAccountBtn) {
+        addAccountBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            accountDropdown.classList.remove('show');
+            // Show register modal if you have one
+            const registerModal = document.getElementById('register-modal');
+            if (registerModal) {
+                registerModal.classList.add('active');
+            }
+        });
+    }
+
+    // Handle Logout click
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            accountDropdown.classList.remove('show');
+            // Add your logout logic here
+            alert('Logged out successfully!');
+        });
+    }
 }
 
 // ==========================
