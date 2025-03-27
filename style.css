@@ -227,7 +227,7 @@
 /* =======================
    ACCOUNT DROPDOWN MENU
    ======================= */
-   .account-dropdown {
+.account-dropdown {
     display: none;
     position: absolute;
     top: 100%;
@@ -237,11 +237,11 @@
     border-radius: 5px;
     z-index: 100;
     min-width: 200px;
+    padding: 10px 0;
 }
 
-
 .account-dropdown.show {
-    display: block; /* This makes it visible */
+    display: block;
 }
 
 /* Dropdown Header */
@@ -417,4 +417,3 @@
     border-radius: 4px;
     font-size: 16px;
 }
-
