@@ -165,11 +165,13 @@ function searchProducts(searchTerm) {
 }
 
 function displayProducts(products) {
+    console.log('Displaying products:', products);
     const container = document.getElementById('product-container');
     container.innerHTML = products.length === 0
         ? '<p>No products found.</p>'
         : products.map(product => {
             const isSaved = savedItems.includes(product.id);
+            console.log(`Product ${product.id} saved status:`, isSaved);
             return `
             <div class="product-card" data-product-id="${product.id}">
                 <div class="product-image"><img src="images/products/${product.id}.jpg" alt="${product.name}"></div>
@@ -178,7 +180,7 @@ function displayProducts(products) {
                     <div class="product-price">RM ${product.price}</div>
                     <div class="product-actions">
                         <button class="btn-purple add-to-cart">Add to Cart</button>
-                        <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${product.id}">
+                        <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${product.id}" onclick="toggleSave(${product.id}, this)">
                             <i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Saved' : 'Save'}
                         </button>
                     </div>
@@ -190,13 +192,6 @@ function displayProducts(products) {
     document.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', function() {
             addToCart(parseInt(this.closest('.product-card').dataset.productId));
-        });
-    });
-
-    // Add event listeners for save buttons
-    document.querySelectorAll('.btn-save').forEach(button => {
-        button.addEventListener('click', function() {
-            toggleSave(parseInt(this.dataset.id), this);
         });
     });
 }
@@ -348,8 +343,8 @@ function updateCartCount() {
 let savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
 
 function toggleSave(productId, button) {
-    console.log('Toggle save called for product:', productId);
-    console.log('Current saved items:', savedItems);
+    console.log('Toggle save clicked for product:', productId);
+    console.log('Current saved items before toggle:', savedItems);
     
     const index = savedItems.indexOf(productId);
     if (index === -1) {
@@ -447,3 +442,6 @@ function initSaves() {
         console.error('Saves link not found!');
     }
 }
+
+// Make toggleSave available globally
+window.toggleSave = toggleSave;
