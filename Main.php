@@ -39,16 +39,17 @@
                 <button id="search-button"><i class="fas fa-search"></i></button>
             </div>
             <div class="account-menu">
-                <button id="account-button"><i class="fas fa-user-circle"></i> Account</button>
+                <button id="account-button"><i class="fas fa-user-circle"></i></button>
                 <div class="account-dropdown" id="account-dropdown">
                     <div class="dropdown-header">
                         <div class="currently-in">Currently in</div>
-                        <div class="user-status">Guest</div>
+                        <div class="user-info">
+                            <img src="images/guest-avatar.png" alt="Guest" class="user-avatar">
+                            <span class="user-status">Guest</span>
+                        </div>
                     </div>
-                    <ul class="dropdown-menu">
-                        <li><a href="#" id="add-account-btn"><i class="fas fa-user-plus"></i> Add Account</a></li>
-                        <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
-                    </ul>
+                    <button class="add-account" id="add-account-btn">Add Account</button>
+                    <button class="logout" id="logout-btn">Log out</button>
                 </div>
             </div>
         </div>
