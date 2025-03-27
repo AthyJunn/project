@@ -4,10 +4,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initAccountDropdown();
     initModals();
     initCart();
+    initSaves(); // Add this line
     loadCart();
     updateCartCount();
     loadProducts('recommendation');
-    updateSaveCount(); // Initialize save count
+    updateSaveCount();
 });
 
 // ==========================
@@ -28,6 +29,8 @@ function initSidebar() {
 
             if (category === 'cart') {
                 displayCart();
+            } else if (category === 'saves') {
+                displaySavedProducts();
             } else {
                 loadProducts(category);
             }
@@ -364,5 +367,25 @@ function updateSaveCount() {
     if (saveBadge) {
         saveBadge.textContent = savedItems.length;
         saveBadge.style.display = savedItems.length > 0 ? 'inline-block' : 'none';
+    }
+}
+
+function displaySavedProducts() {
+    const allProducts = getAllMockProducts();
+    const savedProducts = allProducts.filter(product => 
+        savedItems.includes(product.id)
+    );
+    
+    document.getElementById('current-category').textContent = 'Saved Items';
+    displayProducts(savedProducts);
+}
+
+function initSaves() {
+    const savesLink = document.querySelector('[data-category="saves"]');
+    if (savesLink) {
+        savesLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            displaySavedProducts();
+        });
     }
 }
