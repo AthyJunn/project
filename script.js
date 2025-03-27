@@ -525,12 +525,17 @@ function initDeliveryOptions() {
 
     deliveryOptions.forEach(option => {
         option.addEventListener('click', function() {
+            // Remove active class from all options
             deliveryOptions.forEach(opt => opt.classList.remove('active'));
+            
+            // Add active class to clicked option
             this.classList.add('active');
             
+            // Get the text content and trim any whitespace
+            const optionText = this.textContent.trim();
+            
             // Update shipping cost based on delivery option
-            const isDelivery = this.textContent.includes('Delivery');
-            const shippingCost = isDelivery ? 5.00 : 0.00;
+            const shippingCost = optionText === 'Delivery' ? 5.00 : 0.00;
             
             // Get current subtotal
             const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
