@@ -532,7 +532,8 @@ function initDeliveryOptions() {
             this.classList.add('active');
             
             // Update shipping cost based on delivery option
-            const isDelivery = this.querySelector('span').textContent === 'Delivery';
+            const optionText = this.querySelector('span').textContent.trim();
+            const isDelivery = optionText === 'Delivery';
             const shippingCost = isDelivery ? 5.00 : 0.00;
             
             // Get current subtotal
@@ -541,6 +542,9 @@ function initDeliveryOptions() {
             
             // Update summary with new shipping cost
             updateCheckoutSummary(subtotal, shippingCost);
+
+            // Debug log
+            console.log('Selected option:', optionText, 'Shipping cost:', shippingCost);
         });
     });
 }
