@@ -502,10 +502,9 @@ function loadCheckoutCart() {
     updateCheckoutSummary(subtotal);
 }
 
-function updateCheckoutSummary(subtotal) {
-    const shipping = 5.00;
+function updateCheckoutSummary(subtotal, shippingCost = 5.00) {
     const discount = 10.00;
-    const total = subtotal + shipping - discount;
+    const total = subtotal + shippingCost - discount;
 
     const summaryElements = {
         subtotal: document.querySelector('.summary-row:nth-child(1) span:last-child'),
@@ -515,7 +514,7 @@ function updateCheckoutSummary(subtotal) {
     };
 
     if (summaryElements.subtotal) summaryElements.subtotal.textContent = `RM ${subtotal.toFixed(2)}`;
-    if (summaryElements.shipping) summaryElements.shipping.textContent = `RM ${shipping.toFixed(2)}`;
+    if (summaryElements.shipping) summaryElements.shipping.textContent = `RM ${shippingCost.toFixed(2)}`;
     if (summaryElements.discount) summaryElements.discount.textContent = `-RM ${discount.toFixed(2)}`;
     if (summaryElements.total) summaryElements.total.textContent = `RM ${total.toFixed(2)}`;
 }
@@ -538,7 +537,7 @@ function initDeliveryOptions() {
             const subtotal = parseFloat(subtotalText.replace('RM ', ''));
             
             // Update summary with new shipping cost
-            updateCheckoutSummary(subtotal);
+            updateCheckoutSummary(subtotal, shippingCost);
         });
     });
 }
