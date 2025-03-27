@@ -348,15 +348,20 @@ function updateCartCount() {
 let savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
 
 function toggleSave(productId, button) {
+    console.log('Toggle save called for product:', productId);
+    console.log('Current saved items:', savedItems);
+    
     const index = savedItems.indexOf(productId);
     if (index === -1) {
         savedItems.push(productId);
         button.innerHTML = '<i class="fas fa-heart"></i> Saved';
         button.classList.add('saved');
+        console.log('Product saved:', productId);
     } else {
         savedItems.splice(index, 1);
         button.innerHTML = '<i class="far fa-heart"></i> Save';
         button.classList.remove('saved');
+        console.log('Product unsaved:', productId);
         
         // If we're on the saves page, remove the product card
         if (document.getElementById('current-category').textContent === 'Saved Items') {
@@ -366,7 +371,10 @@ function toggleSave(productId, button) {
             }
         }
     }
+    
+    // Save to localStorage
     localStorage.setItem('savedItems', JSON.stringify(savedItems));
+    console.log('Saved items after update:', savedItems);
     updateSaveCount();
 }
 
@@ -379,10 +387,15 @@ function updateSaveCount() {
 }
 
 function displaySavedProducts() {
+    console.log('Displaying saved products');
+    console.log('Current saved items:', savedItems);
+    
     const allProducts = getAllMockProducts();
     const savedProducts = allProducts.filter(product => 
         savedItems.includes(product.id)
     );
+    
+    console.log('Filtered saved products:', savedProducts);
     
     document.getElementById('current-category').textContent = 'Saved Items';
     
@@ -423,11 +436,14 @@ function displaySavedProducts() {
 }
 
 function initSaves() {
+    console.log('Initializing saves functionality');
     const savesLink = document.querySelector('[data-category="saves"]');
     if (savesLink) {
         savesLink.addEventListener('click', function(e) {
             e.preventDefault();
             displaySavedProducts();
         });
+    } else {
+        console.error('Saves link not found!');
     }
 }
