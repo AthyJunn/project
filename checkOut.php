@@ -26,7 +26,8 @@
                     </div>
                 </div>
 
-                <form id="shipping-form">
+                <!-- Delivery Form -->
+                <form id="shipping-form" class="active">
                     <div class="form-group">
                         <label>Full name<span class="required">*</span></label>
                         <input type="text" placeholder="Enter full name" required>
@@ -73,6 +74,60 @@
                     <div class="form-group">
                         <label>ZIP Code</label>
                         <input type="text" placeholder="Enter ZIP code">
+                    </div>
+                </form>
+
+                <!-- Pickup Form -->
+                <form id="pickup-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Full name<span class="required">*</span></label>
+                        <input type="text" placeholder="Enter full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email address<span class="required">*</span></label>
+                        <input type="email" placeholder="Enter email address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone number<span class="required">*</span></label>
+                        <div class="phone-input">
+                            <select class="country-code">
+                                <option value="+60">🇲🇾 +60</option>
+                                <option value="+65">🇸🇬 +65</option>
+                                <option value="+62">🇮🇩 +62</option>
+                            </select>
+                            <input type="tel" placeholder="Enter phone number" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Preferred pickup date<span class="required">*</span></label>
+                        <input type="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Preferred pickup time<span class="required">*</span></label>
+                        <select required>
+                            <option value="">Select time slot</option>
+                            <option value="10-12">10:00 AM - 12:00 PM</option>
+                            <option value="12-2">12:00 PM - 2:00 PM</option>
+                            <option value="2-4">2:00 PM - 4:00 PM</option>
+                            <option value="4-6">4:00 PM - 6:00 PM</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pickup location<span class="required">*</span></label>
+                        <select required>
+                            <option value="">Select store location</option>
+                            <option value="store1">HAMSA BEADS - Main Store</option>
+                            <option value="store2">HAMSA BEADS - Branch 2</option>
+                            <option value="store3">HAMSA BEADS - Branch 3</option>
+                        </select>
+                        <div class="location-info">
+                            <p>Store hours: Monday - Sunday, 10:00 AM - 6:00 PM</p>
+                        </div>
                     </div>
                 </form>
             </div>

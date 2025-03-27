@@ -521,7 +521,19 @@ function updateCheckoutSummary(subtotal, shippingCost = 5.00) {
 
 function initDeliveryOptions() {
     const deliveryOptions = document.querySelectorAll('.delivery-option');
+    const shippingForm = document.getElementById('shipping-form');
+    const pickupForm = document.getElementById('pickup-form');
+    
     if (!deliveryOptions.length) return;
+
+    // Set minimum date for pickup to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().split('T')[0];
+    const pickupDateInput = pickupForm?.querySelector('input[type="date"]');
+    if (pickupDateInput) {
+        pickupDateInput.min = minDate;
+    }
 
     deliveryOptions.forEach(option => {
         option.addEventListener('click', function() {
@@ -535,6 +547,17 @@ function initDeliveryOptions() {
             const optionText = this.querySelector('span').textContent.trim();
             const isDelivery = optionText === 'Delivery';
             const shippingCost = isDelivery ? 5.00 : 0.00;
+            
+            // Toggle forms
+            if (shippingForm && pickupForm) {
+                if (isDelivery) {
+                    shippingForm.style.display = 'block';
+                    pickupForm.style.display = 'none';
+                } else {
+                    shippingForm.style.display = 'none';
+                    pickupForm.style.display = 'block';
+                }
+            }
             
             // Get current subtotal
             const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
