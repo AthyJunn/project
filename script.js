@@ -357,6 +357,14 @@ function toggleSave(productId, button) {
         savedItems.splice(index, 1);
         button.innerHTML = '<i class="far fa-heart"></i> Save';
         button.classList.remove('saved');
+        
+        // If we're on the saves page, remove the product card
+        if (document.getElementById('current-category').textContent === 'Saved Items') {
+            const productCard = button.closest('.product-card');
+            if (productCard) {
+                productCard.remove();
+            }
+        }
     }
     localStorage.setItem('savedItems', JSON.stringify(savedItems));
     updateSaveCount();
@@ -377,7 +385,41 @@ function displaySavedProducts() {
     );
     
     document.getElementById('current-category').textContent = 'Saved Items';
-    displayProducts(savedProducts);
+    
+    const container = document.getElementById('product-container');
+    if (savedProducts.length === 0) {
+        container.innerHTML = '<p>No saved items yet.</p>';
+        return;
+    }
+
+    container.innerHTML = savedProducts.map(product => `
+        <div class="product-card" data-product-id="${product.id}">
+            <div class="product-image"><img src="images/products/${product.id}.jpg" alt="${product.name}"></div>
+            <div class="product-info">
+                <div class="product-title">${product.name}</div>
+                <div class="product-price">RM ${product.price}</div>
+                <div class="product-actions">
+                    <button class="btn-purple add-to-cart">Add to Cart</button>
+                    <button class="btn-save saved" data-id="${product.id}">
+                        <i class="fas fa-heart"></i> Saved
+                    </button>
+                </div>
+            </div>
+        </div>`).join('');
+
+    // Add event listeners for cart buttons
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', function() {
+            addToCart(parseInt(this.closest('.product-card').dataset.productId));
+        });
+    });
+
+    // Add event listeners for save buttons
+    document.querySelectorAll('.btn-save').forEach(button => {
+        button.addEventListener('click', function() {
+            toggleSave(parseInt(this.dataset.id), this);
+        });
+    });
 }
 
 function initSaves() {
