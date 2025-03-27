@@ -17,10 +17,12 @@
                 
                 <div class="delivery-options">
                     <div class="delivery-option active">
-                        <i class="fas fa-truck"></i> Delivery
+                        <i class="fas fa-truck"></i>
+                        <span>Delivery</span>
                     </div>
                     <div class="delivery-option">
-                        <i class="fas fa-store"></i> Pick up
+                        <i class="fas fa-store"></i>
+                        <span>Pick up</span>
                     </div>
                 </div>
 

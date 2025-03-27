@@ -531,11 +531,9 @@ function initDeliveryOptions() {
             // Add active class to clicked option
             this.classList.add('active');
             
-            // Get the text content and trim any whitespace
-            const optionText = this.textContent.trim();
-            
             // Update shipping cost based on delivery option
-            const shippingCost = optionText === 'Delivery' ? 5.00 : 0.00;
+            const isDelivery = this.querySelector('span').textContent === 'Delivery';
+            const shippingCost = isDelivery ? 5.00 : 0.00;
             
             // Get current subtotal
             const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
