@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initModals();
     initCart();
     initSaves();
-    initCheckout();
     loadCart();
     updateCartCount();
     loadProducts('recommendation');
@@ -439,110 +438,5 @@ function initSaves() {
     }
 }
 
-// ==========================
-// Checkout Functionality
-// ==========================
-function initCheckout() {
-    if (document.querySelector('.checkout-container')) {
-        loadCheckoutCart();
-        initDeliveryOptions();
-    }
-}
-
-function loadCheckoutCart() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const cartItemsContainer = document.querySelector('.cart-items');
-    if (!cartItemsContainer) return;
-
-    let subtotal = 0;
-
-    cartItemsContainer.innerHTML = cart.map(item => {
-        subtotal += item.price * item.quantity;
-        return `
-            <div class="cart-item">
-                <img src="images/products/${item.id}.jpg" alt="${item.name}">
-                <div class="item-details">
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-quantity">${item.quantity}x</div>
-                </div>
-                <div class="item-price">RM ${(item.price * item.quantity).toFixed(2)}</div>
-            </div>
-        `;
-    }).join('');
-
-    updateCheckoutSummary(subtotal);
-}
-
-function updateCheckoutSummary(subtotal, shippingCost = 5.00) {
-    const discount = 10.00;
-    const total = subtotal + shippingCost - discount;
-
-    const summaryElements = {
-        subtotal: document.querySelector('.summary-row:nth-child(1) span:last-child'),
-        shipping: document.querySelector('.summary-row:nth-child(2) span:last-child'),
-        discount: document.querySelector('.summary-row:nth-child(3) span:last-child'),
-        total: document.querySelector('.total-row span:last-child')
-    };
-
-    if (summaryElements.subtotal) summaryElements.subtotal.textContent = `RM ${subtotal.toFixed(2)}`;
-    if (summaryElements.shipping) summaryElements.shipping.textContent = `RM ${shippingCost.toFixed(2)}`;
-    if (summaryElements.discount) summaryElements.discount.textContent = `-RM ${discount.toFixed(2)}`;
-    if (summaryElements.total) summaryElements.total.textContent = `RM ${total.toFixed(2)}`;
-}
-
-function initDeliveryOptions() {
-    const deliveryOptions = document.querySelectorAll('.delivery-option');
-    const shippingForm = document.getElementById('shipping-form');
-    const pickupForm = document.getElementById('pickup-form');
-    
-    if (!deliveryOptions.length) return;
-
-    // Set default active option
-    const defaultOption = shippingForm.style.display === 'none' ? 'pickup' : 'delivery';
-    document.querySelector(`.delivery-option[data-option="${defaultOption}"]`).classList.add('active');
-
-    // Set minimum pickup date to tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const minDate = tomorrow.toISOString().split('T')[0];
-    const pickupDateInput = pickupForm?.querySelector('input[type="date"]');
-    if (pickupDateInput) {
-        pickupDateInput.min = minDate;
-    }
-
-    deliveryOptions.forEach(option => {
-        option.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            deliveryOptions.forEach(opt => opt.classList.remove('active'));
-            this.classList.add('active');
-            
-            const optionType = this.getAttribute('data-option');
-            const isDelivery = optionType === 'delivery';
-            const shippingCost = isDelivery ? 5.00 : 0.00;
-            
-            if (shippingForm && pickupForm) {
-                shippingForm.style.display = isDelivery ? 'block' : 'none';
-                pickupForm.style.display = isDelivery ? 'none' : 'block';
-                
-                if (isDelivery) {
-                    shippingForm.classList.add('active');
-                    pickupForm.classList.remove('active');
-                } else {
-                    shippingForm.classList.remove('active');
-                    pickupForm.classList.add('active');
-                }
-            }
-            
-            const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
-            const subtotal = parseFloat(subtotalText.replace('RM ', ''));
-            updateCheckoutSummary(subtotal, shippingCost);
-        });
-    });
-}
-
 // Make functions available globally
 window.toggleSave = toggleSave;
-window.initCheckout = initCheckout;
-window.loadCheckoutCart = loadCheckoutCart;
-window.updateCheckoutSummary = updateCheckoutSummary;
