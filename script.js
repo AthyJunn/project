@@ -554,14 +554,10 @@ function initDeliveryOptions() {
             if (shippingForm && pickupForm) {
                 if (isDelivery) {
                     shippingForm.style.display = 'block';
-                    shippingForm.classList.add('active');
                     pickupForm.style.display = 'none';
-                    pickupForm.classList.remove('active');
                 } else {
                     shippingForm.style.display = 'none';
-                    shippingForm.classList.remove('active');
                     pickupForm.style.display = 'block';
-                    pickupForm.classList.add('active');
                 }
             }
             
