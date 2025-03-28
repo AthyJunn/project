@@ -524,7 +524,10 @@ function initDeliveryOptions() {
     const shippingForm = document.getElementById('shipping-form');
     const pickupForm = document.getElementById('pickup-form');
     
-    if (!deliveryOptions.length) return;
+    if (!deliveryOptions.length) {
+        console.error('Delivery options not found');
+        return;
+    }
 
     // Set minimum date for pickup to tomorrow
     const tomorrow = new Date();
@@ -543,9 +546,9 @@ function initDeliveryOptions() {
             // Add active class to clicked option
             this.classList.add('active');
             
-            // Get the option text and determine if it's delivery
-            const optionText = this.querySelector('span').textContent.trim().toLowerCase();
-            const isDelivery = optionText === 'delivery';
+            // Get the option type from data attribute
+            const optionType = this.getAttribute('data-option');
+            const isDelivery = optionType === 'delivery';
             
             // Set shipping cost based on option
             const shippingCost = isDelivery ? 5.00 : 0.00;
@@ -571,7 +574,7 @@ function initDeliveryOptions() {
             updateCheckoutSummary(subtotal, shippingCost);
 
             // Debug log
-            console.log('Selected option:', optionText);
+            console.log('Selected option type:', optionType);
             console.log('Is delivery:', isDelivery);
             console.log('Shipping cost:', shippingCost);
             console.log('Delivery form visible:', shippingForm.style.display === 'block');
