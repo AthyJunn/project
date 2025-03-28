@@ -420,42 +420,27 @@
             // Remove active class from all options
             paymentOptions.forEach(opt => {
                 opt.classList.remove('active');
-                // Remove active class from card details if it exists in this option
-                const details = opt.querySelector('.card-details');
-                if (details) {
-                    details.classList.remove('active');
-                }
             });
 
-            // Find and activate the selected payment option
-            let selectedOption;
+            // Handle card details visibility and requirements
             if (method === 'card') {
-                selectedOption = document.querySelector('.payment-option:first-child');
-                // Show card details
-                const cardDetails = selectedOption.querySelector('.card-details');
-                if (cardDetails) {
-                    cardDetails.classList.add('active');
-                }
-                // Make card inputs required
-                selectedOption.querySelectorAll('input').forEach(input => {
+                const cardOption = document.querySelector('.payment-option:first-child');
+                cardOption.classList.add('active');
+                cardDetails.classList.add('active');
+                cardDetails.querySelectorAll('input').forEach(input => {
                     input.required = true;
                 });
-            } else if (method === 'tng') {
-                selectedOption = document.querySelector('.payment-option:nth-child(2)');
-                // Remove required from card inputs
-                document.querySelectorAll('.card-details input').forEach(input => {
+            } else {
+                cardDetails.classList.remove('active');
+                cardDetails.querySelectorAll('input').forEach(input => {
                     input.required = false;
                 });
-            } else if (method === 'shopee') {
-                selectedOption = document.querySelector('.payment-option:last-child');
-                // Remove required from card inputs
-                document.querySelectorAll('.card-details input').forEach(input => {
-                    input.required = false;
-                });
-            }
-
-            if (selectedOption) {
-                selectedOption.classList.add('active');
+                
+                if (method === 'tng') {
+                    document.querySelector('.payment-option:nth-child(2)').classList.add('active');
+                } else if (method === 'shopee') {
+                    document.querySelector('.payment-option:last-child').classList.add('active');
+                }
             }
         }
 
