@@ -282,12 +282,12 @@
                 <div class="payment-methods">
                     <h3 class="section-title">Payment Method</h3>
                     
-                    <div class="payment-option" onclick="selectPaymentMethod('card')">
+                    <div class="payment-option active" onclick="selectPaymentMethod('card')">
                         <div class="payment-header">
                             <i class="fas fa-credit-card"></i>
                             <span>Credit/Debit Card</span>
                         </div>
-                        <div class="card-details">
+                        <div class="card-details active">
                             <div class="form-group">
                                 <label>Card Number<span class="required">*</span></label>
                                 <input type="text" placeholder="1234 5678 9012 3456" required>
@@ -416,32 +416,46 @@
         function selectPaymentMethod(method) {
             const paymentOptions = document.querySelectorAll('.payment-option');
             const cardDetails = document.querySelector('.card-details');
-            const selectedOption = document.querySelector(`.payment-option:${method === 'card' ? 'first-child' : method === 'tng' ? 'nth-child(2)' : 'last-child'}`);
             
-            // If clicking the already active option
-            if (selectedOption.classList.contains('active')) {
-                return;
-            }
-
             // Remove active class from all options
             paymentOptions.forEach(opt => {
                 opt.classList.remove('active');
+                // Remove active class from card details if it exists in this option
+                const details = opt.querySelector('.card-details');
+                if (details) {
+                    details.classList.remove('active');
+                }
             });
 
-            // Add active class to selected option
-            selectedOption.classList.add('active');
-
-            // Handle card details visibility
+            // Find and activate the selected payment option
+            let selectedOption;
             if (method === 'card') {
-                cardDetails.classList.add('active');
-                cardDetails.querySelectorAll('input').forEach(input => {
+                selectedOption = document.querySelector('.payment-option:first-child');
+                // Show card details
+                const cardDetails = selectedOption.querySelector('.card-details');
+                if (cardDetails) {
+                    cardDetails.classList.add('active');
+                }
+                // Make card inputs required
+                selectedOption.querySelectorAll('input').forEach(input => {
                     input.required = true;
                 });
-            } else {
-                cardDetails.classList.remove('active');
-                cardDetails.querySelectorAll('input').forEach(input => {
+            } else if (method === 'tng') {
+                selectedOption = document.querySelector('.payment-option:nth-child(2)');
+                // Remove required from card inputs
+                document.querySelectorAll('.card-details input').forEach(input => {
                     input.required = false;
                 });
+            } else if (method === 'shopee') {
+                selectedOption = document.querySelector('.payment-option:last-child');
+                // Remove required from card inputs
+                document.querySelectorAll('.card-details input').forEach(input => {
+                    input.required = false;
+                });
+            }
+
+            if (selectedOption) {
+                selectedOption.classList.add('active');
             }
         }
 
