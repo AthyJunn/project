@@ -282,12 +282,12 @@
                 <div class="payment-methods">
                     <h3 class="section-title">Payment Method</h3>
                     
-                    <div class="payment-option active" onclick="selectPaymentMethod('card')">
+                    <div class="payment-option" data-method="card">
                         <div class="payment-header">
                             <i class="fas fa-credit-card"></i>
                             <span>Credit/Debit Card</span>
                         </div>
-                        <div class="card-details active">
+                        <div class="card-details">
                             <div class="form-group">
                                 <label>Card Number<span class="required">*</span></label>
                                 <input type="text" placeholder="1234 5678 9012 3456" required>
@@ -305,14 +305,14 @@
                         </div>
                     </div>
 
-                    <div class="payment-option" onclick="selectPaymentMethod('tng')">
+                    <div class="payment-option" data-method="tng">
                         <div class="payment-header">
                             <i class="fas fa-wallet"></i>
                             <span>Touch n Go eWallet</span>
                         </div>
                     </div>
 
-                    <div class="payment-option" onclick="selectPaymentMethod('shopee')">
+                    <div class="payment-option" data-method="shopee">
                         <div class="payment-header">
                             <i class="fas fa-shopping-bag"></i>
                             <span>ShopeePay</span>
@@ -412,20 +412,44 @@
             updateSummary(subtotal);
         }
 
+        // Initialize payment method handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentOptions = document.querySelectorAll('.payment-option');
+            
+            paymentOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const method = this.dataset.method;
+                    selectPaymentMethod(method);
+                });
+            });
+
+            // Set initial payment method
+            selectPaymentMethod('card');
+        });
+
         // Handle payment method selection
         function selectPaymentMethod(method) {
+            console.log('Selecting payment method:', method); // Debug log
+            
             const paymentOptions = document.querySelectorAll('.payment-option');
             const cardDetails = document.querySelector('.card-details');
             
             // Remove active class from all options
-            paymentOptions.forEach(opt => {
-                opt.classList.remove('active');
-            });
-
-            // Handle card details visibility and requirements
+            paymentOptions.forEach(opt => opt.classList.remove('active'));
+            
+            // Find the selected option using data-method attribute
+            const selectedOption = document.querySelector(`.payment-option[data-method="${method}"]`);
+            
+            if (!selectedOption) {
+                console.error('Payment option not found:', method);
+                return;
+            }
+            
+            // Add active class to selected option
+            selectedOption.classList.add('active');
+            
+            // Handle card details
             if (method === 'card') {
-                const cardOption = document.querySelector('.payment-option:first-child');
-                cardOption.classList.add('active');
                 cardDetails.classList.add('active');
                 cardDetails.querySelectorAll('input').forEach(input => {
                     input.required = true;
@@ -435,12 +459,6 @@
                 cardDetails.querySelectorAll('input').forEach(input => {
                     input.required = false;
                 });
-                
-                if (method === 'tng') {
-                    document.querySelector('.payment-option:nth-child(2)').classList.add('active');
-                } else if (method === 'shopee') {
-                    document.querySelector('.payment-option:last-child').classList.add('active');
-                }
             }
         }
 
@@ -466,9 +484,6 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             loadCartItems();
-            
-            // Set initial payment method
-            selectPaymentMethod('card');
         });
     </script>
 </body>
