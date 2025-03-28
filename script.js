@@ -524,60 +524,15 @@ function initDeliveryOptions() {
     const shippingForm = document.getElementById('shipping-form');
     const pickupForm = document.getElementById('pickup-form');
     
-    if (!deliveryOptions.length) {
-        console.error('No delivery options found');
-        return;
-    }
-
-    if (!shippingForm || !pickupForm) {
-        console.error('Shipping or pickup form not found');
-        return;
-    }
+    if (!deliveryOptions.length) return;
 
     // Set minimum date for pickup to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const minDate = tomorrow.toISOString().split('T')[0];
-    const pickupDateInput = pickupForm.querySelector('input[type="date"]');
-    
+    const pickupDateInput = pickupForm?.querySelector('input[type="date"]');
     if (pickupDateInput) {
         pickupDateInput.min = minDate;
-        // Set default value to tomorrow
-        pickupDateInput.value = minDate;
-    }
-
-    // Set default active state
-    const defaultOption = document.querySelector('.delivery-option.active');
-    if (defaultOption) {
-        const isDelivery = defaultOption.querySelector('span').textContent.trim() === 'Delivery';
-        const shippingCost = isDelivery ? 5.00 : 0.00;
-        const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child')?.textContent;
-        if (subtotalText) {
-            const subtotal = parseFloat(subtotalText.replace('RM ', ''));
-            updateCheckoutSummary(subtotal, shippingCost);
-        }
-    }
-
-    // Function to switch forms
-    function switchForms(isDelivery) {
-        if (shippingForm && pickupForm) {
-            if (isDelivery) {
-                shippingForm.style.display = 'block';
-                pickupForm.style.display = 'none';
-            } else {
-                shippingForm.style.display = 'none';
-                pickupForm.style.display = 'block';
-            }
-        }
-    }
-
-    // Function to update shipping cost
-    function updateShippingCost(isDelivery) {
-        const shippingCost = isDelivery ? 5.00 : 0.00;
-        const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
-        const subtotal = parseFloat(subtotalText.replace('RM ', ''));
-        updateCheckoutSummary(subtotal, shippingCost);
-        return shippingCost;
     }
 
     deliveryOptions.forEach(option => {
@@ -615,19 +570,11 @@ function initDeliveryOptions() {
             const subtotal = parseFloat(subtotalText.replace('RM ', ''));
             updateCheckoutSummary(subtotal, shippingCost);
 
-                // Debug log
-                console.log('Selected option:', optionText);
-                console.log('Shipping cost:', shippingCost);
-                console.log('Delivery form visible:', shippingForm.style.display === 'block');
-                console.log('Pickup form visible:', pickupForm.style.display === 'block');
-            } catch (error) {
-                console.error('Error in delivery option click handler:', error);
-                // Revert to default state if there's an error
-                const defaultOption = document.querySelector('.delivery-option.active');
-                if (defaultOption) {
-                    defaultOption.click();
-                }
-            }
+            // Debug log
+            console.log('Selected option:', optionText);
+            console.log('Shipping cost:', shippingCost);
+            console.log('Delivery form visible:', shippingForm.style.display === 'block');
+            console.log('Pickup form visible:', pickupForm.style.display === 'block');
         });
     });
 }
