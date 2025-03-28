@@ -122,15 +122,28 @@
             margin-bottom: 15px;
             cursor: pointer;
             transition: all 0.3s;
+            background-color: white;
         }
 
         .payment-option:hover {
             border-color: var(--primary-color);
+            background-color: #f8f5ff;
         }
 
         .payment-option.active {
             border-color: var(--primary-color);
-            background-color: #f8f5ff;
+            background-color: #f3ebff;
+        }
+
+        .payment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+        }
+
+        .payment-option.active .payment-header {
+            color: var(--primary-color);
         }
 
         .card-details {
@@ -269,12 +282,12 @@
                 <div class="payment-methods">
                     <h3 class="section-title">Payment Method</h3>
                     
-                    <div class="payment-option active" onclick="selectPaymentMethod('card')">
+                    <div class="payment-option" onclick="selectPaymentMethod('card')">
                         <div class="payment-header">
                             <i class="fas fa-credit-card"></i>
-                            Credit/Debit Card
+                            <span>Credit/Debit Card</span>
                         </div>
-                        <div class="card-details active">
+                        <div class="card-details">
                             <div class="form-group">
                                 <label>Card Number<span class="required">*</span></label>
                                 <input type="text" placeholder="1234 5678 9012 3456" required>
@@ -295,14 +308,14 @@
                     <div class="payment-option" onclick="selectPaymentMethod('tng')">
                         <div class="payment-header">
                             <i class="fas fa-wallet"></i>
-                            Touch n Go eWallet
+                            <span>Touch n Go eWallet</span>
                         </div>
                     </div>
 
                     <div class="payment-option" onclick="selectPaymentMethod('shopee')">
                         <div class="payment-header">
                             <i class="fas fa-shopping-bag"></i>
-                            ShopeePay
+                            <span>ShopeePay</span>
                         </div>
                     </div>
                 </div>
@@ -403,36 +416,29 @@
         function selectPaymentMethod(method) {
             const paymentOptions = document.querySelectorAll('.payment-option');
             const cardDetails = document.querySelector('.card-details');
+            const selectedOption = document.querySelector(`.payment-option:${method === 'card' ? 'first-child' : method === 'tng' ? 'nth-child(2)' : 'last-child'}`);
             
-            // Remove active class from all payment options
+            // If clicking the already active option
+            if (selectedOption.classList.contains('active')) {
+                return;
+            }
+
+            // Remove active class from all options
             paymentOptions.forEach(opt => {
                 opt.classList.remove('active');
             });
 
-            // Find and activate the selected payment option
-            let selectedOption;
-            if (method === 'card') {
-                selectedOption = document.querySelector('.payment-option:first-child');
-            } else if (method === 'tng') {
-                selectedOption = document.querySelector('.payment-option:nth-child(2)');
-            } else if (method === 'shopee') {
-                selectedOption = document.querySelector('.payment-option:last-child');
-            }
-
-            if (selectedOption) {
-                selectedOption.classList.add('active');
-            }
+            // Add active class to selected option
+            selectedOption.classList.add('active');
 
             // Handle card details visibility
             if (method === 'card') {
                 cardDetails.classList.add('active');
-                // Make card detail inputs required
                 cardDetails.querySelectorAll('input').forEach(input => {
                     input.required = true;
                 });
             } else {
                 cardDetails.classList.remove('active');
-                // Remove required attribute when card is not selected
                 cardDetails.querySelectorAll('input').forEach(input => {
                     input.required = false;
                 });
@@ -462,15 +468,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadCartItems();
             
-            // Add click event listeners to payment options
-            document.querySelectorAll('.payment-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const method = this.classList.contains('active') ? '' : 
-                                 this.querySelector('.fa-credit-card') ? 'card' :
-                                 this.querySelector('.fa-wallet') ? 'tng' : 'shopee';
-                    selectPaymentMethod(method);
-                });
-            });
+            // Set initial payment method
+            selectPaymentMethod('card');
         });
     </script>
 </body>
