@@ -1,11 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
     initSidebar();
     initSearch();
     initAccountDropdown();
     initModals();
     initCart();
     initSaves();
-    initCheckout();
+    
+    // Check if we're on the checkout page
+    if (document.querySelector('.checkout-container')) {
+        console.log('Initializing checkout page');
+        initCheckout();
+    }
+    
     loadCart();
     updateCartCount();
     loadProducts('recommendation');
@@ -471,9 +478,24 @@ window.toggleSave = toggleSave;
 // Checkout Functionality
 // ==========================
 function initCheckout() {
-    if (document.querySelector('.checkout-container')) {
-        loadCheckoutCart();
-        initDeliveryOptions();
+    console.log('Initializing checkout functionality');
+    loadCheckoutCart();
+    initDeliveryOptions();
+    
+    // Set initial state
+    const deliveryOption = document.querySelector('.delivery-option.active');
+    if (deliveryOption) {
+        const optionText = deliveryOption.querySelector('span').textContent.trim().toLowerCase();
+        const isDelivery = optionText === 'delivery';
+        const shippingCost = isDelivery ? 5.00 : 0.00;
+        
+        // Update summary with initial shipping cost
+        const subtotalElement = document.querySelector('.summary-row:nth-child(1) span:last-child');
+        if (subtotalElement) {
+            const subtotalText = subtotalElement.textContent;
+            const subtotal = parseFloat(subtotalText.replace('RM ', ''));
+            updateCheckoutSummary(subtotal, shippingCost);
+        }
     }
 }
 
@@ -524,7 +546,10 @@ function initDeliveryOptions() {
     const shippingForm = document.getElementById('shipping-form');
     const pickupForm = document.getElementById('pickup-form');
     
-    if (!deliveryOptions.length) return;
+    if (!deliveryOptions.length) {
+        console.error('Delivery options not found');
+        return;
+    }
 
     // Set minimum date for pickup to tomorrow
     const tomorrow = new Date();
@@ -535,13 +560,20 @@ function initDeliveryOptions() {
         pickupDateInput.min = minDate;
     }
 
+    // Add click event listeners to each option
     deliveryOptions.forEach(option => {
         option.addEventListener('click', function() {
+            console.log('Option clicked:', this.querySelector('span').textContent);
+            
             // Remove active class from all options
-            deliveryOptions.forEach(opt => opt.classList.remove('active'));
+            deliveryOptions.forEach(opt => {
+                opt.classList.remove('active');
+                console.log('Removed active from:', opt.querySelector('span').textContent);
+            });
             
             // Add active class to clicked option
             this.classList.add('active');
+            console.log('Added active to:', this.querySelector('span').textContent);
             
             // Get the option text and determine if it's delivery
             const optionText = this.querySelector('span').textContent.trim().toLowerCase();
@@ -555,16 +587,22 @@ function initDeliveryOptions() {
                 if (isDelivery) {
                     shippingForm.style.display = 'block';
                     pickupForm.style.display = 'none';
+                    console.log('Showing delivery form, hiding pickup form');
                 } else {
                     shippingForm.style.display = 'none';
                     pickupForm.style.display = 'block';
+                    console.log('Showing pickup form, hiding delivery form');
                 }
             }
             
             // Get current subtotal and update summary
-            const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
-            const subtotal = parseFloat(subtotalText.replace('RM ', ''));
-            updateCheckoutSummary(subtotal, shippingCost);
+            const subtotalElement = document.querySelector('.summary-row:nth-child(1) span:last-child');
+            if (subtotalElement) {
+                const subtotalText = subtotalElement.textContent;
+                const subtotal = parseFloat(subtotalText.replace('RM ', ''));
+                updateCheckoutSummary(subtotal, shippingCost);
+                console.log('Updated summary with shipping cost:', shippingCost);
+            }
 
             // Debug log
             console.log('Selected option:', optionText);
