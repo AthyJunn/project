@@ -535,6 +535,28 @@ function initDeliveryOptions() {
         pickupDateInput.min = minDate;
     }
 
+    // Function to switch forms
+    function switchForms(isDelivery) {
+        if (shippingForm && pickupForm) {
+            if (isDelivery) {
+                shippingForm.style.display = 'block';
+                pickupForm.style.display = 'none';
+            } else {
+                shippingForm.style.display = 'none';
+                pickupForm.style.display = 'block';
+            }
+        }
+    }
+
+    // Function to update shipping cost
+    function updateShippingCost(isDelivery) {
+        const shippingCost = isDelivery ? 5.00 : 0.00;
+        const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
+        const subtotal = parseFloat(subtotalText.replace('RM ', ''));
+        updateCheckoutSummary(subtotal, shippingCost);
+        return shippingCost;
+    }
+
     deliveryOptions.forEach(option => {
         option.addEventListener('click', function() {
             // Remove active class from all options
@@ -547,28 +569,9 @@ function initDeliveryOptions() {
             const optionText = this.querySelector('span').textContent.trim();
             const isDelivery = optionText === 'Delivery';
             
-            // Set shipping cost based on option
-            const shippingCost = isDelivery ? 5.00 : 0.00;
-            
-            // Toggle form visibility
-            if (shippingForm && pickupForm) {
-                if (isDelivery) {
-                    shippingForm.style.display = 'block';
-                    shippingForm.classList.add('active');
-                    pickupForm.style.display = 'none';
-                    pickupForm.classList.remove('active');
-                } else {
-                    shippingForm.style.display = 'none';
-                    shippingForm.classList.remove('active');
-                    pickupForm.style.display = 'block';
-                    pickupForm.classList.add('active');
-                }
-            }
-            
-            // Get current subtotal and update summary
-            const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
-            const subtotal = parseFloat(subtotalText.replace('RM ', ''));
-            updateCheckoutSummary(subtotal, shippingCost);
+            // Switch forms and update shipping cost
+            switchForms(isDelivery);
+            const shippingCost = updateShippingCost(isDelivery);
 
             // Debug log
             console.log('Selected option:', optionText);
