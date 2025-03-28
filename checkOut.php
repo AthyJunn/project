@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -403,28 +402,57 @@
         // Handle payment method selection
         function selectPaymentMethod(method) {
             const paymentOptions = document.querySelectorAll('.payment-option');
+            const cardDetails = document.querySelector('.card-details');
+            
+            // Remove active class from all payment options
             paymentOptions.forEach(opt => {
                 opt.classList.remove('active');
-                const details = opt.querySelector('.card-details');
-                if (details) {
-                    details.classList.remove('active');
-                }
             });
 
-            const selectedOption = document.querySelector(`.payment-option:${method === 'card' ? 'first-child' : method === 'tng' ? 'nth-child(2)' : 'last-child'}`);
-            selectedOption.classList.add('active');
-
+            // Find and activate the selected payment option
+            let selectedOption;
             if (method === 'card') {
-                selectedOption.querySelector('.card-details').classList.add('active');
+                selectedOption = document.querySelector('.payment-option:first-child');
+            } else if (method === 'tng') {
+                selectedOption = document.querySelector('.payment-option:nth-child(2)');
+            } else if (method === 'shopee') {
+                selectedOption = document.querySelector('.payment-option:last-child');
+            }
+
+            if (selectedOption) {
+                selectedOption.classList.add('active');
+            }
+
+            // Handle card details visibility
+            if (method === 'card') {
+                cardDetails.classList.add('active');
+                // Make card detail inputs required
+                cardDetails.querySelectorAll('input').forEach(input => {
+                    input.required = true;
+                });
+            } else {
+                cardDetails.classList.remove('active');
+                // Remove required attribute when card is not selected
+                cardDetails.querySelectorAll('input').forEach(input => {
+                    input.required = false;
+                });
             }
         }
 
         // Process payment
         function processPayment() {
             const form = document.getElementById('shipping-form');
+            const activePayment = document.querySelector('.payment-option.active');
+            
+            if (!activePayment) {
+                alert('Please select a payment method');
+                return;
+            }
+
             if (form.checkValidity()) {
                 // Here you would typically send the data to your backend
-                alert('Payment processed successfully!');
+                const paymentMethod = activePayment.querySelector('.payment-header').textContent.trim();
+                alert(`Payment processed successfully using ${paymentMethod}!`);
             } else {
                 form.reportValidity();
             }
@@ -433,6 +461,16 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             loadCartItems();
+            
+            // Add click event listeners to payment options
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const method = this.classList.contains('active') ? '' : 
+                                 this.querySelector('.fa-credit-card') ? 'card' :
+                                 this.querySelector('.fa-wallet') ? 'tng' : 'shopee';
+                    selectPaymentMethod(method);
+                });
+            });
         });
     </script>
 </body>
