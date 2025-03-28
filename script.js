@@ -78,25 +78,21 @@ function initAccountDropdown() {
         return;
     }
 
-    // Toggle dropdown visibility when clicking the button
     accountButton.addEventListener('click', function(e) {
         e.stopPropagation();
         accountDropdown.classList.toggle('show');
     });
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         if (!accountDropdown.contains(e.target) && !accountButton.contains(e.target)) {
             accountDropdown.classList.remove('show');
         }
     });
 
-    // Handle Add Account click
     if (addAccountBtn) {
         addAccountBtn.addEventListener('click', function(e) {
             e.preventDefault();
             accountDropdown.classList.remove('show');
-            // Show register modal if you have one
             const registerModal = document.getElementById('register-modal');
             if (registerModal) {
                 registerModal.classList.add('active');
@@ -104,12 +100,10 @@ function initAccountDropdown() {
         });
     }
 
-    // Handle Logout click
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
             accountDropdown.classList.remove('show');
-            // Add your logout logic here
             alert('Logged out successfully!');
         });
     }
@@ -135,17 +129,21 @@ function initModals() {
         document.body.style.overflow = '';
     }
 
-    showRegister.addEventListener('click', function (e) {
-        e.preventDefault();
-        hideModal(loginModal);
-        showModal(registerModal);
-    });
+    if (showRegister) {
+        showRegister.addEventListener('click', function (e) {
+            e.preventDefault();
+            hideModal(loginModal);
+            showModal(registerModal);
+        });
+    }
 
-    showLogin.addEventListener('click', function (e) {
-        e.preventDefault();
-        hideModal(registerModal);
-        showModal(loginModal);
-    });
+    if (showLogin) {
+        showLogin.addEventListener('click', function (e) {
+            e.preventDefault();
+            hideModal(registerModal);
+            showModal(loginModal);
+        });
+    }
 
     closeModalButtons.forEach(button => {
         button.addEventListener('click', function () {
@@ -185,13 +183,11 @@ function searchProducts(searchTerm) {
 }
 
 function displayProducts(products) {
-    console.log('Displaying products:', products);
     const container = document.getElementById('product-container');
     container.innerHTML = products.length === 0
         ? '<p>No products found.</p>'
         : products.map(product => {
             const isSaved = savedItems.includes(product.id);
-            console.log(`Product ${product.id} saved status:`, isSaved);
             return `
             <div class="product-card" data-product-id="${product.id}">
                 <div class="product-image"><img src="images/products/${product.id}.jpg" alt="${product.name}"></div>
@@ -208,7 +204,6 @@ function displayProducts(products) {
             </div>`;
         }).join('');
 
-    // Add event listeners for cart buttons
     document.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', function() {
             addToCart(parseInt(this.closest('.product-card').dataset.productId));
@@ -256,7 +251,6 @@ function getMockProducts(category) {
             { id: 12, name: 'Angel Self Love Edition', price: 140 },
             { id: 13, name: 'Chunk of Abundance', price: 180 }
         ]
-        
     };
     return allProducts[category] || [];
 }
@@ -275,8 +269,7 @@ function getAllMockProducts() {
         { id: 10, name: 'Wealthy Transformation', price: 70 },
         { id: 11, name: 'Amplified Transformation', price: 75 },
         { id: 12, name: 'Angel Self Love Edition', price: 140 },
-        { id: 13, name: 'Chunk of Abundance', price: 180 },
-
+        { id: 13, name: 'Chunk of Abundance', price: 180 }
     ];
 }
 
@@ -286,11 +279,14 @@ function getAllMockProducts() {
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
 function initCart() {
-    document.querySelector('[data-category="cart"]').addEventListener('click', function (e) {
-        e.preventDefault();
-        document.getElementById('current-category').textContent = 'Your Cart';
-        displayCart();
-    });
+    const cartLink = document.querySelector('[data-category="cart"]');
+    if (cartLink) {
+        cartLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.getElementById('current-category').textContent = 'Your Cart';
+            displayCart();
+        });
+    }
 }
 
 function addToCart(productId) {
@@ -300,32 +296,31 @@ function addToCart(productId) {
     const existingItem = cart.find(item => item.id === product.id);
     existingItem ? existingItem.quantity++ : cart.push({ ...product, quantity: 1 });
 
-    console.log("Cart after adding:", cart); // Debugging
     saveCart();
-    updateCartCount(); // ✅ Updates the cart badge
+    updateCartCount();
     alert(`${product.name} added to cart!`);
 }
 
 function removeFromCart(productId) {
     cart = cart.filter(item => item.id !== productId);
     saveCart();
-    updateCartCount(); // ✅ Updates the cart badge
+    updateCartCount();
     displayCart();
 }
 
 function saveCart() {
     localStorage.setItem('cart', JSON.stringify(cart));
-    console.log("Cart saved:", localStorage.getItem('cart'));
 }
 
 function loadCart() {
     cart = JSON.parse(localStorage.getItem('cart')) || [];
-    console.log("Cart loaded from storage:", cart);
     updateCartCount();
 }
 
 function displayCart() {
     const cartContainer = document.getElementById('product-container');
+    if (!cartContainer) return;
+
     cartContainer.innerHTML = cart.length === 0
         ? '<p>Your cart is empty.</p>'
         : cart.map(item => `
@@ -350,36 +345,26 @@ function updateCartCount() {
         const count = cart.reduce((total, item) => total + item.quantity, 0);
         cartBadge.textContent = count;
         cartBadge.style.display = count > 0 ? 'inline-block' : 'none';
-        console.log("Cart count updated:", count); // Debugging
-    } else {
-        console.error("Cart badge element not found");
     }
 }
 
 // ==========================
 // Save Functionality
 // ==========================
-
 let savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
 
 function toggleSave(productId, button) {
-    console.log('Toggle save clicked for product:', productId);
-    console.log('Current saved items before toggle:', savedItems);
-    
     const index = savedItems.indexOf(productId);
     if (index === -1) {
         savedItems.push(productId);
         button.innerHTML = '<i class="fas fa-heart"></i> Saved';
         button.classList.add('saved');
-        console.log('Product saved:', productId);
     } else {
         savedItems.splice(index, 1);
         button.innerHTML = '<i class="far fa-heart"></i> Save';
         button.classList.remove('saved');
-        console.log('Product unsaved:', productId);
         
-        // If we're on the saves page, remove the product card
-        if (document.getElementById('current-category').textContent === 'Saved Items') {
+        if (document.getElementById('current-category')?.textContent === 'Saved Items') {
             const productCard = button.closest('.product-card');
             if (productCard) {
                 productCard.remove();
@@ -387,9 +372,7 @@ function toggleSave(productId, button) {
         }
     }
     
-    // Save to localStorage
     localStorage.setItem('savedItems', JSON.stringify(savedItems));
-    console.log('Saved items after update:', savedItems);
     updateSaveCount();
 }
 
@@ -402,19 +385,16 @@ function updateSaveCount() {
 }
 
 function displaySavedProducts() {
-    console.log('Displaying saved products');
-    console.log('Current saved items:', savedItems);
-    
     const allProducts = getAllMockProducts();
     const savedProducts = allProducts.filter(product => 
         savedItems.includes(product.id)
     );
     
-    console.log('Filtered saved products:', savedProducts);
-    
+    const container = document.getElementById('product-container');
+    if (!container) return;
+
     document.getElementById('current-category').textContent = 'Saved Items';
     
-    const container = document.getElementById('product-container');
     if (savedProducts.length === 0) {
         container.innerHTML = '<p>No saved items yet.</p>';
         return;
@@ -435,7 +415,6 @@ function displaySavedProducts() {
             </div>
         </div>`).join('');
 
-    // ✅ Fix: Add event listeners for "Add to Cart" in Saved Items
     document.querySelectorAll('.add-to-cart').forEach(button => {
         button.addEventListener('click', function() {
             const productId = parseInt(this.closest('.product-card').dataset.productId);
@@ -443,7 +422,6 @@ function displaySavedProducts() {
         });
     });
 
-    // ✅ Fix: Add event listeners for "Remove Save"
     document.querySelectorAll('.btn-save').forEach(button => {
         button.addEventListener('click', function() {
             toggleSave(parseInt(this.dataset.id), this);
@@ -452,20 +430,14 @@ function displaySavedProducts() {
 }
 
 function initSaves() {
-    console.log('Initializing saves functionality');
     const savesLink = document.querySelector('[data-category="saves"]');
     if (savesLink) {
         savesLink.addEventListener('click', function(e) {
             e.preventDefault();
             displaySavedProducts();
         });
-    } else {
-        console.error('Saves link not found!');
     }
 }
-
-// Make toggleSave available globally
-window.toggleSave = toggleSave;
 
 // ==========================
 // Checkout Functionality
@@ -484,7 +456,6 @@ function loadCheckoutCart() {
 
     let subtotal = 0;
 
-    // Display cart items
     cartItemsContainer.innerHTML = cart.map(item => {
         subtotal += item.price * item.quantity;
         return `
@@ -524,12 +495,13 @@ function initDeliveryOptions() {
     const shippingForm = document.getElementById('shipping-form');
     const pickupForm = document.getElementById('pickup-form');
     
-    if (!deliveryOptions.length) {
-        console.error('Delivery options not found');
-        return;
-    }
+    if (!deliveryOptions.length) return;
 
-    // Set minimum date for pickup to tomorrow
+    // Set default active option
+    const defaultOption = shippingForm.style.display === 'none' ? 'pickup' : 'delivery';
+    document.querySelector(`.delivery-option[data-option="${defaultOption}"]`).classList.add('active');
+
+    // Set minimum pickup date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const minDate = tomorrow.toISOString().split('T')[0];
@@ -539,51 +511,38 @@ function initDeliveryOptions() {
     }
 
     deliveryOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            // Remove active class from all options
-            deliveryOptions.forEach(opt => opt.classList.remove('active'));
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
             
-            // Add active class to clicked option
+            deliveryOptions.forEach(opt => opt.classList.remove('active'));
             this.classList.add('active');
             
-            // Get the option type from data attribute
             const optionType = this.getAttribute('data-option');
             const isDelivery = optionType === 'delivery';
-            
-            // Set shipping cost based on option
             const shippingCost = isDelivery ? 5.00 : 0.00;
             
-            // Toggle form visibility
             if (shippingForm && pickupForm) {
+                shippingForm.style.display = isDelivery ? 'block' : 'none';
+                pickupForm.style.display = isDelivery ? 'none' : 'block';
+                
                 if (isDelivery) {
-                    shippingForm.style.display = 'block';
                     shippingForm.classList.add('active');
-                    pickupForm.style.display = 'none';
                     pickupForm.classList.remove('active');
                 } else {
-                    shippingForm.style.display = 'none';
                     shippingForm.classList.remove('active');
-                    pickupForm.style.display = 'block';
                     pickupForm.classList.add('active');
                 }
             }
             
-            // Get current subtotal and update summary
             const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
             const subtotal = parseFloat(subtotalText.replace('RM ', ''));
             updateCheckoutSummary(subtotal, shippingCost);
-
-            // Debug log
-            console.log('Selected option type:', optionType);
-            console.log('Is delivery:', isDelivery);
-            console.log('Shipping cost:', shippingCost);
-            console.log('Delivery form visible:', shippingForm.style.display === 'block');
-            console.log('Pickup form visible:', pickupForm.style.display === 'block');
         });
     });
 }
 
-// Make checkout functions available globally
+// Make functions available globally
+window.toggleSave = toggleSave;
 window.initCheckout = initCheckout;
 window.loadCheckoutCart = loadCheckoutCart;
 window.updateCheckoutSummary = updateCheckoutSummary;
