@@ -560,58 +560,57 @@ function initDeliveryOptions() {
         pickupDateInput.min = minDate;
     }
 
+    // Set initial state
+    const initialOption = deliveryOptions[0];
+    initialOption.classList.add('selected');
+    updateFormVisibility('delivery');
+
     // Add click event listeners to each option
     deliveryOptions.forEach(option => {
         option.addEventListener('click', function() {
-            console.log('Option clicked:', this.querySelector('span').textContent);
+            const selectedOption = this.getAttribute('data-option');
+            console.log('Option clicked:', selectedOption);
             
-            // Remove active class from all options
+            // Remove selected class from all options
             deliveryOptions.forEach(opt => {
-                opt.classList.remove('active');
-                console.log('Removed active from:', opt.querySelector('span').textContent);
+                opt.classList.remove('selected');
             });
             
-            // Add active class to clicked option
-            this.classList.add('active');
-            console.log('Added active to:', this.querySelector('span').textContent);
+            // Add selected class to clicked option
+            this.classList.add('selected');
             
-            // Get the option text and determine if it's delivery
-            const optionText = this.querySelector('span').textContent.trim().toLowerCase();
-            const isDelivery = optionText === 'delivery';
+            // Update form visibility
+            updateFormVisibility(selectedOption);
             
-            // Set shipping cost based on option
-            const shippingCost = isDelivery ? 5.00 : 0.00;
-            
-            // Toggle form visibility
-            if (shippingForm && pickupForm) {
-                if (isDelivery) {
-                    shippingForm.style.display = 'block';
-                    pickupForm.style.display = 'none';
-                    console.log('Showing delivery form, hiding pickup form');
-                } else {
-                    shippingForm.style.display = 'none';
-                    pickupForm.style.display = 'block';
-                    console.log('Showing pickup form, hiding delivery form');
-                }
-            }
-            
-            // Get current subtotal and update summary
-            const subtotalElement = document.querySelector('.summary-row:nth-child(1) span:last-child');
-            if (subtotalElement) {
-                const subtotalText = subtotalElement.textContent;
-                const subtotal = parseFloat(subtotalText.replace('RM ', ''));
-                updateCheckoutSummary(subtotal, shippingCost);
-                console.log('Updated summary with shipping cost:', shippingCost);
-            }
-
-            // Debug log
-            console.log('Selected option:', optionText);
-            console.log('Is delivery:', isDelivery);
-            console.log('Shipping cost:', shippingCost);
-            console.log('Delivery form visible:', shippingForm.style.display === 'block');
-            console.log('Pickup form visible:', pickupForm.style.display === 'block');
+            // Update shipping cost and summary
+            const shippingCost = selectedOption === 'delivery' ? 5.00 : 0.00;
+            updateShippingCost(shippingCost);
         });
     });
+
+    function updateFormVisibility(option) {
+        if (shippingForm && pickupForm) {
+            if (option === 'delivery') {
+                shippingForm.classList.remove('hidden');
+                pickupForm.classList.add('hidden');
+                console.log('Showing delivery form, hiding pickup form');
+            } else {
+                shippingForm.classList.add('hidden');
+                pickupForm.classList.remove('hidden');
+                console.log('Showing pickup form, hiding delivery form');
+            }
+        }
+    }
+
+    function updateShippingCost(shippingCost) {
+        const subtotalElement = document.querySelector('.summary-row:nth-child(1) span:last-child');
+        if (subtotalElement) {
+            const subtotalText = subtotalElement.textContent;
+            const subtotal = parseFloat(subtotalText.replace('RM ', ''));
+            updateCheckoutSummary(subtotal, shippingCost);
+            console.log('Updated summary with shipping cost:', shippingCost);
+        }
+    }
 }
 
 // Make checkout functions available globally

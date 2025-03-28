@@ -16,18 +16,36 @@
                 <h2 class="section-title">Shipping Information</h2>
                 
                 <div class="delivery-options">
-                    <div class="delivery-option active">
-                        <i class="fas fa-truck"></i>
-                        <span>Delivery</span>
+                    <div class="delivery-option" data-option="delivery">
+                        <div class="option-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="option-content">
+                            <h3>Delivery</h3>
+                            <p>Standard delivery to your address</p>
+                            <span class="shipping-cost">RM 5.00</span>
+                        </div>
+                        <div class="option-selector">
+                            <div class="radio-circle"></div>
+                        </div>
                     </div>
-                    <div class="delivery-option">
-                        <i class="fas fa-store"></i>
-                        <span>Pick up</span>
+                    <div class="delivery-option" data-option="pickup">
+                        <div class="option-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div class="option-content">
+                            <h3>Pick up</h3>
+                            <p>Collect from our store</p>
+                            <span class="shipping-cost">Free</span>
+                        </div>
+                        <div class="option-selector">
+                            <div class="radio-circle"></div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Delivery Form -->
-                <form id="shipping-form" class="active">
+                <form id="shipping-form" class="delivery-form">
                     <div class="form-group">
                         <label>Full name<span class="required">*</span></label>
                         <input type="text" placeholder="Enter full name" required>
@@ -78,7 +96,7 @@
                 </form>
 
                 <!-- Pickup Form -->
-                <form id="pickup-form" style="display: none;">
+                <form id="pickup-form" class="delivery-form" style="display: none;">
                     <div class="form-group">
                         <label>Full name<span class="required">*</span></label>
                         <input type="text" placeholder="Enter full name" required>
