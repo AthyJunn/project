@@ -1,18 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded');
     initSidebar();
     initSearch();
     initAccountDropdown();
     initModals();
     initCart();
     initSaves();
-    
-    // Check if we're on the checkout page
-    if (document.querySelector('.checkout-container')) {
-        console.log('Initializing checkout page');
-        initCheckout();
-    }
-    
+    initCheckout();
     loadCart();
     updateCartCount();
     loadProducts('recommendation');
@@ -478,24 +471,9 @@ window.toggleSave = toggleSave;
 // Checkout Functionality
 // ==========================
 function initCheckout() {
-    console.log('Initializing checkout functionality');
-    loadCheckoutCart();
-    initDeliveryOptions();
-    
-    // Set initial state
-    const deliveryOption = document.querySelector('.delivery-option.active');
-    if (deliveryOption) {
-        const optionText = deliveryOption.querySelector('span').textContent.trim().toLowerCase();
-        const isDelivery = optionText === 'delivery';
-        const shippingCost = isDelivery ? 5.00 : 0.00;
-        
-        // Update summary with initial shipping cost
-        const subtotalElement = document.querySelector('.summary-row:nth-child(1) span:last-child');
-        if (subtotalElement) {
-            const subtotalText = subtotalElement.textContent;
-            const subtotal = parseFloat(subtotalText.replace('RM ', ''));
-            updateCheckoutSummary(subtotal, shippingCost);
-        }
+    if (document.querySelector('.checkout-container')) {
+        loadCheckoutCart();
+        initDeliveryOptions();
     }
 }
 
@@ -546,10 +524,7 @@ function initDeliveryOptions() {
     const shippingForm = document.getElementById('shipping-form');
     const pickupForm = document.getElementById('pickup-form');
     
-    if (!deliveryOptions.length) {
-        console.error('Delivery options not found');
-        return;
-    }
+    if (!deliveryOptions.length) return;
 
     // Set minimum date for pickup to tomorrow
     const tomorrow = new Date();
@@ -560,57 +535,49 @@ function initDeliveryOptions() {
         pickupDateInput.min = minDate;
     }
 
-    // Set initial state
-    const initialOption = deliveryOptions[0];
-    initialOption.classList.add('selected');
-    updateFormVisibility('delivery');
-
-    // Add click event listeners to each option
     deliveryOptions.forEach(option => {
         option.addEventListener('click', function() {
-            const selectedOption = this.getAttribute('data-option');
-            console.log('Option clicked:', selectedOption);
+            // Remove active class from all options
+            deliveryOptions.forEach(opt => opt.classList.remove('active'));
             
-            // Remove selected class from all options
-            deliveryOptions.forEach(opt => {
-                opt.classList.remove('selected');
-            });
+            // Add active class to clicked option
+            this.classList.add('active');
             
-            // Add selected class to clicked option
-            this.classList.add('selected');
+            // Get the option text and determine if it's delivery
+            const optionText = this.querySelector('span').textContent.trim().toLowerCase();
+            const isDelivery = optionText === 'delivery';
             
-            // Update form visibility
-            updateFormVisibility(selectedOption);
+            // Set shipping cost based on option
+            const shippingCost = isDelivery ? 5.00 : 0.00;
             
-            // Update shipping cost and summary
-            const shippingCost = selectedOption === 'delivery' ? 5.00 : 0.00;
-            updateShippingCost(shippingCost);
-        });
-    });
-
-    function updateFormVisibility(option) {
-        if (shippingForm && pickupForm) {
-            if (option === 'delivery') {
-                shippingForm.classList.remove('hidden');
-                pickupForm.classList.add('hidden');
-                console.log('Showing delivery form, hiding pickup form');
-            } else {
-                shippingForm.classList.add('hidden');
-                pickupForm.classList.remove('hidden');
-                console.log('Showing pickup form, hiding delivery form');
+            // Toggle form visibility
+            if (shippingForm && pickupForm) {
+                if (isDelivery) {
+                    shippingForm.style.display = 'block';
+                    shippingForm.classList.add('active');
+                    pickupForm.style.display = 'none';
+                    pickupForm.classList.remove('active');
+                } else {
+                    shippingForm.style.display = 'none';
+                    shippingForm.classList.remove('active');
+                    pickupForm.style.display = 'block';
+                    pickupForm.classList.add('active');
+                }
             }
-        }
-    }
-
-    function updateShippingCost(shippingCost) {
-        const subtotalElement = document.querySelector('.summary-row:nth-child(1) span:last-child');
-        if (subtotalElement) {
-            const subtotalText = subtotalElement.textContent;
+            
+            // Get current subtotal and update summary
+            const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
             const subtotal = parseFloat(subtotalText.replace('RM ', ''));
             updateCheckoutSummary(subtotal, shippingCost);
-            console.log('Updated summary with shipping cost:', shippingCost);
-        }
-    }
+
+            // Debug log
+            console.log('Selected option:', optionText);
+            console.log('Is delivery:', isDelivery);
+            console.log('Shipping cost:', shippingCost);
+            console.log('Delivery form visible:', shippingForm.style.display === 'block');
+            console.log('Pickup form visible:', pickupForm.style.display === 'block');
+        });
+    });
 }
 
 // Make checkout functions available globally
