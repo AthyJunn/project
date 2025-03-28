@@ -176,5 +176,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
+    <script>
+        // Initialize checkout functionality when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initCheckout();
+        });
+    </script>
 </body>
 </html>
