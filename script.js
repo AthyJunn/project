@@ -544,8 +544,8 @@ function initDeliveryOptions() {
             this.classList.add('active');
             
             // Get the option text and determine if it's delivery
-            const optionText = this.querySelector('span').textContent.trim();
-            const isDelivery = optionText === 'Delivery';
+            const optionText = this.querySelector('span').textContent.trim().toLowerCase();
+            const isDelivery = optionText === 'delivery';
             
             // Set shipping cost based on option
             const shippingCost = isDelivery ? 5.00 : 0.00;
@@ -572,6 +572,7 @@ function initDeliveryOptions() {
 
             // Debug log
             console.log('Selected option:', optionText);
+            console.log('Is delivery:', isDelivery);
             console.log('Shipping cost:', shippingCost);
             console.log('Delivery form visible:', shippingForm.style.display === 'block');
             console.log('Pickup form visible:', pickupForm.style.display === 'block');
