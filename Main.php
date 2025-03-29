@@ -21,11 +21,14 @@
             <li><a href="#" data-category="luxe">LUXE Series</a></li>
             
             <div class="sidebar-bottom">
-            <li><a href="#" data-category="saves"><i class="far fa-heart"></i> Saves
+            <li><a href="#" data-category="saves">
+                <i class="far fa-heart"></i>
+                <span>Saves</span>
                 <span class="save-badge">0</span>
                 </a></li>
-                <li><a href="#" data-category="cart">
-                <i class="fas fa-shopping-cart"></i> Cart
+            <li><a href="#" data-category="cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
                 <span class="cart-badge">0</span>
                 </a></li>
             </div>
