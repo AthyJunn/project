@@ -280,7 +280,7 @@ let cart = JSON.parse(localStorage.getItem('cart')) || [];
 function initCart() {
     const cartLink = document.querySelector('[data-category="cart"]');
     if (cartLink) {
-        cartLink.addEventListener('click', function(e) {
+        cartLink.addEventListener('click', function (e) {
             e.preventDefault();
             document.getElementById('current-category').textContent = 'Your Cart';
             displayCart();
@@ -293,11 +293,7 @@ function addToCart(productId) {
     if (!product) return;
 
     const existingItem = cart.find(item => item.id === product.id);
-    if (existingItem) {
-        existingItem.quantity++;
-    } else {
-        cart.push({ ...product, quantity: 1 });
-    }
+    existingItem ? existingItem.quantity++ : cart.push({ ...product, quantity: 1 });
 
     saveCart();
     updateCartCount();
@@ -324,35 +320,26 @@ function displayCart() {
     const cartContainer = document.getElementById('product-container');
     if (!cartContainer) return;
 
-    if (cart.length === 0) {
-        cartContainer.innerHTML = '<p>Your cart is empty.</p>';
-        return;
-    }
-
-    cartContainer.innerHTML = cart.map(item => `
-        <div class="product-card">
-            <div class="product-image">
-                <img src="images/products/${item.id}.jpg" alt="${item.name}">
-            </div>
-            <div class="product-info">
-                <div class="product-title">${item.name}</div>
-                <div class="product-price">RM ${item.price} x ${item.quantity}</div>
-                <div class="product-actions">
+    cartContainer.innerHTML = cart.length === 0
+        ? '<p>Your cart is empty.</p>'
+        : cart.map(item => `
+            <div class="product-card">
+                <div class="product-info">
+                    <div class="product-title">${item.name}</div>
+                    <div class="product-price">RM ${item.price} x ${item.quantity}</div>
                     <button class="btn-purple remove-from-cart" data-id="${item.id}">Remove</button>
                 </div>
-            </div>
-        </div>`).join('');
+            </div>`).join('');
 
-    // Add event listeners for remove buttons
     document.querySelectorAll('.remove-from-cart').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             removeFromCart(parseInt(this.dataset.id));
         });
     });
 }
 
 function updateCartCount() {
-    const cartBadge = document.querySelector('.cart-badge');
+    const cartBadge = document.querySelector('.cart-badge'); 
     if (cartBadge) {
         const count = cart.reduce((total, item) => total + item.quantity, 0);
         cartBadge.textContent = count;
