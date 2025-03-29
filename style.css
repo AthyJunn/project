@@ -1,7 +1,7 @@
 /* =======================
    GENERAL STYLES
    ======================= */
-body {
+   body {
     font-family: 'Arial', sans-serif;
     background-color: #f8f9fa;
     margin: 0;
@@ -65,6 +65,15 @@ body {
     color: white;
 }
 
+.sidebar-menu a:hover .save-badge,
+.sidebar-menu a:hover .cart-badge,
+.sidebar-menu a.active .save-badge,
+.sidebar-menu a.active .cart-badge {
+    background-color: white;
+    color: #6f42c1;
+    border: 2px solid #6f42c1;
+}
+
 .sidebar-menu a i {
     margin-right: 8px;
     width: 16px;
@@ -101,18 +110,17 @@ body {
 
 .save-badge, .cart-badge {
     display: none;
-    background-color: #6f42c1 !important;
+    background-color: #6f42c1;
     color: white;
     border-radius: 50%;
     min-width: 18px;
     height: 18px;
     text-align: center;
-    line-height: 14px;
+    line-height: 18px;
     font-size: 12px;
     padding: 0 2px;
     margin-left: auto;
     border: 2px solid #6f42c1;
-    box-sizing: border-box;
 }
 
 .save-badge:not(:empty),
@@ -120,9 +128,6 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 18px;
-    height: 18px;
-    background-color: #6f42c1;
 }
 
 /* =======================
@@ -496,4 +501,126 @@ body {
 .cart-notification.show {
     transform: translateY(0);
     opacity: 1;
+}
+
+/* =======================
+   ADD TO CART ANIMATION
+   ======================= */
+   .product-image-fly {
+    position: fixed; /* Use fixed positioning for viewport-relative movement */
+    z-index: 1001; /* Make sure it's above other elements */
+    border-radius: 5px; /* Optional: style the flying element */
+    transition: transform 0.7s ease-in, opacity 0.7s ease-in, width 0.7s ease-in, height 0.7s ease-in; /* Smooth animation */
+    pointer-events: none; /* Prevent interaction with the clone */
+    object-fit: cover; /* Ensure image covers the area if resized */
+}
+/* =======================
+   CART ITEM STYLES
+   ======================= */
+   .cart-items-container {
+    margin-bottom: 20px;
+    /* Add if items should be in a column */
+    /* display: flex; */
+    /* flex-direction: column; */
+    /* gap: 15px; */
+}
+
+.cart-item-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 15px; /* Space between cards */
+    position: relative; /* Needed for absolute positioning of remove button */
+    overflow: hidden; /* Ensures remove button stays within bounds if needed */
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* For potential future animations */
+}
+
+.cart-item-image {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+    border: 1px solid #eee; /* Subtle border */
+}
+
+.cart-item-details {
+    flex-grow: 1; /* Takes up remaining space */
+}
+
+.cart-item-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.cart-item-price {
+    font-size: 0.95em;
+    color: #555;
+    margin-bottom: 3px;
+}
+
+.cart-item-quantity {
+    font-size: 0.9em;
+    color: #777;
+}
+
+.btn-remove-item {
+    background: transparent;
+    border: none;
+    color: #dc3545; /* Red color for removal */
+    font-size: 1.4em; /* Make X larger */
+    cursor: pointer;
+    position: absolute;
+    top: 10px;       /* Position top right */
+    right: 10px;
+    padding: 5px;
+    line-height: 1; /* Ensure tight fit */
+    transition: color 0.2s;
+}
+
+.btn-remove-item:hover {
+    color: #a71d2a; /* Darker red on hover */
+}
+
+.cart-summary {
+    background: #f8f9fa; /* Light background for summary */
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-align: right;
+    border: 1px solid #eee;
+}
+.cart-summary h3 {
+    text-align: left;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    color: #333;
+}
+.cart-summary p {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.checkout-btn {
+    padding: 10px 20px;
+    font-size: 1em;
+}
+
+
+/* =======================
+   EXPLOSION ANIMATION
+   ======================= */
+.particle {
+    position: fixed; /* Use fixed so it's relative to viewport */
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none; /* Prevent interaction */
+    z-index: 1005; /* Above most other elements */
+    background-color: #6f42c1; /* Example color, can be randomized */
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s ease-out; /* Animation timing */
 }
