@@ -339,7 +339,7 @@ function displayCart() {
 }
 
 function updateCartCount() {
-    const cartBadge = document.querySelector('.sidebar-bottom .cart-badge');
+    const cartBadge = document.querySelector('cart-badge');
     if (cartBadge) {
         const count = cart.reduce((total, item) => total + item.quantity, 0);
         cartBadge.textContent = count;
