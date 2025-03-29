@@ -339,7 +339,11 @@ function displayCart() {
 }
 
 function updateCartCount() {
+<<<<<<< HEAD
     const cartBadge = document.querySelector('cart-badge');
+=======
+    const cartBadge = document.querySelector('[data-category="cart"] .cart-badge');
+>>>>>>> c48e37210ed339c4c8e4bef0cc852d397d7184ff
     if (cartBadge) {
         const count = cart.reduce((total, item) => total + item.quantity, 0);
         cartBadge.textContent = count;
