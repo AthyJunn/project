@@ -107,8 +107,7 @@
     flex: 1;
 }
 
-.save-badge,
-.cart-badge {
+.save-badge, .cart-badge {
     display: none;
     background-color: #6f42c1;
     color: white;
