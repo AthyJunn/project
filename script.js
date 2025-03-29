@@ -92,10 +92,7 @@ function initAccountDropdown() {
         addAccountBtn.addEventListener('click', function(e) {
             e.preventDefault();
             accountDropdown.classList.remove('show');
-            const registerModal = document.getElementById('register-modal');
-            if (registerModal) {
-                registerModal.classList.add('active');
-            }
+            showModal(document.getElementById('login-modal'));
         });
     }
 
@@ -103,8 +100,24 @@ function initAccountDropdown() {
         logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
             accountDropdown.classList.remove('show');
+            setUserStatus('Guest');
             alert('Logged out successfully!');
         });
+    }
+}
+
+// ==========================
+// User Status Management
+// ==========================
+function setUserStatus(username) {
+    const userStatus = document.querySelector('.user-status');
+    if (userStatus) {
+        userStatus.textContent = username;
+        if (username !== 'Guest') {
+            document.getElementById('add-account-btn').textContent = 'Switch Account';
+        } else {
+            document.getElementById('add-account-btn').textContent = 'Add Account';
+        }
     }
 }
 
@@ -117,6 +130,8 @@ function initModals() {
     const showRegister = document.getElementById('show-register');
     const showLogin = document.getElementById('show-login');
     const closeModalButtons = document.querySelectorAll('.close-modal');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
 
     function showModal(modal) {
         modal.classList.add('active');
@@ -155,6 +170,38 @@ function initModals() {
             hideModal(e.target);
         }
     });
+
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.previousElementSibling;
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+    });
+
+    // Login form submission
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            setUserStatus(username);
+            hideModal(loginModal);
+            alert('Logged in successfully!');
+        });
+    }
+
+    // Register form submission
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            setUserStatus(username);
+            hideModal(registerModal);
+            alert('Account created successfully!');
+        });
+    }
 }
 
 // ==========================
@@ -297,7 +344,7 @@ function addToCart(productId) {
 
     saveCart();
     updateCartCount();
-    alert(`${product.name} added to cart!`);
+    showCartNotification(product.name);
 }
 
 function removeFromCart(productId) {
@@ -322,14 +369,19 @@ function displayCart() {
 
     cartContainer.innerHTML = cart.length === 0
         ? '<p>Your cart is empty.</p>'
-        : cart.map(item => `
+        : `
+            ${cart.map(item => `
             <div class="product-card">
                 <div class="product-info">
                     <div class="product-title">${item.name}</div>
                     <div class="product-price">RM ${item.price} x ${item.quantity}</div>
                     <button class="btn-purple remove-from-cart" data-id="${item.id}">Remove</button>
                 </div>
-            </div>`).join('');
+            </div>`).join('')}
+            <div class="cart-footer">
+                <button class="btn-purple checkout-btn" onclick="window.location.href='checkOut.php'">Proceed to Checkout</button>
+            </div>
+        `;
 
     document.querySelectorAll('.remove-from-cart').forEach(button => {
         button.addEventListener('click', function () {
@@ -427,7 +479,7 @@ function displaySavedProducts() {
                 <div class="product-price">RM ${product.price}</div>
                 <div class="product-actions">
                     <button class="btn-purple add-to-cart">Add to Cart</button>
-                    <button class="btn-save saved" data-id="${product.id}">
+                    <button class="btn-save saved" data-id="${product.id}" onclick="toggleSave(${product.id}, this)">
                         <i class="fas fa-heart"></i> Saved
                     </button>
                 </div>
@@ -438,12 +490,6 @@ function displaySavedProducts() {
         button.addEventListener('click', function() {
             const productId = parseInt(this.closest('.product-card').dataset.productId);
             addToCart(productId);
-        });
-    });
-
-    document.querySelectorAll('.btn-save').forEach(button => {
-        button.addEventListener('click', function() {
-            toggleSave(parseInt(this.dataset.id), this);
         });
     });
 }
