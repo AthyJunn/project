@@ -345,7 +345,6 @@ function updateCartCount() {
         if (count > 0) {
             cartBadge.textContent = count;
             cartBadge.style.display = 'inline-flex';
-            cartBadge.style.backgroundColor = '#6f42c1';
         } else {
             cartBadge.style.display = 'none';
             cartBadge.textContent = '';
