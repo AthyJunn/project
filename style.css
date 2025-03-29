@@ -55,12 +55,21 @@
     padding: 8px 10px;
     border-radius: 5px;
     transition: all 0.3s;
+    position: relative;
 }
 
 .sidebar-menu a:hover,
 .sidebar-menu a.active {
     background-color: #6f42c1;
     color: white;
+}
+
+.sidebar-menu a:hover .save-badge,
+.sidebar-menu a:hover .cart-badge,
+.sidebar-menu a.active .save-badge,
+.sidebar-menu a.active .cart-badge {
+    background-color: white;
+    color: #6f42c1;
 }
 
 .sidebar-menu a i {
@@ -211,7 +220,7 @@
     margin-top: 10px;
 }
 
-.save-badge {
+.save-badge, .cart-badge {
     display: none;
     background-color: #6f42c1;
     color: white;
@@ -222,6 +231,8 @@
     line-height: 20px;
     font-size: 12px;
     margin-left: 5px;
+    position: absolute;
+    right: 20px;
 }
 
 /* =======================
