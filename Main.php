@@ -5,6 +5,7 @@
     <title>HAMSA BEADS - HAMSA BEADS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <link href="style.css" rel="stylesheet">
 </head>
 <body>
@@ -68,16 +69,14 @@
         <div class="modal-content">
             <button class="close-modal">&times;</button>
             <h2>Log In</h2>
-            <form id="login-form" class="centered-form">
+            <form id="login-form">
                 <div class="form-group">
                     <label for="login-username">Username</label>
-                    <div class="input-with-icon">
-                        <input type="text" id="login-username" required>
-                    </div>
+                    <input type="text" id="login-username" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group password-group">
                     <label for="login-password">Password</label>
-                    <div class="input-with-icon">
+                    <div class="password-input">
                         <input type="password" id="login-password" required>
                         <button type="button" class="toggle-password" aria-label="Show password">
                             <i class="fas fa-eye"></i>
@@ -97,31 +96,27 @@
         <div class="modal-content">
             <button class="close-modal">&times;</button>
             <h2>Create New Account</h2>
-            <form id="register-form" class="centered-form">
+            <form id="register-form">
                 <div class="form-group">
                     <label for="register-username">Username</label>
-                    <div class="input-with-icon">
-                        <input type="text" id="register-username" required>
-                    </div>
+                    <input type="text" id="register-username" required>
                 </div>
                 <div class="form-group">
                     <label for="register-email">Email</label>
-                    <div class="input-with-icon">
-                        <input type="email" id="register-email" required>
-                    </div>
+                    <input type="email" id="register-email" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group password-group">
                     <label for="register-password">Password</label>
-                    <div class="input-with-icon">
+                    <div class="password-input">
                         <input type="password" id="register-password" required>
                         <button type="button" class="toggle-password" aria-label="Show password">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group password-group">
                     <label for="register-confirm">Confirm Password</label>
-                    <div class="input-with-icon">
+                    <div class="password-input">
                         <input type="password" id="register-confirm" required>
                         <button type="button" class="toggle-password" aria-label="Show password">
                             <i class="fas fa-eye"></i>
