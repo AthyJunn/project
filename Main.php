@@ -19,22 +19,20 @@
             <li><a href="#" data-category="moonstone">Moonstone Series</a></li>
             <li><a href="#" data-category="malachite">Mystical Malachite Series</a></li>
             <li><a href="#" data-category="luxe">LUXE Series</a></li>
+            
+            <div class="sidebar-bottom">
+            <li><a href="#" data-category="saves">
+                <i class="far fa-heart"></i>
+                <span>Saves</span>
+                <span class="save-badge">0</span>
+                </a></li>
+            <li><a href="#" data-category="cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Cart</span>
+                <span class="cart-badge">0</span>
+                </a></li>
+            </div>
         </ul>
-        
-        <div class="sidebar-bottom">
-            <ul class="sidebar-menu">
-                <li><a href="#" data-category="saves">
-                    <i class="far fa-heart"></i>
-                    <span>Saves</span>
-                    <span class="save-badge">0</span>
-                </a></li>
-                <li><a href="#" data-category="cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Cart</span>
-                    <span class="cart-badge">0</span>
-                </a></li>
-            </ul>
-        </div>
     </div>
 
     <div class="main-content">
