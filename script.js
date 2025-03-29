@@ -297,7 +297,7 @@ function addToCart(productId) {
 
     saveCart();
     updateCartCount();
-    alert(`${product.name} added to cart!`);
+    showCartNotification(product.name);
 }
 
 function removeFromCart(productId) {
@@ -343,7 +343,11 @@ function updateCartCount() {
     if (cartBadge) {
         const count = cart.reduce((total, item) => total + item.quantity, 0);
         cartBadge.textContent = count;
-        cartBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+        if (count > 0) {
+            cartBadge.style.display = 'inline-flex';
+        } else {
+            cartBadge.style.display = 'none';
+        }
     }
 }
 
