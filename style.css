@@ -71,6 +71,7 @@ body {
 .sidebar-menu a.active .cart-badge {
     background-color: white;
     color: #6f42c1;
+    border: 2px solid #6f42c1;
 }
 
 .sidebar-menu a i {
@@ -119,6 +120,7 @@ body {
     font-size: 12px;
     padding: 0 2px;
     margin-left: auto;
+    border: 2px solid #6f42c1;
 }
 
 .save-badge:not(:empty),
