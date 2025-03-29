@@ -69,8 +69,8 @@ body {
 .sidebar-menu a:hover .cart-badge,
 .sidebar-menu a.active .save-badge,
 .sidebar-menu a.active .cart-badge {
-    background-color: #6f42c1;
-    color: white;
+    background-color: white;
+    color: #6f42c1;
     border: 2px solid #6f42c1;
 }
 
@@ -110,8 +110,8 @@ body {
 
 .save-badge, .cart-badge {
     display: none;
-    background-color: white;
-    color: #6f42c1;
+    background-color: #6f42c1;
+    color: white;
     border-radius: 50%;
     min-width: 18px;
     height: 18px;

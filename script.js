@@ -342,18 +342,8 @@ function updateCartCount() {
     const cartBadge = document.querySelector('.cart-badge');
     if (cartBadge) {
         const count = cart.reduce((total, item) => total + item.quantity, 0);
-        cartBadge.textContent = count || '';
+        cartBadge.textContent = count;
         cartBadge.style.display = count > 0 ? 'inline-flex' : 'none';
-        
-        // Update badge styling based on hover/active state
-        const cartLink = cartBadge.closest('a');
-        if (cartLink && (cartLink.classList.contains('active') || cartLink.matches(':hover'))) {
-            cartBadge.style.backgroundColor = '#6f42c1';
-            cartBadge.style.color = 'white';
-        } else {
-            cartBadge.style.backgroundColor = 'white';
-            cartBadge.style.color = '#6f42c1';
-        }
     }
 }
 
@@ -408,18 +398,8 @@ function toggleSave(productId, button) {
 function updateSaveCount() {
     const saveBadge = document.querySelector('.save-badge');
     if (saveBadge) {
-        saveBadge.textContent = savedItems.length || '';
-        saveBadge.style.display = savedItems.length > 0 ? 'inline-flex' : 'none';
-        
-        // Update badge styling based on hover/active state
-        const saveLink = saveBadge.closest('a');
-        if (saveLink && (saveLink.classList.contains('active') || saveLink.matches(':hover'))) {
-            saveBadge.style.backgroundColor = '#6f42c1';
-            saveBadge.style.color = 'white';
-        } else {
-            saveBadge.style.backgroundColor = 'white';
-            saveBadge.style.color = '#6f42c1';
-        }
+        saveBadge.textContent = savedItems.length;
+        saveBadge.style.display = savedItems.length > 0 ? 'inline-block' : 'none';
     }
 }
 
@@ -477,26 +457,6 @@ function initSaves() {
         });
     }
 }
-
-// Add event listeners for hover states
-document.addEventListener('DOMContentLoaded', function() {
-    const cartLink = document.querySelector('[data-category="cart"]');
-    const saveLink = document.querySelector('[data-category="saves"]');
-    
-    if (cartLink) {
-        cartLink.addEventListener('mouseenter', () => updateCartCount());
-        cartLink.addEventListener('mouseleave', () => updateCartCount());
-    }
-    
-    if (saveLink) {
-        saveLink.addEventListener('mouseenter', () => updateSaveCount());
-        saveLink.addEventListener('mouseleave', () => updateSaveCount());
-    }
-    
-    // Initial update
-    updateCartCount();
-    updateSaveCount();
-});
 
 // Make functions available globally
 window.toggleSave = toggleSave;
