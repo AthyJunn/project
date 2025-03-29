@@ -339,11 +339,11 @@ function displayCart() {
 }
 
 function updateCartCount() {
-    const cartBadge = document.querySelector('.cart-badge');
+    const cartBadge = document.querySelector('.sidebar-bottom .cart-badge');
     if (cartBadge) {
         const count = cart.reduce((total, item) => total + item.quantity, 0);
         cartBadge.textContent = count;
-        cartBadge.style.display = count> 0 ? 'inline-block' : 'none';
+        cartBadge.style.display = count > 0 ? 'inline-block' : 'none';
     }
 }
 
