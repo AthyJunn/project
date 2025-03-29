@@ -297,7 +297,7 @@ function addToCart(productId) {
 
     saveCart();
     updateCartCount();
-    alert(`${product.name} added to cart!`);
+    showCartNotification(product.name);
 }
 
 function removeFromCart(productId) {
@@ -339,15 +339,11 @@ function displayCart() {
 }
 
 function updateCartCount() {
-<<<<<<< HEAD
-    const cartBadge = document.querySelector('cart-badge');
-=======
-    const cartBadge = document.querySelector('[data-category="cart"] .cart-badge');
->>>>>>> c48e37210ed339c4c8e4bef0cc852d397d7184ff
+    const cartBadge = document.querySelector('.sidebar-bottom .cart-badge');
     if (cartBadge) {
         const count = cart.reduce((total, item) => total + item.quantity, 0);
-        cartBadge.textContent = count;
-        cartBadge.style.display = count > 0 ? 'inline-block' : 'none';
+        cartBadge.textContent = count || '';
+        cartBadge.style.display = count > 0 ? 'inline-flex' : 'none';
     }
 }
 
