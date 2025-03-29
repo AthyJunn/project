@@ -342,8 +342,8 @@ function updateCartCount() {
     const cartBadge = document.querySelector('.cart-badge');
     if (cartBadge) {
         const count = cart.reduce((total, item) => total + item.quantity, 0);
-        cartBadge.textContent = count;
-        cartBadge.style.display = count > 0 ? 'inline-block' : 'none';
+        cartBadge.textContent = cart.length;
+        cartBadge.style.display = cart.length > 0 ? 'inline-block' : 'none';
     }
 }
 
