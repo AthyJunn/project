@@ -342,8 +342,14 @@ function updateCartCount() {
     const cartBadge = document.querySelector('.sidebar-bottom .cart-badge');
     if (cartBadge) {
         const count = cart.reduce((total, item) => total + item.quantity, 0);
-        cartBadge.textContent = count || '';
-        cartBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+        if (count > 0) {
+            cartBadge.textContent = count;
+            cartBadge.style.display = 'inline-flex';
+            cartBadge.style.backgroundColor = '#6f42c1';
+        } else {
+            cartBadge.style.display = 'none';
+            cartBadge.textContent = '';
+        }
     }
 }
 
