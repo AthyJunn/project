@@ -458,7 +458,7 @@ h2.section-title {
 /* Image Container - Perfect Fit */
 .product-image-container {
     width: 100%;
-    height: 180px; /* Fixed square container */
+    height: 100px; /* Fixed square container */
     position: relative;
     background: var(--image-bg, #f9f9f9);
     display: flex;
