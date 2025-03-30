@@ -929,13 +929,16 @@ body.dark-mode .particle {
 
 .product-detail-image {
     flex: 1;
+    max-width: 500px;
+    height: 500px;
     background-color: rgba(0,0,0,0.05);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 30px;
     border-radius: 10px;
-    max-height: 500px;
+    overflow: hidden;
+    position: relative;
 }
 
 body.dark-mode .product-detail-image {
@@ -943,9 +946,11 @@ body.dark-mode .product-detail-image {
 }
 
 .product-detail-image img {
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
+    object-position: center;
+    transition: transform 0.3s;
 }
 
 .product-detail-info {
@@ -1049,8 +1054,9 @@ body.dark-mode .product-detail-image {
     }
     
     .product-detail-image {
+        max-width: 100%;
+        height: 400px;
         margin-bottom: 20px;
-        max-height: 300px;
     }
     
     .product-detail-actions {
