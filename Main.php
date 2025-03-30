@@ -31,14 +31,6 @@
                         <span>Cart</span>
                         <span class="cart-badge">0</span>
                     </a></li>
-                    <!-- START: Added Dark Mode Toggle -->
-                    <li>
-                        <a href="#" id="dark-mode-toggle" title="Toggle Dark Mode">
-                            <i class="fas fa-moon"></i> <!-- Default icon is moon -->
-                            <span>Toggle Mode</span>
-                        </a>
-                    </li>
-                    <!-- END: Added Dark Mode Toggle -->
                 </div>
             </ul>
         </div>
