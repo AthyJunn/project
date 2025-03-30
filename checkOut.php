@@ -34,11 +34,12 @@
             border-radius: 5px;
             cursor: pointer;
             margin-bottom: 20px;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
         }
 
         .back-button:hover {
-            background-color: var(--primary-hover-color);
+            background-color: var(--hover-color);
+            color: white;
         }
 
         .back-button i {
