@@ -397,7 +397,7 @@ function displayProducts(products) {
                     <div class="product-actions">
                         <button class="btn-purple add-to-cart">Add to Cart</button>
                     <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${id}">
-                            <i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Saved' : 'Save'}
+                            <i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Unsave' : 'Save'}
                         </button>
                 </div>
             </div>`;
@@ -808,7 +808,7 @@ function toggleSave(productId, buttonElement) {
     if (index === -1) {
         // Item not saved -> Save it
         savedItems.push(productId);
-        buttonElement.innerHTML = '<i class="fas fa-heart"></i> Saved';
+        buttonElement.innerHTML = '<i class="fas fa-heart"></i> Unsave';
         buttonElement.classList.add('saved');
         console.log("Item saved.");
     } else {
@@ -1144,7 +1144,7 @@ function updateSaveButtonState(button, isSaved) {
     if (icon) {
         icon.className = isSaved ? 'fas fa-heart' : 'far fa-heart';
     }
-    button.textContent = isSaved ? 'Saved' : 'Save';
+    button.textContent = isSaved ? 'Unsave' : 'Save';
     button.classList.toggle('saved', isSaved);
     
     // Re-append the icon since textContent overwrote it
