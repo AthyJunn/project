@@ -50,64 +50,6 @@ function initSidebar() {
         });
     });
 }
-// Add this function
-function initDarkModeToggle() {
-    const toggleButton = document.getElementById('dark-mode-toggle');
-    const body = document.body;
-    const icon = toggleButton?.querySelector('i'); // Use optional chaining
-
-    if (!toggleButton || !icon) {
-        console.warn("Dark mode toggle button or icon not found.");
-        return;
-    }
-
-    // Function to apply the mode
-    const applyMode = (isDark) => {
-        if (isDark) {
-            body.classList.add('dark-mode');
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
-            localStorage.setItem('darkMode', 'enabled');
-            console.log("Dark mode enabled");
-        } else {
-            body.classList.remove('dark-mode');
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
-            localStorage.setItem('darkMode', 'disabled');
-            console.log("Dark mode disabled");
-        }
-    };
-
-    // Check localStorage on initial load
-    const prefersDark = localStorage.getItem('darkMode') === 'enabled';
-    applyMode(prefersDark); // Apply initial mode
-
-    // Add click listener
-    toggleButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        const isCurrentlyDark = body.classList.contains('dark-mode');
-        applyMode(!isCurrentlyDark); // Toggle the mode
-    });
-}
-
-// Modify the DOMContentLoaded listener to call the new function
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize localStorage if needed
-    cart = JSON.parse(localStorage.getItem('cart')) || [];
-    savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
-
-    // Initialize UI components and load initial data
-    initSidebar();
-    initSearch();
-    initAccountDropdown();
-    initModals();
-    initCartDisplay(); // Renamed for clarity
-    initSavesDisplay(); // Renamed for clarity
-    initDarkModeToggle(); // <-- Add this call
-    updateCartCount(); // Initial count based on loaded cart
-    updateSaveCount(); // Initial count based on loaded saves
-    loadProducts('recommendation'); // Load initial products
-});
 
 // ==========================
 // Search Functionality

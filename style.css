@@ -1,35 +1,20 @@
 /* =======================
-   COLOR VARIABLES & DARK MODE
+   COLOR VARIABLES
    ======================= */
 
    :root {
     --primary-color: #6f42c1;
     --primary-hover-color: #5a32a3;
-    --light-bg: #f8f9fa;
-    --light-content-bg: #ffffff;
-    --light-text-color: #333;
-    --light-text-secondary: #666;
-    --light-border-color: #ddd;
-    --light-shadow-color: rgba(0, 0, 0, 0.1);
-
-    --dark-bg: #1a1a2e; /* Dark blue/purple background */
-    --dark-content-bg: #2a2a4e; /* Slightly lighter content background */
-    --dark-text-color: #e0e0ff; /* Light text color */
-    --dark-text-secondary: #a0a0cc; /* Lighter secondary text */
-    --dark-border-color: #4a4a6e; /* Darker border */
-    --dark-shadow-color: rgba(0, 0, 0, 0.3);
-
-    /* Default to light mode variables */
-    --bg-color: var(--light-bg);
-    --content-bg: var(--light-content-bg);
-    --text-color: var(--light-text-color);
-    --text-secondary: var(--light-text-secondary);
-    --border-color: var(--light-border-color);
-    --shadow-color: var(--light-shadow-color);
-    --sidebar-bg: var(--light-content-bg);
-    --card-bg: var(--light-content-bg);
-    --input-bg: var(--light-content-bg);
-    --input-border: var(--light-border-color);
+    --bg-color: #f8f9fa;
+    --content-bg: #ffffff;
+    --text-color: #333;
+    --text-secondary: #666;
+    --border-color: #ddd;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --sidebar-bg: #ffffff;
+    --card-bg: #ffffff;
+    --input-bg: #ffffff;
+    --input-border: #ddd;
     --button-secondary-bg: #e9ecef;
     --button-secondary-hover-bg: #dde2e6;
     --button-secondary-text: #333;
@@ -37,35 +22,16 @@
     --notification-text: white;
 }
 
-body.dark-mode {
-    /* Switch to dark mode variables */
-    --bg-color: var(--dark-bg);
-    --content-bg: var(--dark-content-bg);
-    --text-color: var(--dark-text-color);
-    --text-secondary: var(--dark-text-secondary);
-    --border-color: var(--dark-border-color);
-    --shadow-color: var(--dark-shadow-color);
-    --sidebar-bg: var(--dark-content-bg);
-    --card-bg: var(--dark-content-bg);
-    --input-bg: var(--dark-content-bg);
-    --input-border: var(--dark-border-color);
-    --button-secondary-bg: #4a4a6e;
-    --button-secondary-hover-bg: #5a5a8e;
-    --button-secondary-text: var(--dark-text-color);
-    --notification-bg: var(--primary-hover-color);
-    --notification-text: var(--dark-text-color);
-}
-
 /* =======================
-   GENERAL STYLES - UPDATED WITH VARIABLES
+   GENERAL STYLES
    ======================= */
 body {
     font-family: 'Arial', sans-serif;
-    background-color: var(--bg-color); /* Use variable */
-    color: var(--text-color); /* Use variable */
+    background-color: var(--bg-color);
+    color: var(--text-color);
     margin: 0;
     padding: 0;
-    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* =======================
