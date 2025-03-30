@@ -7,46 +7,55 @@ document.addEventListener('DOMContentLoaded', function() {
     cart = JSON.parse(localStorage.getItem('cart')) || [];
     savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
 
-    // Check if we should show saves or cart after redirect
-    const showSaves = localStorage.getItem('showSaves') === 'true';
-    const showCart = localStorage.getItem('showCart') === 'true';
+    // Initialize sidebar for all pages
+    initSidebar();
 
-    // Clear the flags
-    localStorage.removeItem('showSaves');
-    localStorage.removeItem('showCart');
+    // Check if we're on the product detail page
+    if (window.location.pathname.includes('productDetail.php')) {
+        initProductDetailPage();
+    } else {
+        // Main page initializations
+        initCartDisplay();
+        initSavesDisplay();
+        
+        // Check if we need to show cart or saves based on redirect flags
+        const showCart = localStorage.getItem('showCart') === 'true';
+        const showSaves = localStorage.getItem('showSaves') === 'true';
+        
+        if (showCart) {
+            displayCart();
+            localStorage.removeItem('showCart');
+        } else if (showSaves) {
+            displaySavedProducts();
+            localStorage.removeItem('showSaves');
+        } else {
+            // Get category from URL if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const category = urlParams.get('category') || 'recommendation';
+            loadProducts(category);
+            
+            // Update active menu item
+            const activeMenuItem = document.querySelector(`.sidebar-menu a[data-category="${category}"]`);
+            if (activeMenuItem) {
+                document.querySelectorAll('.sidebar-menu a').forEach(i => i.classList.remove('active'));
+                activeMenuItem.classList.add('active');
+                const categoryTitle = document.getElementById('current-category');
+                if (categoryTitle) {
+                    categoryTitle.textContent = activeMenuItem.textContent.replace(/ \d+$/, '').trim();
+                }
+            }
+        }
+    }
 
     // Initialize UI components and load initial data
-    initSidebar();
     initSearch();
     initAccountDropdown();
     initModals();
-    initCartDisplay();
-    initSavesDisplay();
     updateCartCount();
     updateSaveCount();
 
     // Initialize action buttons (saves and cart) for all pages
     initActionButtons();
-
-    // If we're on the main page and have a redirect flag, show the appropriate section
-    if (window.location.pathname.includes('Main.php')) {
-        if (showSaves) {
-            displaySavedProducts();
-            const categoryTitle = document.getElementById('current-category');
-            if (categoryTitle) categoryTitle.textContent = 'Saved Items';
-        } else if (showCart) {
-            displayCart();
-            const categoryTitle = document.getElementById('current-category');
-            if (categoryTitle) categoryTitle.textContent = 'Shopping Cart';
-        } else {
-            loadProducts('recommendation');
-        }
-    }
-
-    // Check if we're on the product detail page
-    if (window.location.pathname.includes('productDetail.php')) {
-        initProductDetailPage();
-    }
 });
 
 // ==========================
@@ -60,11 +69,23 @@ function initSidebar() {
         item.addEventListener('click', function (e) {
             e.preventDefault();
 
+            const category = this.getAttribute('data-category');
+            
+            // If we're on the product detail page, we need to navigate to Main.php
+            if (window.location.pathname.includes('productDetail.php')) {
+                if (category === 'cart' || category === 'saves') {
+                    // Set flag to show cart or saves after redirect
+                    localStorage.setItem('showCart', category === 'cart');
+                    localStorage.setItem('showSaves', category === 'saves');
+                }
+                window.location.href = `Main.php${category ? `?category=${category}` : ''}`;
+                return;
+            }
+
             // Handle active state visually
             menuItems.forEach(i => i.classList.remove('active'));
             this.classList.add('active');
 
-            const category = this.getAttribute('data-category');
             if (categoryTitle) {
                 categoryTitle.textContent = this.textContent.replace(/ \d+$/, '').trim(); // Update title, remove badge number if present
             }
