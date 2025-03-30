@@ -327,16 +327,17 @@
                 <h2 class="section-title">Shipping Information</h2>
 
                 <div class="delivery-options">
-                    <div class="delivery-option active" onclick="selectDeliveryOption('delivery')">
+                    <div class="delivery-option active" data-option="delivery">
                         <i class="fas fa-truck"></i>
                         <span>Delivery</span>
                     </div>
-                    <div class="delivery-option" onclick="selectDeliveryOption('pickup')">
+                    <div class="delivery-option" data-option="pickup">
                         <i class="fas fa-store"></i>
                         <span>Pick up</span>
                     </div>
                 </div>
 
+                <!-- Delivery Form -->
                 <form id="shipping-form">
                     <div class="form-group">
                         <label>Full name<span class="required">*</span></label>
@@ -384,6 +385,58 @@
                     <div class="form-group">
                         <label>ZIP Code<span class="required">*</span></label>
                         <input type="text" placeholder="Enter ZIP code" required>
+                    </div>
+                </form>
+
+                <!-- Pick-up Form -->
+                <form id="pickup-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Full name<span class="required">*</span></label>
+                        <input type="text" placeholder="Enter full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email address<span class="required">*</span></label>
+                        <input type="email" placeholder="Enter email address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone number<span class="required">*</span></label>
+                        <div class="phone-input">
+                            <select class="country-code">
+                                <option value="+60">🇲🇾 +60</option>
+                                <option value="+65">🇸🇬 +65</option>
+                                <option value="+62">🇮🇩 +62</option>
+                            </select>
+                            <input type="tel" placeholder="Enter phone number" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Preferred Pick-up Date<span class="required">*</span></label>
+                        <input type="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Preferred Pick-up Time<span class="required">*</span></label>
+                        <select required>
+                            <option value="">Select time</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                            <option value="12:00">12:00 PM</option>
+                            <option value="13:00">1:00 PM</option>
+                            <option value="14:00">2:00 PM</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pick-up Location<span class="required">*</span></label>
+                        <select required>
+                            <option value="">Select location</option>
+                            <option value="kl">Kuala Lumpur Store</option>
+                            <option value="penang">Penang Store</option>
+                            <option value="johor">Johor Store</option>
+                        </select>
                     </div>
                 </form>
 
@@ -479,6 +532,7 @@
         const validDiscountCodes = ['SAVE10', 'BEADS10', 'HAMSA10']; // Your valid codes
         let currentDiscountRate = 0; // 0 means no discount, 0.10 means 10%
         let currentSubtotal = 0; // Keep track of subtotal globally in this script
+        let isPickup = false; // Track delivery method
 
         // --- DOM Element References ---
         const discountInput = document.getElementById('discount-code-input');
@@ -489,6 +543,9 @@
         const discountEl = document.getElementById('summary-discount');
         const totalEl = document.getElementById('summary-total');
         const cartContainer = document.querySelector('.cart-items');
+        const shippingForm = document.getElementById('shipping-form');
+        const pickupForm = document.getElementById('pickup-form');
+        const deliveryOptions = document.querySelectorAll('.delivery-option');
 
         // --- Functions ---
 
@@ -529,11 +586,8 @@
 
         // Update cart summary based on current state
         function updateSummary() {
-            const deliveryOptionElement = document.querySelector('.delivery-option.active span');
-            const isDelivery = deliveryOptionElement ? deliveryOptionElement.textContent === 'Delivery' : true; // Default to delivery if not found
-            const shippingCost = isDelivery ? 5.00 : 0.00;
-
-            const discountAmount = currentSubtotal * currentDiscountRate; // Calculate discount based on current rate
+            const shippingCost = isPickup ? 0.00 : 5.00;
+            const discountAmount = currentSubtotal * currentDiscountRate;
             const total = currentSubtotal + shippingCost - discountAmount;
 
             // Update DOM elements safely
@@ -545,16 +599,27 @@
 
         // Handle delivery option selection
         function selectDeliveryOption(option) {
-            const deliveryOptions = document.querySelectorAll('.delivery-option');
+            // Update active state
             deliveryOptions.forEach(opt => opt.classList.remove('active'));
-
-            // Find the correct option based on the clicked one
-            const selectedOption = document.querySelector(`.delivery-option i.${option === 'delivery' ? 'fa-truck' : 'fa-store'}`).closest('.delivery-option');
-            if(selectedOption) {
+            const selectedOption = document.querySelector(`.delivery-option[data-option="${option}"]`);
+            if (selectedOption) {
                 selectedOption.classList.add('active');
-            }
+                isPickup = option === 'pickup';
+                
+                // Show/hide appropriate form
+                if (shippingForm && pickupForm) {
+                    if (isPickup) {
+                        shippingForm.style.display = 'none';
+                        pickupForm.style.display = 'block';
+                    } else {
+                        shippingForm.style.display = 'block';
+                        pickupForm.style.display = 'none';
+                    }
+                }
 
-            updateSummary(); // Recalculate summary as shipping cost might change
+                // Update shipping cost and total
+                updateSummary();
+            }
         }
 
         // Handle payment method selection
@@ -588,7 +653,7 @@
 
         // Process payment (basic validation)
         function processPayment() {
-            const form = document.getElementById('shipping-form');
+            const activeForm = isPickup ? pickupForm : shippingForm;
             const activePaymentOption = document.querySelector('.payment-option.active');
 
             if (!activePaymentOption) {
@@ -596,34 +661,30 @@
                 return;
             }
 
-            // Check validity of the shipping form AND potentially the card details form
-            let isFormValid = form.checkValidity();
+            // Check validity of the active form
+            let isFormValid = activeForm.checkValidity();
 
             // If card payment is active, also check its inputs
             const paymentMethod = activePaymentOption.dataset.method;
             if (paymentMethod === 'card') {
-                 const cardDetailsForm = document.querySelector('.card-details');
-                 cardDetailsForm.querySelectorAll('input').forEach(input => {
+                const cardDetailsForm = document.querySelector('.card-details');
+                cardDetailsForm.querySelectorAll('input').forEach(input => {
                     if (!input.checkValidity()) {
                         isFormValid = false;
-                        // Optionally highlight the specific invalid card input
                         input.reportValidity();
                     }
-                 });
+                });
             }
-
 
             if (isFormValid) {
                 // Here you would typically send the data to your backend
-                const paymentMethodText = activePaymentOption.querySelector('.payment-header span').textContent.trim(); // Get text like "Credit/Debit Card"
-                alert(`Payment processing initiated using ${paymentMethodText}! (Frontend simulation)`);
-                // Potentially clear cart from localStorage and redirect to a thank you page
-                 localStorage.removeItem('cart');
-                // window.location.href = 'thankyou.php'; // Example redirect
+                const paymentMethodText = activePaymentOption.querySelector('.payment-header span').textContent.trim();
+                const deliveryMethod = isPickup ? 'Pick-up' : 'Delivery';
+                alert(`Order confirmed!\nPayment Method: ${paymentMethodText}\nDelivery Method: ${deliveryMethod}`);
+                localStorage.removeItem('cart');
+                window.location.href = 'Main.php'; // Redirect to main page after successful order
             } else {
-                // Trigger browser's default validation reporting on the main form
-                form.reportValidity();
-                 // Card validation errors are reported inside the card check above
+                activeForm.reportValidity();
                 alert('Please fill in all required fields correctly.');
             }
         }
@@ -632,6 +693,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadCartItems(); // Load items and calculate initial subtotal/summary
 
+            // Delivery Option Listeners
+            deliveryOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const selectedOption = this.dataset.option;
+                    selectDeliveryOption(selectedOption);
+                });
+            });
+
             // Payment Method Listeners
             const paymentOptions = document.querySelectorAll('.payment-option');
             paymentOptions.forEach(option => {
@@ -639,34 +708,24 @@
                     selectPaymentMethod(this.dataset.method);
                 });
             });
-            // Default payment method selection ('card' is already active via HTML)
-            // selectPaymentMethod('card'); // No longer needed if HTML sets active default
 
             // Discount Code Listener
             if (applyDiscountBtn && discountInput) {
                 applyDiscountBtn.addEventListener('click', function() {
-                    const enteredCode = discountInput.value.trim().toUpperCase(); // Case-insensitive
+                    const enteredCode = discountInput.value.trim().toUpperCase();
 
                     if (validDiscountCodes.includes(enteredCode)) {
-                        currentDiscountRate = 0.10; // Apply 10% discount
-                        discountMessage.style.display = 'block'; // Show success message
-                        applyDiscountBtn.disabled = true; // Disable button after success
-                        applyDiscountBtn.textContent = 'Applied ✓'; // Change button text
-                        discountInput.disabled = true; // Optional: disable input too
-                        updateSummary(); // Update summary with discount
+                        currentDiscountRate = 0.10;
+                        discountMessage.style.display = 'block';
+                        applyDiscountBtn.disabled = true;
+                        applyDiscountBtn.textContent = 'Applied ✓';
+                        discountInput.disabled = true;
+                        updateSummary();
                     } else {
-                        // Optional: Only reset if a discount WAS previously applied
-                        // if (currentDiscountRate > 0) {
-                        //    currentDiscountRate = 0;
-                        //    updateSummary();
-                        // }
-                        alert('Invalid discount code.'); // Simple feedback for invalid code
-                        discountInput.value = ''; // Clear the input
-                        // Do not disable button on invalid attempt, allow retry
+                        alert('Invalid discount code.');
+                        discountInput.value = '';
                     }
                 });
-            } else {
-                console.error("Discount input or apply button not found.");
             }
         });
     </script>
