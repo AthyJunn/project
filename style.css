@@ -438,15 +438,15 @@ h2.section-title {
 
 /* Product Card - Enhanced */
 .product-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    width: 180px; /* Fixed width matching reference */
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 3px 12px var(--shadow-color);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px var(--shadow-color, rgba(0,0,0,0.08));
+    transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
 .product-card:hover {
