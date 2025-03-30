@@ -946,3 +946,23 @@ function explodeEffect(element) {
         }, 600); // Match the CSS transition duration
     });
 }
+
+// In your displayProducts function, modify the product card HTML to include a link:
+return `
+<div class="product-card" data-product-id="${id}" data-product-name="${name}" data-product-price="${price}">
+    <a href="product-detail.php?id=${id}" class="product-card-link">
+        <div class="product-image">
+            <img src="${imageSrc}" alt="${name}" onerror="this.onerror=null; this.src='images/placeholder.jpg';">
+        </div>
+        <div class="product-info">
+            <div class="product-title">${name}</div>
+            <div class="product-price">RM ${price}</div>
+        </div>
+    </a>
+    <div class="product-actions">
+        <button class="btn-purple add-to-cart">Add to Cart</button>
+        <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${id}">
+            <i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Saved' : 'Save'}
+        </button>
+    </div>
+</div>`;
