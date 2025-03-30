@@ -42,21 +42,37 @@
                 <input type="text" placeholder="Search products..." id="search-input">
                 <button id="search-button"><i class="fas fa-search"></i></button>
             </div>
-            <div class="account-menu">
-                <button id="account-button"><i class="fas fa-user-circle"></i></button>
-                <div class="account-dropdown" id="account-dropdown">
-                    <div class="dropdown-header">
-                        <div class="currently-in">Currently in</div>
-                        <div class="user-info">
-                            <img src="images/guest-avatar.png" alt="Guest" class="user-avatar">
-                            <span class="user-status">Guest</span>
+            <div class="user-actions">
+                <a href="#" class="action-link" data-category="saves">
+                    <i class="far fa-heart"></i>
+                    <span class="save-badge">0</span>
+                </a>
+                <a href="#" class="action-link" data-category="cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge">0</span>
+                </a>
+                <div class="account-menu">
+                    <button id="account-button"><i class="fas fa-user-circle"></i></button>
+                    <div class="account-dropdown" id="account-dropdown">
+                        <div class="dropdown-header">
+                            <div class="currently-in">Currently in</div>
+                            <div class="user-info">
+                                <img src="images/guest-avatar.png" alt="Guest" class="user-avatar">
+                                <span class="user-status">Guest</span>
+                            </div>
                         </div>
+                        <button class="add-account" id="add-account-btn">Add Account</button>
+                        <button class="logout" id="logout-btn">Log out</button>
                     </div>
-                    <button class="add-account" id="add-account-btn">Add Account</button>
-                    <button class="logout" id="logout-btn">Log out</button>
                 </div>
             </div>
         </div>
+
+        <!-- Back Button -->
+        <button class="back-button" onclick="window.location.href='Main.php'">
+            <i class="fas fa-arrow-left"></i>
+            Back to Shop
+        </button>
 
         <!-- Product Detail Section -->
         <div class="product-detail-container">

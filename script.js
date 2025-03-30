@@ -45,6 +45,11 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
         });
     }
+
+    // Check if we're on the product detail page
+    if (window.location.pathname.includes('productDetail.php')) {
+        initProductDetailPage();
+    }
 });
 
 // ==========================
@@ -362,18 +367,20 @@ function displayProducts(products) {
 
             return `
             <div class="product-card" data-product-id="${id}" data-product-name="${name}" data-product-price="${price}">
-                <div class="product-image">
-                    <img src="${imageSrc}" alt="${name}" onerror="this.onerror=null; this.src='images/placeholder.jpg';"> <!-- Added placeholder fallback -->
-                </div>
+                <a href="productDetail.php?id=${id}" class="product-card-link">
+                    <div class="product-image">
+                        <img src="${imageSrc}" alt="${name}" onerror="this.onerror=null; this.src='images/placeholder.jpg';">
+                    </div>
                 <div class="product-info">
-                    <div class="product-title">${name}</div>
-                    <div class="product-price">RM ${price}</div>
+                        <div class="product-title">${name}</div>
+                        <div class="product-price">RM ${price}</div>
+                    </div>
+                </a>
                     <div class="product-actions">
                         <button class="btn-purple add-to-cart">Add to Cart</button>
-                        <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${id}">
+                    <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${id}">
                             <i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Saved' : 'Save'}
                         </button>
-                    </div>
                 </div>
             </div>`;
         }).join('');
@@ -385,7 +392,7 @@ function displayProducts(products) {
 }
 
 function handleProductContainerClick(event) {
-     // Handle "Add to Cart" clicks
+    // Handle "Add to Cart" clicks
     if (event.target.classList.contains('add-to-cart')) {
         const button = event.target;
         animateAddToCart(button); // Call animation function
@@ -398,6 +405,7 @@ function handleProductContainerClick(event) {
             toggleSave(productId, button);
         }
     }
+    // Don't prevent default for product card link clicks
 }
 
 // ==========================
@@ -916,5 +924,51 @@ function explodeEffect(element) {
             resolve(); // Resolve the promise indicating animation is done
         }, 600); // Match the CSS transition duration
     });
+}
+
+// Initialize save and cart functionality for product detail page
+function initProductDetailPage() {
+    // Get the product ID from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = parseInt(urlParams.get('id'));
+
+    if (!productId) {
+        console.error('No product ID found in URL');
+        return;
+    }
+
+    // Initialize cart and saved items from localStorage
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
+
+    // Update cart and save badges
+    updateCartCount();
+    updateSaveCount();
+
+    // Add event listeners for save and cart buttons
+    const saveButton = document.querySelector('.action-link[data-category="saves"]');
+    const cartButton = document.querySelector('.action-link[data-category="cart"]');
+
+    if (saveButton) {
+        saveButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = 'Main.php#saves';
+        });
+    }
+
+    if (cartButton) {
+        cartButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = 'Main.php#cart';
+        });
+    }
+
+    // Check if current product is saved
+    const isSaved = savedItems.includes(productId);
+    const saveButtonText = document.querySelector('.btn-save');
+    if (saveButtonText) {
+        saveButtonText.innerHTML = `<i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Saved' : 'Save'}`;
+        saveButtonText.classList.toggle('saved', isSaved);
+    }
 }
 
