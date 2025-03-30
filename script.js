@@ -2,64 +2,73 @@
 let cart = [];
 let savedItems = [];
 
+// ==========================
+// INITIALIZATION
+// ==========================
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize localStorage if needed
+    console.log("DOM Content Loaded. Initializing...");
+
+    // 1. Load data from localStorage FIRST
     cart = JSON.parse(localStorage.getItem('cart')) || [];
     savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
+    console.log("Initial cart:", JSON.stringify(cart));
+    console.log("Initial savedItems:", JSON.stringify(savedItems));
 
-    // Initialize sidebar for all pages
-    initSidebar();
-
-    // Check if we're on the product detail page
-    if (window.location.pathname.includes('productDetail.php')) {
-        initProductDetailPage();
-    } else {
-        // Main page initializations
-        initCartDisplay();
-        initSavesDisplay();
-        
-        // Check if we need to show cart or saves based on redirect flags
-        const showCart = localStorage.getItem('showCart') === 'true';
-        const showSaves = localStorage.getItem('showSaves') === 'true';
-        
-        if (showCart) {
-            displayCart();
-            localStorage.removeItem('showCart');
-        } else if (showSaves) {
-            displaySavedProducts();
-            localStorage.removeItem('showSaves');
-        } else {
-            // Get category from URL if present
-            const urlParams = new URLSearchParams(window.location.search);
-            const category = urlParams.get('category') || 'recommendation';
-            loadProducts(category);
-            
-            // Update active menu item
-            const activeMenuItem = document.querySelector(`.sidebar-menu a[data-category="${category}"]`);
-            if (activeMenuItem) {
-                document.querySelectorAll('.sidebar-menu a').forEach(i => i.classList.remove('active'));
-                activeMenuItem.classList.add('active');
-                const categoryTitle = document.getElementById('current-category');
-                if (categoryTitle) {
-                    categoryTitle.textContent = activeMenuItem.textContent.replace(/ \d+$/, '').trim();
-                }
-            }
-        }
-    }
-
-    // Initialize UI components and load initial data
-    initSearch();
+    // 2. Initialize UI components common to all pages (or safe to run everywhere)
     initAccountDropdown();
     initModals();
+    initActionButtons(); // Handles top-bar cart/save links navigating TO Main.php
+
+    // 3. Update counts based on loaded data (needs to happen on all pages)
     updateCartCount();
     updateSaveCount();
 
-    // Initialize action buttons (saves and cart) for all pages
-    initActionButtons();
+    // 4. Page-specific initializations
+    if (document.getElementById('product-container')) { // Check for element unique to Main.php
+        console.log("Initializing Main Page specific components...");
+        initSidebar();      // Sidebar category navigation
+        initSearch();       // Top bar search
+        initMainPageProductClicks(); // Add listeners for product cards on main page
+        loadProducts('recommendation'); // Load initial products
+
+        // --- Check for redirect flags AFTER main page init ---
+        if (localStorage.getItem('showCart') === 'true') {
+            console.log("Detected showCart flag, displaying cart.");
+            localStorage.removeItem('showCart'); // Clear the flag
+            displayCart(); // Show cart view
+            // Explicitly update title and deactivate sidebar links
+            const categoryTitle = document.getElementById('current-category');
+            if (categoryTitle) categoryTitle.textContent = 'Your Cart';
+            document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
+        } else if (localStorage.getItem('showSaves') === 'true') {
+            console.log("Detected showSaves flag, displaying saved items.");
+            localStorage.removeItem('showSaves'); // Clear the flag
+            displaySavedProducts(); // Show saved items view
+            // Explicitly update title and deactivate sidebar links
+            const categoryTitle = document.getElementById('current-category');
+            if (categoryTitle) categoryTitle.textContent = 'Saved Items';
+             document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
+        }
+        // --- End redirect flag check ---
+
+    } else if (document.getElementById('detail-product-name')) { // Check for element unique to productDetail.php
+        console.log("Initializing Product Detail Page specific components...");
+        initProductDetailPage(); // Initialize detail page elements and listeners
+
+    } else if (document.querySelector('.checkout-container')) { // Check for element unique to checkOut.php
+        console.log("Initializing Checkout Page specific components...");
+        // Call checkout specific initializations if needed later
+        // e.g., loadCheckoutCartSummary(); // Hypothetical function
+
+    } else {
+        console.log("On an unrecognized page or page without specific JS initializers.");
+    }
+
+    console.log("Initialization complete.");
 });
 
 // ==========================
-// Sidebar Navigation
+// Sidebar Navigation (Main Page)
 // ==========================
 function initSidebar() {
     const menuItems = document.querySelectorAll('.sidebar-menu a');
@@ -69,41 +78,32 @@ function initSidebar() {
         item.addEventListener('click', function (e) {
             e.preventDefault();
 
-            const category = this.getAttribute('data-category');
-            
-            // If we're on the product detail page, we need to navigate to Main.php
-            if (window.location.pathname.includes('productDetail.php')) {
-                if (category === 'cart' || category === 'saves') {
-                    // Set flag to show cart or saves after redirect
-                    localStorage.setItem('showCart', category === 'cart');
-                    localStorage.setItem('showSaves', category === 'saves');
-                }
-                window.location.href = `Main.php${category ? `?category=${category}` : ''}`;
-                return;
-            }
-
             // Handle active state visually
             menuItems.forEach(i => i.classList.remove('active'));
             this.classList.add('active');
 
-            if (categoryTitle) {
-                categoryTitle.textContent = this.textContent.replace(/ \d+$/, '').trim(); // Update title, remove badge number if present
-            }
+            const category = this.getAttribute('data-category');
+            let titleText = this.textContent.replace(/ \d+$/, '').trim(); // Update title, remove badge number
 
             // Load content based on category
             if (category === 'cart') {
+                titleText = 'Your Cart';
                 displayCart();
             } else if (category === 'saves') {
+                 titleText = 'Saved Items';
                 displaySavedProducts();
             } else {
                 loadProducts(category);
+            }
+             if (categoryTitle) {
+                categoryTitle.textContent = titleText;
             }
         });
     });
 }
 
 // ==========================
-// Search Functionality
+// Search Functionality (Main Page/Top Bar)
 // ==========================
 function initSearch() {
     const searchButton = document.getElementById('search-button');
@@ -111,11 +111,17 @@ function initSearch() {
 
     const performSearch = () => {
         const searchTerm = searchInput.value.trim();
-        if (searchTerm) {
-            searchProducts(searchTerm);
+        // If on Main.php, perform search and display results there
+        if (document.getElementById('product-container')) {
+            if (searchTerm) {
+                searchProducts(searchTerm);
+            } else {
+                loadProducts('recommendation'); // Load default if search is cleared
+            }
         } else {
-            // Optional: Reload recommendations or show all if search is empty
-            loadProducts('recommendation');
+            // If on another page, redirect to Main.php with search term
+            window.location.href = `Main.php?search=${encodeURIComponent(searchTerm)}`;
+            // Note: Main.php would need logic to read this URL param on load
         }
     };
 
@@ -128,7 +134,7 @@ function initSearch() {
 }
 
 // ==========================
-// Account Dropdown
+// Account Dropdown (All Pages)
 // ==========================
 function initAccountDropdown() {
     const accountButton = document.getElementById('account-button');
@@ -136,56 +142,44 @@ function initAccountDropdown() {
     const addAccountBtn = document.getElementById('add-account-btn');
     const logoutBtn = document.getElementById('logout-btn');
 
-    if (!accountButton || !accountDropdown) {
-        console.error("Account button or dropdown not found!");
-        return;
-    }
+    if (!accountButton || !accountDropdown) return;
 
-    console.log("Account button and dropdown found."); // Debugging statement
-
-    // Toggle dropdown when clicking the account button
-    accountButton.addEventListener('click', function(e) {
+    accountButton.addEventListener('click', (e) => {
         e.stopPropagation();
         accountDropdown.classList.toggle('show');
     });
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', (e) => {
         if (!accountDropdown.contains(e.target) && !accountButton.contains(e.target)) {
             accountDropdown.classList.remove('show');
-            console.log("Dropdown closed."); // Debugging statement
         }
     });
 
-    // Prevent dropdown from closing when clicking inside it
-    accountDropdown.addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
-
-    // Handle Add Account button click
     if (addAccountBtn) {
-        addAccountBtn.addEventListener('click', function() {
-            // Show login modal
-            const loginModal = document.getElementById('login-modal');
-            if (loginModal) {
-                loginModal.classList.add('active');
+        addAccountBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             accountDropdown.classList.remove('show');
-            }
+            showModalById('register-modal'); // Use helper
         });
     }
 
-    // Handle Logout button click
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
-            // Add your logout logic here
-            alert('Logging out...');
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             accountDropdown.classList.remove('show');
+            // Add actual logout logic here (e.g., redirect to logout script)
+            alert('Logged out successfully! (Simulation)');
+            // Update UI to guest state if needed
+            const userStatus = document.querySelector('.user-status');
+            const userAvatar = document.querySelector('.user-avatar');
+            if(userStatus) userStatus.textContent = 'Guest';
+            if(userAvatar) userAvatar.src = 'images/guest-avatar.png';
         });
     }
 }
 
 // ==========================
-// Modals (Login/Register)
+// Modals (Login/Register - All Pages)
 // ==========================
 function initModals() {
     const showRegisterLink = document.getElementById('show-register');
@@ -193,56 +187,38 @@ function initModals() {
     const closeModalButtons = document.querySelectorAll('.close-modal');
     const modalOverlays = document.querySelectorAll('.modal-overlay');
 
-    // Show Register Modal
     if (showRegisterLink) {
-        showRegisterLink.addEventListener('click', function(e) {
+        showRegisterLink.addEventListener('click', (e) => {
             e.preventDefault();
-            const loginModal = document.getElementById('login-modal');
-            const registerModal = document.getElementById('register-modal');
-            if (loginModal && registerModal) {
-                loginModal.classList.remove('active');
-                registerModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
+            hideModalById('login-modal');
+            showModalById('register-modal');
         });
     }
 
-    // Show Login Modal
     if (showLoginLink) {
-        showLoginLink.addEventListener('click', function(e) {
+        showLoginLink.addEventListener('click', (e) => {
             e.preventDefault();
-            const loginModal = document.getElementById('login-modal');
-            const registerModal = document.getElementById('register-modal');
-            if (loginModal && registerModal) {
-                registerModal.classList.remove('active');
-                loginModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
+            hideModalById('register-modal');
+            showModalById('login-modal');
         });
     }
 
-    // Close Modal Buttons
     closeModalButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const modal = this.closest('.modal-overlay');
-            if (modal) {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
+            if(modal) hideModal(modal);
         });
     });
 
-    // Close Modal on Overlay Click
     modalOverlays.forEach(overlay => {
-        overlay.addEventListener('click', function(e) {
+        overlay.addEventListener('click', function (e) {
             if (e.target === this) {
-                this.classList.remove('active');
-                document.body.style.overflow = '';
+                hideModal(this);
             }
         });
     });
 
-    // Password Visibility Toggle
+    // Password visibility toggles
     document.querySelectorAll('.toggle-password').forEach(button => {
         button.addEventListener('click', function() {
             const passwordInput = this.previousElementSibling;
@@ -251,10 +227,12 @@ function initModals() {
                 passwordInput.type = "text";
                 icon.classList.remove('fa-eye');
                 icon.classList.add('fa-eye-slash');
+                this.setAttribute('aria-label', 'Hide password');
             } else {
                 passwordInput.type = "password";
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
+                this.setAttribute('aria-label', 'Show password');
             }
         });
     });
@@ -273,98 +251,57 @@ function hideModalById(modalId) {
 function showModal(modalElement) {
     if (modalElement) {
         modalElement.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        document.body.style.overflow = 'hidden';
     }
 }
 
 function hideModal(modalElement) {
     if (modalElement) {
         modalElement.classList.remove('active');
-        document.body.style.overflow = ''; // Restore background scrolling
+        document.body.style.overflow = '';
     }
 }
 
 // ==========================
-// Product Handling (Loading & Displaying)
+// Product Handling (Main Page)
 // ==========================
 function loadProducts(category) {
     console.log(`Loading products for category: ${category}`);
-    // Clear existing products before loading new ones
     const container = document.getElementById('product-container');
-    if(container) container.innerHTML = '<p>Loading products...</p>'; // Show loading indicator
+    if(!container) return; // Only run on Main.php
+
+    container.innerHTML = '<p>Loading products...</p>';
 
     // --- MOCK DATA ---
-    // Replace this with your actual fetch call if needed
+    // In a real app, fetch from backend: fetch('api/products?category=' + category)
     const products = getMockProducts(category);
     displayProducts(products);
     // --- END MOCK DATA ---
-
-    /* --- Example Fetch Call (Uncomment and adapt if using backend) ---
-    fetch('php/get_products.php?category=' + encodeURIComponent(category))
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(products => {
-            displayProducts(products);
-        })
-        .catch(error => {
-            console.error('Error loading products:', error);
-            const container = document.getElementById('product-container');
-            if(container) container.innerHTML = '<p>Error loading products. Please try again later.</p>';
-             // Optionally display mock data as fallback
-             // displayProducts(getMockProducts(category));
-        });
-    */
 }
 
 function searchProducts(searchTerm) {
     console.log(`Searching for: ${searchTerm}`);
     const container = document.getElementById('product-container');
     const categoryTitle = document.getElementById('current-category');
+    if(!container) return; // Only run on Main.php
 
-    if(container) container.innerHTML = '<p>Searching...</p>';
-    if(categoryTitle) categoryTitle.textContent = 'Search Results';
+    container.innerHTML = '<p>Searching...</p>';
+    if(categoryTitle) categoryTitle.textContent = `Search Results for "${searchTerm}"`;
 
     // --- MOCK SEARCH ---
+    // In a real app, fetch from backend: fetch('api/products?search=' + searchTerm)
     const allProducts = getAllMockProducts();
     const results = allProducts.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase())) // Optional: search description too
     );
     displayProducts(results);
     // --- END MOCK SEARCH ---
-
-    /* --- Example Fetch Call (Uncomment and adapt if using backend) ---
-    fetch('php/search_products.php?search=' + encodeURIComponent(searchTerm))
-        .then(response => {
-             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(products => {
-            displayProducts(products);
-        })
-        .catch(error => {
-            console.error('Error searching products:', error);
-            const container = document.getElementById('product-container');
-            if(container) container.innerHTML = '<p>Error performing search. Please try again later.</p>';
-             // Optionally display mock data as fallback
-             // const allProducts = getAllMockProducts();
-             // const results = allProducts.filter(product => product.name.toLowerCase().includes(searchTerm.toLowerCase()));
-             // displayProducts(results);
-        });
-    */
 }
 
 function displayProducts(products) {
     const container = document.getElementById('product-container');
-    if (!container) {
-        console.error("Product container not found!");
-        return;
-    }
+    if (!container) return; // Safety check
 
     if (!Array.isArray(products)) {
         console.error("Invalid data received for products:", products);
@@ -372,262 +309,206 @@ function displayProducts(products) {
         return;
     }
 
-    container.innerHTML = products.length === 0
-        ? '<p>No products found.</p>'
-        : products.map(product => {
-            // Ensure product has necessary properties
-            const id = product.id ?? 'unknown';
-            const name = product.name ?? 'Unnamed Product';
-            const price = typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A';
-            const imageSrc = `src/${name.replace(/ /g, '_')}.jpg`; // Assuming image naming convention
+    if (products.length === 0) {
+        // Get current category/search context for a better message
+        const categoryTitle = document.getElementById('current-category')?.textContent || 'this category';
+         if(categoryTitle.toLowerCase().includes('search results')) {
+             container.innerHTML = '<p>No products found matching your search.</p>';
+         } else if (categoryTitle === 'Saved Items') {
+              container.innerHTML = '<p>No saved items yet.</p>';
+         }
+         else {
+            container.innerHTML = `<p>No products found in ${categoryTitle}.</p>`;
+         }
+        return;
+    }
 
-            const isSaved = savedItems.includes(id); // Check if item is in saves
-            const isInCart = cart.some(item => item.id === id); // Check if item is in cart
+    container.innerHTML = products.map(product => {
+        // Validate product data
+        const id = product.id ?? `unknown-${Math.random()}`;
+        const name = product.name ?? 'Unnamed Product';
+        const price = typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A';
+        // Correct image path assumption, use placeholder on error
+        const imageName = name.replace(/ /g, '_'); // Replace spaces for filename consistency
+        const imageSrc = `src/${imageName}.jpg`; // *** ADJUST PATH AS NEEDED *** e.g., 'images/products/'
+        const isSaved = savedItems.includes(id); // Check if item is in global savedItems array
 
-            return `
-            <div class="product-card" data-product-id="${id}" data-product-name="${name}" data-product-price="${price}">
-                <a href="productDetail.php?id=${id}" class="product-card-link">
-                    <div class="product-image">
-                        <img src="${imageSrc}" alt="${name}" onerror="this.onerror=null; this.src='images/placeholder.jpg';">
-                    </div>
-                <div class="product-info">
-                        <div class="product-title">${name}</div>
-                        <div class="product-price">RM ${price}</div>
-                        ${isInCart ? '<div class="cart-status">In Cart</div>' : ''}
-                    </div>
-                </a>
-                    <div class="product-actions">
-                        <button class="btn-purple add-to-cart">
-                            Add to Cart
-                        </button>
-                    <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${id}">
-                            <i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Unsave' : 'Save'}
-                        </button>
+        return `
+        <div class="product-card" data-product-id="${id}">
+             <a href="productDetail.php?id=${id}" class="product-card-link" aria-label="View details for ${name}">
+                <div class="product-image">
+                    <img src="${imageSrc}" alt="${name}" loading="lazy" onerror="this.onerror=null; this.src='images/placeholder.jpg';">
                 </div>
-            </div>`;
-        }).join('');
+                <div class="product-info">
+                    <div class="product-title">${name}</div>
+                    <div class="product-price">RM ${price}</div>
+                </div>
+            </a>
+            <div class="product-actions">
+                <button class="btn-purple add-to-cart" data-id="${id}" aria-label="Add ${name} to cart">Add to Cart</button>
+                <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${id}" aria-label="${isSaved ? 'Unsave' : 'Save'} ${name}">
+                    <i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Saved' : 'Save'}
+                </button>
+            </div>
+        </div>`;
+    }).join('');
 
-    // --- Event Listeners for dynamic content ---
-    // Use event delegation on the container for efficiency
-    container.removeEventListener('click', handleProductContainerClick); // Remove old listener if re-rendering
-    container.addEventListener('click', handleProductContainerClick);
+     // Note: Event listeners for buttons within these cards are added in initMainPageProductClicks
 }
 
-function handleProductContainerClick(event) {
-    // Handle "Add to Cart" clicks
-    if (event.target.classList.contains('add-to-cart')) {
-        const button = event.target;
-        animateAddToCart(button); // Call animation function
-    }
-    // Handle "Save" clicks
-    else if (event.target.classList.contains('btn-save') || event.target.closest('.btn-save')) {
-        const button = event.target.closest('.btn-save');
-        const productId = parseInt(button.dataset.id);
-        if (!isNaN(productId)) {
-            toggleSave(productId, button);
+// Add event listeners specifically for product cards on the main page
+function initMainPageProductClicks() {
+    const container = document.getElementById('product-container');
+    if (!container) return;
+
+    // Use event delegation on the container
+    container.addEventListener('click', function(event) {
+        const target = event.target;
+
+        // Handle "Add to Cart" clicks
+        if (target.classList.contains('add-to-cart')) {
+            event.preventDefault(); // Prevent link navigation if button is inside <a>
+            const button = target;
+            const productId = parseInt(button.dataset.id);
+             const productCard = button.closest('.product-card');
+             const productName = productCard?.querySelector('.product-title')?.textContent || 'Product';
+             const productImage = productCard?.querySelector('.product-image img');
+
+            if (!isNaN(productId) && productCard) {
+                console.log(`Main page Add to Cart clicked for ID: ${productId}`);
+                 const productData = getProductById(productId);
+                 if (productData) {
+                     addToCartLogic(productData); // Use shared logic function
+                     if (productImage) {
+                         animateFlyToCart(productImage); // Use shared animation
+                     }
+                     showCartNotification(productName); // Use shared notification
+                 } else {
+                    console.error(`Product data not found for ID ${productId} on main page click.`);
+                    alert("Error: Could not find product details.");
+                 }
+            }
         }
-    }
-    // Don't prevent default for product card link clicks
+        // Handle "Save" clicks
+        else if (target.classList.contains('btn-save') || target.closest('.btn-save')) {
+            event.preventDefault(); // Prevent link navigation if button is inside <a>
+            const button = target.closest('.btn-save');
+            const productId = parseInt(button.dataset.id);
+            if (!isNaN(productId)) {
+                 console.log(`Main page Save button clicked for ID: ${productId}`);
+                toggleSave(productId, button); // Use global toggleSave function
+            }
+        }
+        // Note: Clicking the card itself is handled by the <a> tag navigating to productDetail.php
+    });
 }
+
 
 // ==========================
 // Mock Product Data (Keep for fallback/testing)
 // ==========================
 function getMockProducts(category) {
-    const allProducts = getAllMockProducts(); // Use the single source
+    const allProducts = getAllMockProducts();
+    // Normalize category name if needed
+    category = category.toLowerCase();
+
     switch(category) {
-        case 'butterfly': return allProducts.filter(p => [2, 3, 4].includes(p.id));
-        case 'moonstone': return allProducts.filter(p => [5, 6, 7].includes(p.id));
-        case 'malachite': return allProducts.filter(p => [8, 9, 10, 11].includes(p.id));
-        case 'luxe': return allProducts.filter(p => [12, 13].includes(p.id));
+        case 'butterfly':
+        case 'butterfly series': // Allow for variations
+             return allProducts.filter(p => [2, 3, 4].includes(p.id));
+        case 'moonstone':
+        case 'moonstone series':
+             return allProducts.filter(p => [5, 6, 7].includes(p.id));
+        case 'malachite':
+        case 'mystical malachite series':
+             return allProducts.filter(p => [8, 9, 10, 11].includes(p.id));
+        case 'luxe':
+        case 'luxe series':
+             return allProducts.filter(p => [12, 13].includes(p.id));
         case 'recommendation':
         default:
-            // Return a subset or all for recommendation
+            // Return a subset or all for recommendation/default
             return allProducts.slice(0, 13); // Example: show first 13
     }
 }
 
 function getAllMockProducts() {
-    // Central place for all product definitions
+    // Central place for all product definitions, including descriptions
     return [
-        { id: 1, name: 'Healing Soul', price: 110 },
-        { id: 2, name: 'Calm Butterfly', price: 160 },
-        { id: 3, name: 'Ethereal Butterfly', price: 170 },
-        { id: 4, name: 'Sweet Butterfly', price: 90 },
-        { id: 5, name: 'Moon Candies', price: 110 },
-        { id: 6, name: 'Moon Phase', price: 160 },
-        { id: 7, name: 'Ethereal Moon', price: 170 },
-        { id: 8, name: 'Healing Transformation', price: 70 },
-        { id: 9, name: 'Breezy Transformation', price: 75 },
-        { id: 10, name: 'Wealthy Transformation', price: 70 },
-        { id: 11, name: 'Amplified Transformation', price: 75 },
-        { id: 12, name: 'Angel Self Love Edition', price: 140 },
-        { id: 13, name: 'Chunk of Abundance', price: 180 }
-        // Add more products here if needed
+        { id: 1, name: 'Healing Soul', price: 110, description: 'This Bracelet was curated with clear Quartz, the master healer crystal.\n\nClear Quartz : 8mm\n\n1¾k gold plated charms with Zircon. (Moon, Ribbon and Filiqree Heart)' },
+        { id: 2, name: 'Calm Butterfly', price: 160, description: 'Features calming stones like Amethyst and Lepidolite combined with elegant butterfly charms. Perfect for easing anxiety and promoting peace.' },
+        { id: 3, name: 'Ethereal Butterfly', price: 170, description: 'A delicate design featuring high-grade Moonstone and Aquamarine, evoking grace, intuition, and transformation. Accented with silver butterfly charms.' },
+        { id: 4, name: 'Sweet Butterfly', price: 90, description: 'A charming and affordable bracelet with Rose Quartz and colorful beads, accented with a sweet butterfly charm. Promotes love and joy.' },
+        { id: 5, name: 'Moon Candies', price: 110, description: 'A playful mix of colorful moonstone beads resembling sweet candies. Connects with lunar energy and enhances intuition.' },
+        { id: 6, name: 'Moon Phase', price: 160, description: 'Represents the waxing and waning phases of the moon using carefully selected Labradorite and Moonstone beads. Enhances psychic abilities and inner knowing.' },
+        { id: 7, name: 'Ethereal Moon', price: 170, description: 'Showcases high-quality Rainbow Moonstones with a mystical blue flash. A powerful stone for new beginnings and emotional balance.' },
+        { id: 8, name: 'Healing Transformation', price: 70, description: 'Deep green Malachite paired with Smoky Quartz promotes healing, absorbs negativity, and encourages positive transformation.' },
+        { id: 9, name: 'Breezy Transformation', price: 75, description: 'A lighter take on the malachite transformation theme, incorporating Chrysocolla for communication and calm change.' },
+        { id: 10, name: 'Wealthy Transformation', price: 70, description: 'Malachite combined with Citrine and Pyrite to attract abundance while navigating personal growth and transformation.' },
+        { id: 11, name: 'Amplified Transformation', price: 75, description: 'Combines the transformative power of Malachite with the amplifying energy of Clear Quartz for focused change.' },
+        { id: 12, name: 'Angel Self Love Edition', price: 140, description: 'A LUXE series bracelet featuring premium Rose Quartz, Kunzite, and Angelite beads. Fosters self-love, compassion, and angelic connections.' },
+        { id: 13, name: 'Chunk of Abundance', price: 180, description: 'A statement LUXE piece featuring large, high-quality Green Aventurine, Citrine, and Pyrite nuggets designed to be a powerful magnet for abundance and prosperity.' }
     ];
 }
 
 // ==========================
-// Cart Functionality
+// Cart Functionality (Shared Logic)
 // ==========================
 
-function initCartDisplay() {
-    // This function is now mainly for initialization
-    // The click handler is in the DOMContentLoaded event
-    updateCartCount();
-}
-
-function updateCartCount() {
-    const cartBadges = document.querySelectorAll('.cart-badge');
-    const count = cart.reduce((total, item) => total + (item.quantity || 0), 0);
-    
-    cartBadges.forEach(badge => {
-        if (badge) {
-            badge.textContent = count;
-            badge.style.display = count > 0 ? 'inline-flex' : 'none';
-        }
-    });
-}
-
-// ==========================
-// Save Functionality
-// ==========================
-
-function initSavesDisplay() {
-    // This function is now mainly for initialization
-    // The click handler is in the DOMContentLoaded event
-    updateSaveCount();
-}
-
-function updateSaveCount() {
-    const saveBadges = document.querySelectorAll('.save-badge');
-    const count = savedItems.length;
-    
-    saveBadges.forEach(badge => {
-        if (badge) {
-            badge.textContent = count;
-            badge.style.display = count > 0 ? 'inline-flex' : 'none';
-        }
-    });
-}
-
-// --- Core Cart Logic within Animation Function ---
-function animateAddToCart(button) {
-    const productCard = button.closest('.product-card');
-    if (!productCard) {
-        console.error("Could not find product card for button:", button);
+// Shared logic to add/update item in the global cart array
+function addToCartLogic(productData) {
+    if (!productData || typeof productData.id === 'undefined') {
+        console.error("addToCartLogic received invalid product data:", productData);
         return;
     }
-
-    const productId = parseInt(productCard.dataset.productId);
-    const productName = productCard.dataset.productName;
-
-    if (isNaN(productId)) {
-        console.error("Invalid Product ID found:", productCard.dataset.productId);
-        return;
-    }
-
-    console.log(`--- Animate Add To Cart Start --- ID: ${productId} (${productName})`);
-
-    // --- Animation Setup ---
-    const productImage = productCard.querySelector('.product-image img');
-    const cartTarget = document.querySelector('.sidebar-menu a[data-category="cart"] i');
-
-    if (productImage && cartTarget) {
-        const imgClone = productImage.cloneNode(true);
-        const imgRect = productImage.getBoundingClientRect();
-        const cartRect = cartTarget.getBoundingClientRect();
-
-        imgClone.classList.add('product-image-fly');
-        document.body.appendChild(imgClone);
-
-        // Set initial position (fixed relative to viewport)
-        imgClone.style.position = 'fixed';
-        imgClone.style.top = `${imgRect.top}px`;
-        imgClone.style.left = `${imgRect.left}px`;
-        imgClone.style.width = `${imgRect.width}px`;
-        imgClone.style.height = `${imgRect.height}px`;
-        imgClone.style.opacity = '1';
-        imgClone.style.pointerEvents = 'none';
-        imgClone.style.zIndex = '1001';
-
-        requestAnimationFrame(() => {
-            // Calculate target position (center of cart icon, adjusted for final scale)
-            const targetX = cartRect.left + (cartRect.width / 2) - (imgRect.width / 2 * 0.1);
-            const targetY = cartRect.top + (cartRect.height / 2) - (imgRect.height / 2 * 0.1);
-
-            // Apply final animation styles
-            imgClone.style.transform = `translate(${targetX - imgRect.left}px, ${targetY - imgRect.top}px) scale(0.1)`;
-            imgClone.style.opacity = '0';
-        });
-
-        imgClone.addEventListener('transitionend', () => {
-            imgClone.remove();
-            console.log("Animation clone removed.");
-        }, { once: true });
-    } else {
-        console.warn("Could not find product image or cart target for animation.");
-    }
-
-    // --- Actual Cart Update Logic ---
-    console.log("Current 'cart' array STATE at start of cart logic:", JSON.stringify(cart));
-
-    const productData = getAllMockProducts().find(p => p.id === productId);
-    if (!productData) {
-        console.error(`Product data not found in mock data for ID: ${productId}`);
-        return;
-    }
-
+    const productId = productData.id;
     const existingItemIndex = cart.findIndex(item => item.id === productId);
 
     if (existingItemIndex > -1) {
-        console.log(`FOUND existing item in cart at index ${existingItemIndex} for ID ${productId}. Incrementing quantity.`);
-        cart[existingItemIndex].quantity++;
-        console.log(`Incremented quantity. New quantity: ${cart[existingItemIndex].quantity}`);
+        // Item exists, increment quantity
+        console.log(`Item ${productId} exists, incrementing quantity.`);
+        cart[existingItemIndex].quantity = (cart[existingItemIndex].quantity || 1) + 1; // Ensure quantity is a number
     } else {
-        console.log(`Did NOT find existing item for ID ${productId}. Adding new item.`);
-        const newItem = { ...productData, quantity: 1 };
+        // Item does not exist, add new item
+        console.log(`Item ${productId} not found, adding new.`);
+        // Ensure price is numeric before adding
+         const price = typeof productData.price === 'number' ? productData.price : 0;
+         const newItem = { ...productData, price: price, quantity: 1 }; // Clone product data and add quantity
         cart.push(newItem);
-        console.log(`Pushed new item: ${JSON.stringify(newItem)}`);
     }
-
-    console.log("Cart array STATE before saveCart:", JSON.stringify(cart));
-    saveCart();
-    updateCartCount();
-    showCartNotification(productName);
-
-    console.log(`--- Animate Add To Cart End --- ID: ${productId}`);
+    console.log("Cart state after update:", JSON.stringify(cart));
+    saveCart(); // Persist changes
+    updateCartCount(); // Update UI badges
 }
 
-
-// Modified to handle animation *before* data update
-async function removeFromCart(productId, cardElement) { // Accept cardElement
+// Modified removeFromCart to use animation and handle data update
+async function removeFromCart(productId, cardElement) {
     console.log(`--- removeFromCart called for ID: ${productId} ---`);
-    if (isNaN(productId) || !cardElement) {
-        console.error("Invalid arguments passed to removeFromCart:", productId, cardElement);
+    if (isNaN(productId)) {
+        console.error("Invalid productId passed to removeFromCart:", productId);
         return;
     }
 
-    // 1. Trigger the explosion animation and wait for it to finish
-    try {
-        console.log("Triggering explosion effect...");
-        await explodeEffect(cardElement); // Wait for the animation Promise
-        console.log("Explosion effect finished.");
-    } catch (error) {
-        console.error("Explosion animation failed:", error);
-        // Decide if you still want to remove the item even if animation fails
-        // For now, we'll continue to remove the item data.
-        // As a fallback, ensure the card is hidden/removed visually:
-         cardElement.style.display = 'none';
+    // 1. Trigger animation if cardElement is provided
+    if (cardElement) {
+        try {
+            console.log("Triggering explosion effect...");
+            await explodeEffect(cardElement); // Wait for the animation Promise
+            console.log("Explosion effect finished.");
+        } catch (error) {
+            console.error("Explosion animation failed:", error);
+            // Fallback: ensure the card is hidden/removed visually if animation fails
+             cardElement.style.display = 'none';
+        }
+    } else {
+        console.warn("removeFromCart called without cardElement, skipping animation.");
     }
 
-
-    // 2. Update the actual cart data *after* animation
+    // 2. Update the actual cart data array
     console.log("Updating cart data...");
     console.log("Cart BEFORE data removal:", JSON.stringify(cart));
-
     const initialLength = cart.length;
-    cart = cart.filter(item => item.id !== productId); // Update global cart array
+    cart = cart.filter(item => item.id !== productId); // Filter out the item
 
     if (cart.length < initialLength) {
         console.log(`Item with ID ${productId} successfully filtered from data array.`);
@@ -640,231 +521,418 @@ async function removeFromCart(productId, cardElement) { // Accept cardElement
     saveCart();
     updateCartCount();
 
-    // 4. Optional: Re-render the entire cart view *if necessary*.
-    // Since the card is visually gone, you might not need a full re-render
-    // immediately, unless the summary needs updating based on other factors.
-    // If the summary *only* depends on the cart array, just updating the
-    // subtotal in the summary might be more efficient than full re-render.
-    // For simplicity now, we will re-render fully to ensure consistency.
-    console.log("Re-rendering cart display...");
-    displayCart(); // Re-draw the cart view
+    // 4. Re-render the cart view to reflect changes (e.g., update subtotal)
+    // This assumes displayCart() is the function to show the cart page content
+    // Check if the cart container is currently visible or if the active category is cart
+    const cartContainer = document.getElementById('product-container'); // Assuming this is where cart items are shown
+    const currentCategory = document.getElementById('current-category')?.textContent;
+    if (cartContainer && (currentCategory === 'Your Cart' || currentCategory === 'Shopping Cart')) { // Check if we are viewing the cart
+        console.log("Re-rendering cart display after removal...");
+        displayCart(); // Re-draw the cart view if it's currently displayed
+    }
 
     console.log(`--- removeFromCart finished for ID: ${productId} ---`);
 }
 
+
 function saveCart() {
     try {
-    localStorage.setItem('cart', JSON.stringify(cart));
+        localStorage.setItem('cart', JSON.stringify(cart));
         console.log("Cart saved to localStorage:", JSON.stringify(cart));
     } catch (e) {
         console.error("Error saving cart to localStorage:", e);
-}
+        // Optionally inform the user or try a different storage method
+    }
 }
 
-// NOTE: loadCart is only called once on initial page load now.
-// Subsequent updates rely on modifying the global 'cart' array directly.
-
+// Display cart contents (typically on Main.php when 'Cart' is selected)
 function displayCart() {
-    const cartContainer = document.getElementById('product-container');
+    const cartContainer = document.getElementById('product-container'); // Target main content area
     const categoryTitle = document.getElementById('current-category');
 
-    if(categoryTitle) categoryTitle.textContent = 'Shopping Cart';
+    if(categoryTitle) categoryTitle.textContent = 'Your Cart'; // Set title
     if (!cartContainer) {
-        console.error("Cart container not found!");
+        console.error("Main product container not found for displaying cart!");
         return;
     }
 
     console.log("--- Displaying Cart --- Current cart state:", JSON.stringify(cart));
-
-    // Clear previous content
-    cartContainer.innerHTML = '';
+    cartContainer.innerHTML = ''; // Clear previous content (like products)
 
     if (cart.length === 0) {
         cartContainer.innerHTML = `
             <div class="cart-empty-message">
-                <i class="fas fa-shopping-cart" style="font-size: 2.5em; color: var(--primary-color);"></i>
-                <p style="margin: 0;">Your shopping cart is empty</p>
-                <button class="btn-purple" onclick="window.location.href='Main.php'" style="margin-top: 15px; padding: 12px 25px;">
-                    Continue Shopping
-                </button>
+                 <i class="fas fa-shopping-cart" style="font-size: 3em; color: #ccc;"></i>
+                <p>Your cart is empty.</p>
+                <button class="btn-purple" onclick="loadProducts('recommendation'); document.getElementById('current-category').textContent='Recommendation';">Continue Shopping</button>
             </div>`;
     } else {
-        // Create a container for the items themselves
-        const itemsContainer = document.createElement('div');
-        itemsContainer.className = 'cart-items-container';
-
-        itemsContainer.innerHTML = cart.map(item => {
-            // Validate item data minimally
+        const itemsHtml = cart.map(item => {
             const id = item.id ?? 'unknown';
             const name = item.name ?? 'Unnamed Product';
-            const price = typeof item.price === 'number' ? item.price.toFixed(2) : 'N/A';
-            const quantity = item.quantity ?? 1;
-            const totalPrice = (item.price * quantity).toFixed(2);
-            const imageSrc = `src/${name.replace(/ /g, '_')}.jpg`;
+            // Ensure price is a number, default to 0 if not
+             const price = typeof item.price === 'number' ? item.price : 0;
+            const quantity = typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1; // Ensure quantity is at least 1
+            const itemTotal = (price * quantity).toFixed(2);
+            // Consistent image source logic
+            const imageName = name.replace(/ /g, '_');
+            const imageSrc = `src/${imageName}.jpg`; // *** ADJUST PATH AS NEEDED ***
 
             return `
             <div class="cart-item-card" data-id="${id}">
-                <img src="${imageSrc}" alt="${name}" class="cart-item-image" 
-                    onerror="this.onerror=null; this.src='images/placeholder.jpg';">
+                <img src="${imageSrc}" alt="${name}" class="cart-item-image" onerror="this.onerror=null; this.src='images/placeholder.jpg';">
                 <div class="cart-item-details">
                     <div class="cart-item-name">${name}</div>
-                    <div class="cart-item-price">RM ${totalPrice}</div>
-                    <div class="cart-item-quantity">
-                        <div class="quantity-controls">
-                            <button class="quantity-btn minus" data-id="${id}">-</button>
-                            <span class="quantity-value">${quantity}</span>
-                            <button class="quantity-btn plus" data-id="${id}">+</button>
-                        </div>
-                    </div>
+                    <div class="cart-item-price">RM ${price.toFixed(2)}</div>
+                     <div class="cart-item-quantity-controls">
+                         <span>Qty:</span>
+                         <button class="quantity-btn decrease-qty" data-id="${id}" aria-label="Decrease quantity of ${name}">-</button>
+                         <span class="quantity-value">${quantity}</span>
+                         <button class="quantity-btn increase-qty" data-id="${id}" aria-label="Increase quantity of ${name}">+</button>
+                     </div>
+                     <div class="cart-item-total">Subtotal: RM ${itemTotal}</div>
                 </div>
-                <button class="btn-remove-item" data-id="${id}" aria-label="Remove ${name}">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="btn-remove-item" data-id="${id}" aria-label="Remove ${name} from cart">×</button>
             </div>`;
-        }).join('');
+            }).join('');
 
         // Calculate Subtotal
         let subtotal = cart.reduce((sum, item) => {
             const price = typeof item.price === 'number' ? item.price : 0;
-            const quantity = typeof item.quantity === 'number' ? item.quantity : 0;
+            const quantity = typeof item.quantity === 'number' ? item.quantity : 1;
             return sum + (price * quantity);
         }, 0);
 
-        // Create Summary Section
-        const summaryContainer = document.createElement('div');
-        summaryContainer.className = 'cart-summary';
-        summaryContainer.innerHTML = `
-            <h3>Order Summary</h3>
-            <p>
-                <span>Subtotal (${cart.reduce((total, item) => total + (item.quantity || 0), 0)} items)</span>
-                <span>RM ${subtotal.toFixed(2)}</span>
-            </p>
-            <p>
-                <span>Total</span>
-                <span>RM ${subtotal.toFixed(2)}</span>
-            </p>
-            <button class="checkout-btn">
-                Proceed to Checkout
-            </button>
-        `;
+        // Create Summary and Items structure
+        cartContainer.innerHTML = `
+            <div class="cart-page-layout">
+                 <div class="cart-items-list">
+                     ${itemsHtml}
+                 </div>
+                 <div class="cart-summary-sidebar">
+                     <h3>Order Summary</h3>
+                     <div class="summary-row">
+                         <span>Subtotal (${cart.reduce((n, i) => n + (i.quantity || 1), 0)} items)</span>
+                         <span id="cart-subtotal">RM ${subtotal.toFixed(2)}</span>
+                     </div>
+                     <!-- Add shipping/discount later if needed -->
+                     <div class="summary-row total">
+                         <span>Total</span>
+                         <span id="cart-total">RM ${subtotal.toFixed(2)}</span>
+                     </div>
+                     <button class="btn-purple checkout-btn" id="proceed-checkout-btn">
+                         <i class="fas fa-lock"></i> Proceed to Checkout
+                     </button>
+                 </div>
+             </div>`;
 
-        // Append items and summary to the main container
-        cartContainer.appendChild(itemsContainer);
-        cartContainer.appendChild(summaryContainer);
 
-        // --- Event Listeners (using delegation on itemsContainer) ---
-        itemsContainer.addEventListener('click', function(event) {
-            const button = event.target.closest('.btn-remove-item');
-            if (button) {
-                const productIdToRemove = parseInt(button.dataset.id);
-                console.log(`Remove button clicked for ID: ${productIdToRemove}`);
-                if (!isNaN(productIdToRemove)) {
-                    const cardToRemove = button.closest('.cart-item-card');
-                    if (cardToRemove) {
-                        removeFromCart(productIdToRemove, cardToRemove);
-                    } else {
-                        console.error("Could not find parent card element for remove button.");
-                    }
+        // --- Event Listeners for dynamic cart items ---
+        const itemsList = cartContainer.querySelector('.cart-items-list');
+        if (itemsList) {
+            itemsList.addEventListener('click', function(event) {
+                const target = event.target;
+                const productId = parseInt(target.dataset.id);
+
+                if (isNaN(productId)) return; // Ignore clicks not on data-id elements
+
+                if (target.classList.contains('btn-remove-item')) {
+                    console.log(`Remove button clicked for ID: ${productId}`);
+                    const cardToRemove = target.closest('.cart-item-card');
+                    removeFromCart(productId, cardToRemove); // Pass element for animation
+                } else if (target.classList.contains('increase-qty')) {
+                     console.log(`Increase Qty clicked for ID: ${productId}`);
+                     updateCartQuantity(productId, 1); // Increase by 1
+                } else if (target.classList.contains('decrease-qty')) {
+                     console.log(`Decrease Qty clicked for ID: ${productId}`);
+                     updateCartQuantity(productId, -1); // Decrease by 1
                 }
-            }
-
-            // Handle quantity controls
-            const quantityBtn = event.target.closest('.quantity-btn');
-            if (quantityBtn) {
-                const productId = parseInt(quantityBtn.dataset.id);
-                const isPlus = quantityBtn.classList.contains('plus');
-                updateCartQuantity(productId, isPlus);
-            }
-        });
+            });
+        }
 
         // Add listener for checkout button
-        const checkoutBtn = summaryContainer.querySelector('.checkout-btn');
+        const checkoutBtn = cartContainer.querySelector('#proceed-checkout-btn');
         if(checkoutBtn) {
             checkoutBtn.addEventListener('click', () => {
-                window.location.href = 'CheckOut.php';
+                // Save cart one last time before checkout? (Optional, should be saved on updates)
+                // saveCart();
+                window.location.href = 'checkOut.php'; // Navigate to checkout page
             });
         }
     }
+     // Add styles for the new cart layout if not already in style.css
+    addCartPageStyles();
+}
+
+
+// Function to update quantity in cart
+function updateCartQuantity(productId, change) { // change is +1 or -1
+    const itemIndex = cart.findIndex(item => item.id === productId);
+    if (itemIndex > -1) {
+        const newQuantity = (cart[itemIndex].quantity || 1) + change;
+        console.log(`Updating quantity for ${productId} from ${cart[itemIndex].quantity} to ${newQuantity}`);
+
+        if (newQuantity <= 0) {
+            // If quantity drops to 0 or less, remove the item
+            console.log("Quantity is 0 or less, removing item.");
+             // Find the card element to pass for animation
+             const cardToRemove = document.querySelector(`.cart-item-card[data-id="${productId}"]`);
+            removeFromCart(productId, cardToRemove);
+        } else {
+            // Otherwise, update the quantity
+            cart[itemIndex].quantity = newQuantity;
+            saveCart();
+            updateCartCount();
+            // Re-render the cart to show updated quantity and totals
+            displayCart();
+        }
+    } else {
+         console.warn(`Item ${productId} not found in cart for quantity update.`);
+    }
+}
+
+
+// Dynamically add CSS for cart page layout if needed
+function addCartPageStyles() {
+    const styleId = 'cart-page-dynamic-styles';
+    if (document.getElementById(styleId)) return; // Style already added
+
+    const css = `
+        .cart-page-layout {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start; /* Align top */
+        }
+        .cart-items-list {
+            flex: 2; /* Takes more space */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .cart-summary-sidebar {
+            flex: 1;
+            background: var(--content-bg, #fff);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color, #ddd);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: sticky; /* Make summary sticky */
+            top: 80px; /* Adjust based on top-bar height */
+        }
+        .cart-summary-sidebar h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color, #eee);
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+        .cart-summary-sidebar .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1em;
+            color: var(--text-secondary, #555);
+        }
+         .cart-summary-sidebar .summary-row span:last-child {
+            font-weight: 500;
+            color: var(--text-color, #333);
+         }
+        .cart-summary-sidebar .summary-row.total {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color, #eee);
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .cart-summary-sidebar .checkout-btn {
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            font-size: 1.1em;
+        }
+        .cart-item-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--content-bg, #fff);
+            border: 1px solid var(--border-color, #ddd);
+            border-radius: 8px;
+            position: relative; /* For remove button */
+        }
+        .cart-item-image {
+            width: 80px; height: 80px; object-fit: cover; border-radius: 4px; margin-right: 15px;
+        }
+        .cart-item-details { flex-grow: 1; }
+        .cart-item-name { font-weight: 600; margin-bottom: 5px; font-size: 1.1em; }
+        .cart-item-price { font-size: 1em; color: var(--primary-color); margin-bottom: 10px; font-weight: 500;}
+        .cart-item-quantity-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .quantity-btn { width: 28px; height: 28px; border: 1px solid #ccc; background: #f7f7f7; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2em; line-height: 1; }
+        .quantity-btn:hover { background: #eee; }
+        .quantity-value { min-width: 25px; text-align: center; font-weight: 500; }
+         .cart-item-total { font-size: 0.95em; color: var(--text-secondary); font-weight: 500; }
+        .btn-remove-item { position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #dc3545; font-size: 1.4em; cursor: pointer; padding: 5px; line-height: 1; }
+        .btn-remove-item:hover { color: #a71d2a; }
+         .cart-empty-message { text-align: center; padding: 40px; background: var(--content-bg); border-radius: 8px; border: 1px solid var(--border-color); }
+         .cart-empty-message p { font-size: 1.2em; margin-top: 15px; margin-bottom: 20px; color: var(--text-secondary); }
+         .cart-empty-message button { padding: 10px 20px; font-size: 1em; }
+
+         /* Responsive Cart Layout */
+         @media (max-width: 992px) {
+             .cart-page-layout { flex-direction: column; }
+             .cart-summary-sidebar { position: static; width: 100%; margin-top: 20px; }
+         }
+          @media (max-width: 576px) {
+              .cart-item-card { flex-direction: column; align-items: flex-start; }
+              .cart-item-image { width: 100%; height: 150px; margin-right: 0; margin-bottom: 10px; }
+              .btn-remove-item { top: 5px; right: 5px; font-size: 1.2em; }
+              .cart-item-details { width: 100%; }
+          }
+    `;
+    const styleSheet = document.createElement("style");
+    styleSheet.id = styleId;
+    styleSheet.type = "text/css";
+    styleSheet.innerText = css;
+    document.head.appendChild(styleSheet);
+}
+
+
+function updateCartCount() {
+    console.log("--- updateCartCount called ---");
+    // Ensure cart is an array before reducing
+    const currentCart = Array.isArray(cart) ? cart : [];
+    const count = currentCart.reduce((total, item) => total + (item.quantity || 0), 0);
+    console.log("Calculated total cart quantity:", count);
+
+    // Update ALL cart badges (top bar, maybe sidebar if it existed)
+    document.querySelectorAll('.cart-badge').forEach(badge => {
+        badge.textContent = count;
+        // Show badge only if count > 0
+        badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    });
+    console.log("--- updateCartCount finished ---");
 }
 
 function showCartNotification(productName) {
-    // Simple alert for now, can replace with fancier notification
-    // alert(`${productName} added to cart!`);
-
-    // Or use the existing notification element logic:
     const notification = document.createElement('div');
     notification.className = 'cart-notification';
-    notification.textContent = `${productName} added to cart!`; // Use textContent for safety
+    // Sanitize productName before inserting - simplistic textContent is safe here
+    notification.textContent = `${productName} added to cart!`;
     document.body.appendChild(notification);
-    
-    // Trigger animation
-    requestAnimationFrame(() => {
-        setTimeout(() => { notification.classList.add('show'); }, 10); // Add slight delay
-    });
+
+    // Force reflow before adding 'show' class for transition
+    void notification.offsetWidth;
+
+    notification.classList.add('show');
 
     // Remove notification after duration
     setTimeout(() => {
         notification.classList.remove('show');
         notification.addEventListener('transitionend', () => {
-            notification.remove();
+            if (notification.parentNode) {
+                notification.remove();
+            }
         }, { once: true });
     }, 3000); // Notification visible for 3 seconds
 }
 
+
+// ==========================
+// Save Functionality (Shared Logic)
+// ==========================
+
 function toggleSave(productId, buttonElement) {
     console.log(`Toggling save for product ID: ${productId}`);
-    if (isNaN(productId) || !buttonElement) return;
+    if (isNaN(productId)) {
+         console.error("Invalid productId in toggleSave:", productId);
+         return;
+    }
 
     const index = savedItems.indexOf(productId);
+    let isNowSaved; // Variable to hold the new state
 
     if (index === -1) {
-        // Item not saved -> Save it
+        // Not saved, so save it
         savedItems.push(productId);
-        buttonElement.innerHTML = '<i class="fas fa-heart"></i> Unsave';
-        buttonElement.classList.add('saved');
-        console.log("Item saved.");
+        isNowSaved = true;
+        console.log(`Item ${productId} saved. New savedItems:`, JSON.stringify(savedItems));
+        // Optional: Show feedback notification
+        // showSaveNotification(getProductById(productId)?.name || `Product ${productId}`, true);
     } else {
-        // Item saved -> Unsave it
+        // Saved, so unsave it
         savedItems.splice(index, 1);
-        buttonElement.innerHTML = '<i class="far fa-heart"></i> Save';
-        buttonElement.classList.remove('saved');
-        console.log("Item unsaved.");
+         isNowSaved = false;
+        console.log(`Item ${productId} unsaved. New savedItems:`, JSON.stringify(savedItems));
+         // Optional: Show feedback notification
+         // showSaveNotification(getProductById(productId)?.name || `Product ${productId}`, false);
 
-        // If currently viewing the saved items list, remove the card visually
+        // If we are currently *in* the Saved Items view on Main.php, remove the card visually
         const currentCategoryTitle = document.getElementById('current-category')?.textContent;
-        if (currentCategoryTitle === 'Saved Items' || currentCategoryTitle === 'Saves') {
-             const productCard = buttonElement.closest('.product-card');
-            if (productCard) {
-                 console.log("Removing product card from Saved Items view.");
-                productCard.remove();
-                 // Check if saves list is now empty
-                 if(savedItems.length === 0) {
-                    const container = document.getElementById('product-container');
-                    if(container) container.innerHTML = '<p>No saved items yet.</p>';
+        if (document.getElementById('product-container') && (currentCategoryTitle === 'Saved Items' || currentCategoryTitle === 'Saves')) {
+             if (buttonElement) {
+                 const productCard = buttonElement.closest('.product-card');
+                 if (productCard) {
+                     console.log("Removing product card from Saved Items view.");
+                      // Animate removal before actually removing
+                      explodeEffect(productCard).then(() => {
+                          // Check if saves list is now empty AFTER removing
+                          if(savedItems.length === 0) {
+                              const container = document.getElementById('product-container');
+                              if(container) container.innerHTML = '<p>No saved items yet.</p>';
+                          }
+                      });
                  }
              }
         }
     }
 
-    saveSavedItems(); // Persist changes
-    updateSaveCount(); // Update visual counter
+    saveSavedItems(); // Persist changes to localStorage
+
+    // Update the button's appearance (if buttonElement was provided)
+    if (buttonElement) {
+        updateSaveButtonState(buttonElement, isNowSaved);
+    } else {
+         // If called without a button (e.g., programmatically), we might need
+         // to find the button on the page if it exists and update it.
+         // This is relevant for the product detail page where the button is static.
+         const buttonOnPage = document.querySelector(`.btn-save[data-id="${productId}"]`);
+         if(buttonOnPage) {
+             updateSaveButtonState(buttonOnPage, isNowSaved);
+         }
+    }
+
+    updateSaveCount(); // Update the badge count
 }
 
 function saveSavedItems() {
     try {
-    localStorage.setItem('savedItems', JSON.stringify(savedItems));
+        localStorage.setItem('savedItems', JSON.stringify(savedItems));
          console.log("Saved items saved to localStorage:", JSON.stringify(savedItems));
     } catch (e) {
         console.error("Error saving savedItems to localStorage:", e);
     }
 }
 
+function updateSaveCount() {
+     const count = savedItems.length;
+     console.log("Updating save count:", count);
+    // Update ALL save badges
+    document.querySelectorAll('.save-badge').forEach(badge => {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    });
+}
+
+// Display saved products (typically on Main.php when 'Saves' is selected)
 function displaySavedProducts() {
     const container = document.getElementById('product-container');
     const categoryTitle = document.getElementById('current-category');
 
     if(categoryTitle) categoryTitle.textContent = 'Saved Items';
-    if (!container) return;
+    if (!container) {
+         console.error("Main product container not found for displaying saved items!");
+         return;
+    }
 
     console.log("--- Displaying Saved Products --- Current saved items:", JSON.stringify(savedItems));
 
@@ -874,327 +942,385 @@ function displaySavedProducts() {
         savedItems.includes(product.id)
     );
 
-    if (savedProductsDetails.length === 0) {
-        container.innerHTML = '<p>No saved items yet.</p>';
-    } else {
-         // Display using the same displayProducts function for consistency
-         // It will correctly mark items as saved based on the global savedItems array
-         displayProducts(savedProductsDetails);
-    }
+    // Use the common displayProducts function
+    displayProducts(savedProductsDetails); // It handles the empty case message correctly now
 }
 
-// Make functions globally accessible if called directly via HTML onclick (like original toggleSave)
-// Although event delegation is preferred, keep this for compatibility if needed.
-window.toggleSave = toggleSave;
+// Helper to update button visual state
+function updateSaveButtonState(button, isSaved) {
+    if (!button) return;
 
-// Add CSS for cart item display if needed (add to style.css)
-/*
-.cart-items-container { margin-bottom: 20px; }
-.cart-item-card { display: flex; align-items: center; background: #fff; padding: 10px; border-radius: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 10px; position: relative; }
-.cart-item-image { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; margin-right: 15px; }
-.cart-item-details { flex-grow: 1; }
-.cart-item-name { font-weight: bold; margin-bottom: 5px; }
-.cart-item-price { font-size: 0.9em; color: #555; margin-bottom: 3px; }
-.cart-item-quantity { font-size: 0.9em; color: #555; }
-.btn-remove-item { background: transparent; border: none; color: #dc3545; font-size: 1.2em; cursor: pointer; position: absolute; top: 10px; right: 10px; padding: 5px; line-height: 1; }
-.btn-remove-item:hover { color: #a71d2a; }
-.cart-summary { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 20px; text-align: right; }
-.checkout-btn { margin-top: 10px; }
-*/
+    const iconClass = isSaved ? 'fas fa-heart' : 'far fa-heart'; // Solid vs outline
+    const text = isSaved ? ' Saved' : ' Save';
+    const ariaLabel = isSaved ? 'Unsave' : 'Save'; // Correct Aria label
+     const productName = getProductById(parseInt(button.dataset.id))?.name || 'this item';
+
+    button.innerHTML = `<i class="${iconClass}"></i>${text}`;
+    button.classList.toggle('saved', isSaved);
+    button.setAttribute('aria-label', `${ariaLabel} ${productName}`); // Update accessibility label
+
+    // console.log(`Updated button state for ID ${button.dataset.id}: isSaved=${isSaved}`);
+}
+
+
 // ==========================
-// Explosion Animation Effect
+// Product Detail Page Initialization
 // ==========================
+function initProductDetailPage() {
+    console.log("Running initProductDetailPage...");
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = parseInt(urlParams.get('id'));
+
+    if (!productId || isNaN(productId)) {
+        console.error('No valid product ID found in URL');
+        const container = document.querySelector('.main-content');
+        if (container) container.innerHTML = '<h2>Error</h2><p>Product not found. Please go back and try again.</p>';
+        return;
+    }
+    console.log(`Product ID from URL: ${productId}`);
+
+    // Data (cart, savedItems) is already loaded globally
+
+    const product = getProductById(productId);
+    if (!product) {
+        console.error('Product data not found for ID:', productId);
+         const container = document.querySelector('.main-content');
+        if (container) container.innerHTML = '<h2>Error</h2><p>Product details could not be loaded. Please go back and try again.</p>';
+        return;
+    }
+    console.log("Product data found:", product);
+
+    // --- Update UI Elements ---
+    const nameEl = document.getElementById('detail-product-name');
+    const priceEl = document.getElementById('detail-product-price');
+    const imageEl = document.getElementById('detail-product-image');
+    const descriptionEl = document.getElementById('detail-product-description');
+    const saveButton = document.getElementById('save-product-btn');
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    const writeReviewBtn = document.getElementById('write-review-btn');
+    const reviewModal = document.getElementById('review-modal');
+    const reviewForm = document.getElementById('review-form');
+
+
+    if (nameEl) nameEl.textContent = product.name;
+    if (priceEl) priceEl.textContent = `RM ${product.price.toFixed(2)}`;
+    if (imageEl) {
+         const imageName = product.name.replace(/ /g, '_');
+        imageEl.src = `src/${imageName}.jpg`; // *** ADJUST PATH AS NEEDED ***
+        imageEl.alt = product.name;
+        imageEl.onerror = function() {
+            this.onerror = null;
+            this.src = 'images/placeholder.jpg';
+            console.warn(`Image not found for ${product.name}, using placeholder.`);
+        };
+    }
+     if (descriptionEl) {
+         // Use textContent for safety unless HTML is intended in description
+         descriptionEl.textContent = product.description || "No description available.";
+         // If description CAN contain HTML (like line breaks):
+         // descriptionEl.innerHTML = product.description ? product.description.replace(/\n/g, '<br>') : "No description available.";
+     }
+
+
+    // --- Initialize Save Button ---
+    if (saveButton) {
+        console.log("Initializing detail page save button...");
+        saveButton.dataset.id = productId; // Set the data-id
+        let isSaved = savedItems.includes(productId);
+        console.log(`Initial saved state for product ${productId}: ${isSaved}`);
+        updateSaveButtonState(saveButton, isSaved); // Update visual state
+
+        // Add listener - calls the shared toggleSave function
+        saveButton.addEventListener('click', function() {
+            console.log(`Detail page Save button clicked for ID: ${productId}`);
+            toggleSave(productId, this); // 'this' refers to the button element
+        });
+    } else {
+        console.warn("Save button (#save-product-btn) not found on detail page.");
+    }
+
+    // --- Initialize Add to Cart Button ---
+    if (addToCartBtn) {
+        console.log("Initializing detail page add-to-cart button...");
+        addToCartBtn.addEventListener('click', function() {
+            console.log(`Detail page Add to cart clicked for ID: ${productId}`);
+            addToCartLogic(product); // Use shared logic function
+            // Trigger animation using the main product image
+            const productImage = document.getElementById('detail-product-image');
+            if (productImage) {
+                 animateFlyToCart(productImage);
+             }
+            showCartNotification(product.name); // Show feedback
+        });
+    } else {
+         console.warn("Add to cart button (#add-to-cart-btn) not found on detail page.");
+    }
+
+    // --- Initialize Review Button & Modal ---
+    if (writeReviewBtn && reviewModal) {
+        console.log("Initializing write review button...");
+        writeReviewBtn.addEventListener('click', function() {
+            showModal(reviewModal); // Use modal helper
+        });
+    }
+
+    if (reviewForm && reviewModal) {
+        console.log("Initializing review form...");
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log("Review form submitted.");
+
+            // Determine reviewer name (handle guest vs logged in - simplistic version)
+             const nameInput = document.getElementById('review-name'); // Check if name input exists
+             let reviewerName = 'Anonymous'; // Default
+             if (nameInput && nameInput.value.trim()) {
+                 reviewerName = nameInput.value.trim();
+             } else {
+                // Potentially check for a logged-in user session variable here if applicable
+                // e.g., if (loggedInUsername) reviewerName = loggedInUsername;
+             }
+
+            const rating = document.getElementById('review-rating').value;
+            const comment = document.getElementById('review-comment').value;
+
+             if (!rating || !comment || !reviewerName) {
+                 alert("Please fill in all review fields (including name if required).");
+                 return;
+             }
+
+            // Create review HTML (using helper to escape potentially harmful text)
+            const reviewHTML = `
+                <div class="review-item">
+                    <div class="review-author">${escapeHTML(reviewerName)}</div>
+                    <div class="review-rating">${'★'.repeat(parseInt(rating))}${'☆'.repeat(5 - parseInt(rating))}</div>
+                    <div class="review-date">${new Date().toLocaleDateString()}</div>
+                    <div class="review-content">${escapeHTML(comment)}</div>
+                </div>
+            `;
+
+            const reviewsContainer = document.getElementById('detail-product-reviews');
+            if (reviewsContainer) {
+                 const noReviewsMsg = reviewsContainer.querySelector('p, span'); // Find placeholder text more reliably
+                if (reviewsContainer.textContent.trim().toLowerCase() === 'no reviews at the moment' || (noReviewsMsg && noReviewsMsg.textContent.toLowerCase().includes('no reviews'))) {
+                     reviewsContainer.innerHTML = reviewHTML; // Replace placeholder
+                 } else {
+                     reviewsContainer.insertAdjacentHTML('afterbegin', reviewHTML); // Add to top
+                 }
+            }
+
+            hideModal(reviewModal);
+            this.reset();
+            alert('Thank you for your review!');
+        });
+    }
+
+    console.log("initProductDetailPage finished.");
+}
+
+
+// ==========================
+// HELPER FUNCTIONS
+// ==========================
+
+// Get Product Data by ID (from Mock Data)
+function getProductById(id) {
+    const numericId = parseInt(id);
+    if (isNaN(numericId)) return null;
+    const allProducts = getAllMockProducts();
+    return allProducts.find(product => product.id === numericId);
+}
+
+// HTML Escaping for Review Content
+function escapeHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+}
+
+// Animation: Fly item to cart
+function animateFlyToCart(sourceElement) {
+    console.log("Triggering fly-to-cart animation...");
+    const cartTarget = document.querySelector('.action-link[data-category="cart"] i'); // Target top-bar icon
+
+    if (!sourceElement || !cartTarget) {
+        console.warn("Cannot perform fly-to-cart: source or target element missing.", sourceElement, cartTarget);
+        return;
+    }
+
+    const imgClone = sourceElement.cloneNode(true);
+    const imgRect = sourceElement.getBoundingClientRect();
+    const cartRect = cartTarget.getBoundingClientRect();
+
+    // Apply styles for cloning and positioning
+    imgClone.style.position = 'fixed';
+    imgClone.style.top = `${imgRect.top}px`;
+    imgClone.style.left = `${imgRect.left}px`;
+    imgClone.style.width = `${imgRect.width}px`;
+    imgClone.style.height = `${imgRect.height}px`;
+    imgClone.style.maxWidth = `${imgRect.width}px`;
+    imgClone.style.maxHeight = `${imgRect.height}px`;
+    imgClone.style.objectFit = sourceElement.style.objectFit || 'contain';
+    imgClone.style.margin = '0';
+    imgClone.style.padding = '0';
+    imgClone.style.border = 'none';
+    imgClone.style.borderRadius = '5px';
+    imgClone.style.opacity = '0.9';
+    imgClone.style.zIndex = '1001';
+    imgClone.style.pointerEvents = 'none';
+    imgClone.style.transition = 'all 0.8s cubic-bezier(0.6, -0.28, 0.735, 0.045)'; // Ease-in curve
+
+    document.body.appendChild(imgClone);
+
+    requestAnimationFrame(() => {
+         const finalScale = 0.1;
+        const targetX = cartRect.left + (cartRect.width / 2) - (imgRect.width / 2 * finalScale);
+        const targetY = cartRect.top + (cartRect.height / 2) - (imgRect.height / 2 * finalScale);
+
+        imgClone.style.left = `${targetX}px`;
+        imgClone.style.top = `${targetY}px`;
+        imgClone.style.transform = `scale(${finalScale})`;
+        imgClone.style.opacity = '0';
+    });
+
+    imgClone.addEventListener('transitionend', () => {
+        if (imgClone.parentNode) {
+             console.log("Fly animation clone removed.");
+             imgClone.remove();
+        }
+    }, { once: true });
+}
+
+// Animation: Explode effect for removal
 function explodeEffect(element) {
-    return new Promise((resolve) => { // Return a promise to signal completion
-        const rect = element.getBoundingClientRect(); // Get position relative to viewport
-        const particleCount = 15; // Number of particles
-        const particles = [];
-        const container = document.body; // Add particles to body
+    return new Promise((resolve) => {
+        if (!element) return resolve(); // Resolve immediately if no element
 
-        // Hide the original element smoothly or abruptly
-        element.style.transition = 'opacity 0.1s ease-out';
+        const rect = element.getBoundingClientRect();
+        const particleCount = 15;
+        const particles = [];
+        const container = document.body; // Or a closer positioned ancestor
+
+        // Hide original element
+        element.style.transition = 'opacity 0.1s ease-out, transform 0.1s ease-out';
         element.style.opacity = '0';
-        element.style.pointerEvents = 'none'; // Prevent further interaction
+        element.style.transform = 'scale(0.8)'; // Slight shrink before disappearing
+        element.style.pointerEvents = 'none';
+
 
         for (let i = 0; i < particleCount; i++) {
             const particle = document.createElement('div');
-            particle.classList.add('particle');
+            // Add particle class for styling from style.css
+            particle.classList.add('particle'); // Ensure .particle is styled in CSS
 
-            // Randomize color slightly (optional)
-            // particle.style.backgroundColor = `hsl(${Math.random() * 60 + 260}, 70%, 60%)`; // Shades of purple/pink
-
-            // Start particles from within the element's bounds
+            // Position particle absolutely relative to the viewport
+            particle.style.position = 'fixed'; // Use fixed positioning
+             particle.style.width = `${Math.random() * 5 + 3}px`; // Random size
+             particle.style.height = particle.style.width;
+             particle.style.borderRadius = '50%';
+             // Start particles from within the element's bounds
             const startX = rect.left + Math.random() * rect.width;
             const startY = rect.top + Math.random() * rect.height;
-
             particle.style.left = `${startX}px`;
             particle.style.top = `${startY}px`;
+             particle.style.opacity = '1';
+            // Assign a random purple/pinkish color (adjust HSL values as needed)
+            particle.style.backgroundColor = `hsl(${Math.random() * 40 + 280}, 70%, 60%)`;
+            particle.style.zIndex = '1002'; // Above cloned image
+            particle.style.transition = 'transform 0.6s ease-out, opacity 0.6s ease-out';
+
 
             container.appendChild(particle);
             particles.push(particle);
 
             // Calculate random trajectory
-            const angle = Math.random() * Math.PI * 2; // Random angle
-            const distance = Math.random() * 100 + 50; // Random distance (50-150px)
-            const rotation = Math.random() * 720 - 360; // Random rotation (-360 to 360 deg)
+            const angle = Math.random() * Math.PI * 2;
+            const distance = Math.random() * 100 + 50; // 50-150px away
+            const rotation = Math.random() * 720 - 360;
 
             const translateX = Math.cos(angle) * distance;
             const translateY = Math.sin(angle) * distance;
 
-            // Trigger reflow before applying final animation state
-            // This ensures the transition starts correctly
-            void particle.offsetWidth;
-
-            // Apply final animation state (move, rotate, fade out)
-             particle.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg) scale(0.5)`; // Shrink particles too
-            particle.style.opacity = '0';
+             // Apply final animation state after a tiny delay to ensure transition triggers
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => { // Double requestAnimationFrame for safety
+                    particle.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg) scale(0.3)`;
+                    particle.style.opacity = '0';
+                });
+            });
         }
 
-        // Clean up after the longest transition (opacity or transform)
-        // Assuming transition duration is 0.6s (600ms) from CSS
+        // Clean up particles and resolve promise
         setTimeout(() => {
-            particles.forEach(p => p.remove());
-            // Optionally remove the original element completely from DOM if needed,
-            // but displayCart() will handle this if it re-renders fully.
-            // element.remove();
-            resolve(); // Resolve the promise indicating animation is done
-        }, 600); // Match the CSS transition duration
+            particles.forEach(p => {
+                if (p.parentNode) p.remove();
+            });
+             // Remove the original element from DOM after animation+delay
+             if(element.parentNode) element.remove();
+            resolve();
+        }, 600 + 50); // Match CSS transition duration + small buffer
     });
 }
 
+
 // ==========================
-// Action Buttons (Saves & Cart)
+// Top Bar Action Buttons (Navigation Handling)
 // ==========================
 function initActionButtons() {
-    // Initialize saves button
-    const savesButton = document.querySelector('.action-link[data-category="saves"]');
-    if (savesButton) {
-        savesButton.addEventListener('click', function(e) {
+    const savesLink = document.querySelector('.action-link[data-category="saves"]');
+    const cartLink = document.querySelector('.action-link[data-category="cart"]');
+
+    // Function to handle navigation to Main.php and setting a flag
+    const navigateToMainAndShow = (flagName) => {
+        // If already on Main.php, just display the section
+         if (document.getElementById('product-container')) { // Check if on Main.php
+             if (flagName === 'showCart') {
+                 displayCart();
+                 const categoryTitle = document.getElementById('current-category');
+                 if (categoryTitle) categoryTitle.textContent = 'Your Cart';
+                 document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
+             } else if (flagName === 'showSaves') {
+                 displaySavedProducts();
+                  const categoryTitle = document.getElementById('current-category');
+                 if (categoryTitle) categoryTitle.textContent = 'Saved Items';
+                  document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
+             }
+         } else {
+             // If on another page, set flag and redirect
+             console.log(`Navigating to Main.php and setting flag: ${flagName}`);
+             localStorage.setItem(flagName, 'true');
+             window.location.href = 'Main.php';
+         }
+    };
+
+    if (savesLink) {
+        savesLink.addEventListener('click', function(e) {
             e.preventDefault();
-            if (window.location.pathname.includes('Main.php')) {
-                displaySavedProducts();
-                const categoryTitle = document.getElementById('current-category');
-                if (categoryTitle) categoryTitle.textContent = 'Saved Items';
-                // Remove active class from sidebar menu items
-                document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
-            } else {
-                window.location.href = 'Main.php';
-                localStorage.setItem('showSaves', 'true');
-            }
+            console.log("Top bar Saves link clicked");
+            navigateToMainAndShow('showSaves');
         });
     }
 
-    // Initialize cart button
-    const cartButton = document.querySelector('.action-link[data-category="cart"]');
-    if (cartButton) {
-        cartButton.addEventListener('click', function(e) {
+    if (cartLink) {
+        cartLink.addEventListener('click', function(e) {
             e.preventDefault();
-            if (window.location.pathname.includes('Main.php')) {
-                displayCart();
-                const categoryTitle = document.getElementById('current-category');
-                if (categoryTitle) categoryTitle.textContent = 'Shopping Cart';
-                // Remove active class from sidebar menu items
-                document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
-            } else {
-                window.location.href = 'Main.php';
-                localStorage.setItem('showCart', 'true');
-            }
+            console.log("Top bar Cart link clicked");
+            navigateToMainAndShow('showCart');
         });
     }
 }
 
 // ==========================
-// Product Detail Page
+// CSS (Add particle style if not in style.css)
 // ==========================
-function initProductDetailPage() {
-    // Get the product ID from the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = parseInt(urlParams.get('id'));
-
-    if (!productId) {
-        console.error('No product ID found in URL');
-        return;
-    }
-
-    // Initialize cart and saved items from localStorage
-    cart = JSON.parse(localStorage.getItem('cart')) || [];
-    savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
-
-    // Update cart and save badges in both the top bar and sidebar
-    updateCartCount();
-    updateSaveCount();
-
-    // Get product data
-    const product = getProductById(productId);
-    if (!product) {
-        console.error('Product not found:', productId);
-        return;
-    }
-
-    // Update product details in the UI
-    document.getElementById('detail-product-name').textContent = product.name;
-    document.getElementById('detail-product-price').textContent = `RM ${product.price.toFixed(2)}`;
-    document.getElementById('detail-product-image').src = `src/${product.name.replace(/ /g, '_')}.jpg`;
-    document.getElementById('detail-product-image').alt = product.name;
-
-    // Add cart status indicator
-    const isInCart = cart.some(item => item.id === productId);
-    const cartStatusDiv = document.createElement('div');
-    cartStatusDiv.className = 'cart-status';
-    cartStatusDiv.textContent = isInCart ? 'In Cart' : '';
-    document.querySelector('.product-detail-info').insertBefore(cartStatusDiv, document.querySelector('.product-detail-actions'));
-
-    // Initialize save button
-    const saveButton = document.getElementById('save-product-btn');
-    if (saveButton) {
-        saveButton.dataset.id = productId;
-        const isSaved = savedItems.includes(productId);
-        updateSaveButtonState(saveButton, isSaved);
-        
-        saveButton.addEventListener('click', function() {
-            const isCurrentlySaved = savedItems.includes(productId);
-            toggleSave(productId, this);
-            updateSaveButtonState(this, !isCurrentlySaved);
-            // Update both top bar and sidebar badges
-            updateSaveCount();
-        });
-    }
-
-    // Initialize add to cart button
-    const addToCartBtn = document.getElementById('add-to-cart-btn');
-    if (addToCartBtn) {
-        addToCartBtn.addEventListener('click', function() {
-            // Create a mock button element for the animation
-            const mockButton = document.createElement('button');
-            mockButton.classList.add('add-to-cart');
-            document.body.appendChild(mockButton);
-            
-            // Add the product to cart
-            const existingItemIndex = cart.findIndex(item => item.id === productId);
-            if (existingItemIndex > -1) {
-                cart[existingItemIndex].quantity++;
-            } else {
-                cart.push({ ...product, quantity: 1 });
-            }
-            
-            // Save cart and update UI
-            saveCart();
-            // Update both top bar and sidebar badges
-            updateCartCount();
-            
-            // Animate and show notification
-            animateAddToCart(mockButton);
-            setTimeout(() => {
-                mockButton.remove();
-            }, 1000);
-            
-            showCartNotification(product.name);
-        });
-    }
-
-    // Initialize write review button
-    const writeReviewBtn = document.getElementById('write-review-btn');
-    if (writeReviewBtn) {
-        writeReviewBtn.addEventListener('click', function() {
-            const reviewModal = document.getElementById('review-modal');
-            if (reviewModal) {
-                reviewModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-        });
-    }
-
-    // Initialize review form
-    const reviewForm = document.getElementById('review-form');
-    if (reviewForm) {
-        reviewForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('review-name').value;
-            const rating = document.getElementById('review-rating').value;
-            const comment = document.getElementById('review-comment').value;
-            
-            // Create review HTML
-            const reviewHTML = `
-                <div class="review-item">
-                    <div class="review-author">${name}</div>
-                    <div class="review-rating">${'★'.repeat(rating)}${'☆'.repeat(5-rating)}</div>
-                    <div class="review-date">${new Date().toLocaleDateString()}</div>
-                    <div class="review-content">${comment}</div>
-                </div>
-            `;
-            
-            // Add review to the page
-            const reviewsContainer = document.getElementById('detail-product-reviews');
-            if (reviewsContainer.textContent === 'No reviews at the moment') {
-                reviewsContainer.innerHTML = reviewHTML;
-            } else {
-                reviewsContainer.insertAdjacentHTML('afterbegin', reviewHTML);
-            }
-            
-            // Close modal and reset form
-            const reviewModal = document.getElementById('review-modal');
-            if (reviewModal) {
-                reviewModal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-            this.reset();
-            
-            // Show success message
-            alert('Thank you for your review!');
-        });
-    }
-
-    // Initialize back button
-    const backButton = document.querySelector('.back-button');
-    if (backButton) {
-        backButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = 'Main.php';
-        });
-    }
+function addParticleStyle() {
+    const styleId = 'particle-dynamic-styles';
+    if (document.getElementById(styleId)) return;
+    const css = `.particle { position: fixed; pointer-events: none; border-radius: 50%; }`; // Base style
+    const styleSheet = document.createElement("style");
+    styleSheet.id = styleId;
+    styleSheet.type = "text/css";
+    styleSheet.innerText = css;
+    document.head.appendChild(styleSheet);
 }
-
-// Helper function to update save button state
-function updateSaveButtonState(button, isSaved) {
-    if (!button) return;
-    
-    const icon = button.querySelector('i');
-    if (icon) {
-        icon.className = isSaved ? 'fas fa-heart' : 'far fa-heart';
-    }
-    button.textContent = isSaved ? 'Unsave' : 'Save';
-    button.classList.toggle('saved', isSaved);
-    
-    // Re-append the icon since textContent overwrote it
-    if (icon) {
-        button.insertBefore(icon, button.firstChild);
-        // Add a space after the icon
-        button.insertBefore(document.createTextNode(' '), button.lastChild);
-    }
-}
-
-// Add new function to handle quantity updates
-function updateCartQuantity(productId, isPlus) {
-    const itemIndex = cart.findIndex(item => item.id === productId);
-    if (itemIndex === -1) return;
-
-    if (isPlus) {
-        cart[itemIndex].quantity++;
-    } else {
-        if (cart[itemIndex].quantity > 1) {
-            cart[itemIndex].quantity--;
-        } else {
-            // If quantity would go below 1, remove the item
-            const cardElement = document.querySelector(`.cart-item-card[data-id="${productId}"]`);
-            if (cardElement) {
-                removeFromCart(productId, cardElement);
-            }
-        }
-    }
-
-    // Update localStorage and UI
-    saveCart();
-    displayCart(); // Re-render the entire cart to update all values
-}
-
+addParticleStyle(); // Ensure particle style exists
