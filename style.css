@@ -438,8 +438,8 @@ h2.section-title {
 
 /* Product Card - Enhanced */
 .product-card {
-    width: 180px; /* Fixed width matching reference */
-    height: 180px;
+    width: fit-content; /* Fixed width matching reference */
+    height: fit-content;
     background: var(--card-bg, #ffffff);
     border: 1px solid var(--border-color, #e0e0e0);
     border-radius: 8px;
