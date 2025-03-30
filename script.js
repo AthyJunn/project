@@ -7,6 +7,14 @@ document.addEventListener('DOMContentLoaded', function() {
     cart = JSON.parse(localStorage.getItem('cart')) || [];
     savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
 
+    // Check if we should show saves or cart after redirect
+    const showSaves = localStorage.getItem('showSaves') === 'true';
+    const showCart = localStorage.getItem('showCart') === 'true';
+
+    // Clear the flags
+    localStorage.removeItem('showSaves');
+    localStorage.removeItem('showCart');
+
     // Initialize UI components and load initial data
     initSidebar();
     initSearch();
@@ -16,34 +24,23 @@ document.addEventListener('DOMContentLoaded', function() {
     initSavesDisplay();
     updateCartCount();
     updateSaveCount();
-    loadProducts('recommendation');
 
-    // Add event listeners for cart and saves buttons
-    const cartLink = document.querySelector('.action-link[data-category="cart"]');
-    const savesLink = document.querySelector('.action-link[data-category="saves"]');
+    // Initialize action buttons (saves and cart) for all pages
+    initActionButtons();
 
-    if (cartLink) {
-        cartLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            displayCart();
-            // Update category title
-            const categoryTitle = document.getElementById('current-category');
-            if (categoryTitle) categoryTitle.textContent = 'Shopping Cart';
-            // Remove active class from sidebar menu items
-            document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
-        });
-    }
-
-    if (savesLink) {
-        savesLink.addEventListener('click', function(e) {
-            e.preventDefault();
+    // If we're on the main page and have a redirect flag, show the appropriate section
+    if (window.location.pathname.includes('Main.php')) {
+        if (showSaves) {
             displaySavedProducts();
-            // Update category title
             const categoryTitle = document.getElementById('current-category');
             if (categoryTitle) categoryTitle.textContent = 'Saved Items';
-            // Remove active class from sidebar menu items
-            document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
-        });
+        } else if (showCart) {
+            displayCart();
+            const categoryTitle = document.getElementById('current-category');
+            if (categoryTitle) categoryTitle.textContent = 'Shopping Cart';
+        } else {
+            loadProducts('recommendation');
+        }
     }
 
     // Check if we're on the product detail page
@@ -926,7 +923,50 @@ function explodeEffect(element) {
     });
 }
 
-// Initialize save and cart functionality for product detail page
+// ==========================
+// Action Buttons (Saves & Cart)
+// ==========================
+function initActionButtons() {
+    // Initialize saves button
+    const savesButton = document.querySelector('.action-link[data-category="saves"]');
+    if (savesButton) {
+        savesButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (window.location.pathname.includes('Main.php')) {
+                displaySavedProducts();
+                const categoryTitle = document.getElementById('current-category');
+                if (categoryTitle) categoryTitle.textContent = 'Saved Items';
+                // Remove active class from sidebar menu items
+                document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
+            } else {
+                window.location.href = 'Main.php';
+                localStorage.setItem('showSaves', 'true');
+            }
+        });
+    }
+
+    // Initialize cart button
+    const cartButton = document.querySelector('.action-link[data-category="cart"]');
+    if (cartButton) {
+        cartButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (window.location.pathname.includes('Main.php')) {
+                displayCart();
+                const categoryTitle = document.getElementById('current-category');
+                if (categoryTitle) categoryTitle.textContent = 'Shopping Cart';
+                // Remove active class from sidebar menu items
+                document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
+            } else {
+                window.location.href = 'Main.php';
+                localStorage.setItem('showCart', 'true');
+            }
+        });
+    }
+}
+
+// ==========================
+// Product Detail Page
+// ==========================
 function initProductDetailPage() {
     // Get the product ID from the URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -938,30 +978,12 @@ function initProductDetailPage() {
     }
 
     // Initialize cart and saved items from localStorage
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
+    cart = JSON.parse(localStorage.getItem('cart')) || [];
+    savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
 
     // Update cart and save badges
     updateCartCount();
     updateSaveCount();
-
-    // Add event listeners for save and cart buttons
-    const saveButton = document.querySelector('.action-link[data-category="saves"]');
-    const cartButton = document.querySelector('.action-link[data-category="cart"]');
-
-    if (saveButton) {
-        saveButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = 'Main.php#saves';
-        });
-    }
-
-    if (cartButton) {
-        cartButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = 'Main.php#cart';
-        });
-    }
 
     // Check if current product is saved
     const isSaved = savedItems.includes(productId);
@@ -969,6 +991,39 @@ function initProductDetailPage() {
     if (saveButtonText) {
         saveButtonText.innerHTML = `<i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Saved' : 'Save'}`;
         saveButtonText.classList.toggle('saved', isSaved);
+    }
+
+    // Add to cart button functionality
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', function() {
+            const product = getProductById(productId);
+            if (product) {
+                // Create a mock button element for the animation
+                const mockButton = document.createElement('button');
+                mockButton.classList.add('add-to-cart');
+                document.body.appendChild(mockButton);
+                
+                animateAddToCart(mockButton);
+                setTimeout(() => {
+                    mockButton.remove();
+                }, 1000);
+                
+                showCartNotification(product.name);
+            }
+        });
+    }
+
+    // Save product button functionality
+    const saveProductBtn = document.getElementById('save-product-btn');
+    if (saveProductBtn) {
+        saveProductBtn.addEventListener('click', function() {
+            const button = this;
+            const productId = parseInt(button.dataset.id);
+            if (!isNaN(productId)) {
+                toggleSave(productId, button);
+            }
+        });
     }
 }
 
