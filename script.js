@@ -173,10 +173,10 @@ function initAccountDropdown() {
         addAccountBtn.addEventListener('click', function(e) {
             e.preventDefault();
             accountDropdown.classList.remove('show');
-            // Show register modal if you have one
             const registerModal = document.getElementById('register-modal');
             if (registerModal) {
                 registerModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
             }
         });
     }
@@ -186,7 +186,6 @@ function initAccountDropdown() {
         logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
             accountDropdown.classList.remove('show');
-            // Add your logout logic here
             alert('Logged out successfully!');
         });
     }
@@ -201,40 +200,56 @@ function initModals() {
     const closeModalButtons = document.querySelectorAll('.close-modal');
     const modalOverlays = document.querySelectorAll('.modal-overlay');
 
+    // Show Register Modal
     if (showRegisterLink) {
-        showRegisterLink.addEventListener('click', (e) => {
+        showRegisterLink.addEventListener('click', function(e) {
             e.preventDefault();
-            hideModalById('login-modal');
-            showModalById('register-modal');
+            const loginModal = document.getElementById('login-modal');
+            const registerModal = document.getElementById('register-modal');
+            if (loginModal && registerModal) {
+                loginModal.classList.remove('active');
+                registerModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
         });
     }
 
+    // Show Login Modal
     if (showLoginLink) {
-        showLoginLink.addEventListener('click', (e) => {
+        showLoginLink.addEventListener('click', function(e) {
             e.preventDefault();
-            hideModalById('register-modal');
-            showModalById('login-modal');
+            const loginModal = document.getElementById('login-modal');
+            const registerModal = document.getElementById('register-modal');
+            if (loginModal && registerModal) {
+                registerModal.classList.remove('active');
+                loginModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
         });
     }
 
+    // Close Modal Buttons
     closeModalButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            // Find the closest parent modal overlay and hide it
+        button.addEventListener('click', function() {
             const modal = this.closest('.modal-overlay');
-            if(modal) hideModal(modal);
-        });
-    });
-
-    // Close modal if clicking on the overlay background
-    modalOverlays.forEach(overlay => {
-        overlay.addEventListener('click', function (e) {
-            if (e.target === this) { // Check if the click was directly on the overlay
-                hideModal(this);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
             }
         });
     });
 
-    // Add password visibility toggles
+    // Close Modal on Overlay Click
+    modalOverlays.forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+
+    // Password Visibility Toggle
     document.querySelectorAll('.toggle-password').forEach(button => {
         button.addEventListener('click', function() {
             const passwordInput = this.previousElementSibling;
