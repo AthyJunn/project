@@ -1,42 +1,112 @@
 /* =======================
-   GENERAL STYLES
+   COLOR VARIABLES & DARK MODE
    ======================= */
-   body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f8f9fa;
-    margin: 0;
-    padding: 0;
+
+   :root {
+    --primary-color: #6f42c1;
+    --primary-hover-color: #5a32a3;
+    --light-bg: #f8f9fa;
+    --light-content-bg: #ffffff;
+    --light-text-color: #333;
+    --light-text-secondary: #666;
+    --light-border-color: #ddd;
+    --light-shadow-color: rgba(0, 0, 0, 0.1);
+
+    --dark-bg: #1a1a2e; /* Dark blue/purple background */
+    --dark-content-bg: #2a2a4e; /* Slightly lighter content background */
+    --dark-text-color: #e0e0ff; /* Light text color */
+    --dark-text-secondary: #a0a0cc; /* Lighter secondary text */
+    --dark-border-color: #4a4a6e; /* Darker border */
+    --dark-shadow-color: rgba(0, 0, 0, 0.3);
+
+    /* Default to light mode variables */
+    --bg-color: var(--light-bg);
+    --content-bg: var(--light-content-bg);
+    --text-color: var(--light-text-color);
+    --text-secondary: var(--light-text-secondary);
+    --border-color: var(--light-border-color);
+    --shadow-color: var(--light-shadow-color);
+    --sidebar-bg: var(--light-content-bg);
+    --card-bg: var(--light-content-bg);
+    --input-bg: var(--light-content-bg);
+    --input-border: var(--light-border-color);
+    --button-secondary-bg: #e9ecef;
+    --button-secondary-hover-bg: #dde2e6;
+    --button-secondary-text: #333;
+    --notification-bg: var(--primary-color);
+    --notification-text: white;
+}
+
+body.dark-mode {
+    /* Switch to dark mode variables */
+    --bg-color: var(--dark-bg);
+    --content-bg: var(--dark-content-bg);
+    --text-color: var(--dark-text-color);
+    --text-secondary: var(--dark-text-secondary);
+    --border-color: var(--dark-border-color);
+    --shadow-color: var(--dark-shadow-color);
+    --sidebar-bg: var(--dark-content-bg);
+    --card-bg: var(--dark-content-bg);
+    --input-bg: var(--dark-content-bg);
+    --input-border: var(--dark-border-color);
+    --button-secondary-bg: #4a4a6e;
+    --button-secondary-hover-bg: #5a5a8e;
+    --button-secondary-text: var(--dark-text-color);
+    --notification-bg: var(--primary-hover-color);
+    --notification-text: var(--dark-text-color);
 }
 
 /* =======================
-   SIDEBAR STYLES
+   GENERAL STYLES - UPDATED WITH VARIABLES
+   ======================= */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--bg-color); /* Use variable */
+    color: var(--text-color); /* Use variable */
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+/* =======================
+   SIDEBAR STYLES - UPDATED
    ======================= */
 .sidebar {
-    background-color: #fff;
+    background-color: var(--sidebar-bg); /* Use variable */
     height: 100vh;
     position: fixed;
     width: 250px;
     padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 5px var(--shadow-color); /* Use variable */
     display: flex;
     flex-direction: column;
+    transition: background-color 0.3s;
+    border-right: 1px solid var(--border-color); /* Add subtle border */
 }
 
 .logo {
     font-weight: bold;
     font-size: 24px;
     margin-bottom: 10px;
-    color: #333;
+    color: var(--text-color); /* Use variable */
 }
 
-.business-name {
+.business-name { /* Assuming .BEADS-name is this */
     font-weight: bold;
     margin-bottom: 30px;
-    color: #666;
+    color: var(--text-secondary); /* Use variable */
     font-size: 16px;
 }
 
-/* Sidebar Menu */
+.BEADS-name { /* Added style for the actual class name */
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: var(--text-secondary); /* Use variable */
+    font-size: 16px;
+}
+
+
+/* Sidebar Menu - UPDATED */
 .sidebar-menu {
     list-style: none;
     padding: 0;
@@ -44,64 +114,106 @@
 }
 
 .sidebar-menu li {
-    margin-bottom: 15px;
+    margin-bottom: 10px; /* Slightly reduce margin */
 }
 
 .sidebar-menu a {
     text-decoration: none;
-    color: #333;
+    color: var(--text-secondary); /* Use secondary for default */
     font-weight: 500;
     display: flex;
     align-items: center;
-    padding: 8px 10px;
+    padding: 10px 12px; /* Adjust padding */
     border-radius: 5px;
     transition: all 0.3s;
     position: relative;
 }
 
-.sidebar-menu a:hover,
-.sidebar-menu a.active {
-    background-color: #6f42c1;
-    color: white;
+.sidebar-menu a:hover {
+    background-color: rgba(111, 66, 193, 0.1); /* Lighter hover */
+    color: var(--primary-color); /* Primary color text on hover */
 }
 
+.sidebar-menu a.active {
+    background-color: var(--primary-color);
+    color: white; /* White text on active */
+}
+
+
+/* Style hover/active badges more distinctly */
 .sidebar-menu a:hover .save-badge,
 .sidebar-menu a:hover .cart-badge,
 .sidebar-menu a.active .save-badge,
 .sidebar-menu a.active .cart-badge {
     background-color: white;
-    color: #6f42c1;
-    border: 2px solid #6f42c1;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color); /* Thinner border */
 }
 
+body.dark-mode .sidebar-menu a {
+    color: var(--text-secondary);
+}
+
+body.dark-mode .sidebar-menu a:hover {
+     background-color: rgba(224, 224, 255, 0.1); /* Lighter hover in dark */
+    color: #c0c0ff; /* Lighter purple text */
+}
+
+body.dark-mode .sidebar-menu a.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+body.dark-mode .sidebar-menu a:hover .save-badge,
+body.dark-mode .sidebar-menu a:hover .cart-badge,
+body.dark-mode .sidebar-menu a.active .save-badge,
+body.dark-mode .sidebar-menu a.active .cart-badge {
+    background-color: var(--dark-text-color);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+
 .sidebar-menu a i {
-    margin-right: 8px;
-    width: 16px;
+    margin-right: 10px; /* Increased spacing */
+    width: 18px; /* Slightly larger icon area */
     text-align: center;
 }
 
-/* Sidebar Bottom */
+/* Sidebar Bottom - UPDATED */
 .sidebar-bottom {
     margin-top: auto;
     padding-top: 20px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-color); /* Use variable */
 }
 
+/* Keep same styling for bottom links as main menu links */
 .sidebar-bottom a {
     text-decoration: none;
-    color: #333;
+    color: var(--text-secondary);
     font-weight: 500;
     display: flex;
     align-items: center;
-    padding: 8px 10px;
+    padding: 10px 12px;
     border-radius: 5px;
     transition: all 0.3s;
     position: relative;
 }
+.sidebar-bottom a:hover {
+     background-color: rgba(111, 66, 193, 0.1);
+    color: var(--primary-color);
+}
+body.dark-mode .sidebar-bottom a {
+    color: var(--text-secondary);
+}
+body.dark-mode .sidebar-bottom a:hover {
+     background-color: rgba(224, 224, 255, 0.1);
+    color: #c0c0ff;
+}
 
 .sidebar-bottom a i {
-    width: 20px;
-    margin-right: 8px;
+    width: 18px; /* Consistent icon size */
+    margin-right: 10px;
 }
 
 .sidebar-bottom a span:not(.save-badge):not(.cart-badge) {
@@ -110,7 +222,8 @@
 
 .save-badge, .cart-badge {
     display: none;
-    background-color: #6f42c1;
+    /* Keep badge colors standard */
+    background-color: var(--primary-color);
     color: white;
     border-radius: 50%;
     min-width: 18px;
@@ -120,8 +233,9 @@
     font-size: 12px;
     padding: 0 2px;
     margin-left: auto;
-    border: 2px solid #6f42c1;
+    border: 1px solid var(--primary-color); /* Use primary color for border */
 }
+
 
 .save-badge:not(:empty),
 .cart-badge:not(:empty) {
@@ -130,12 +244,14 @@
     justify-content: center;
 }
 
+
 /* =======================
-   MAIN CONTENT & NAVBAR
+   MAIN CONTENT & NAVBAR - UPDATED
    ======================= */
 .main-content {
     margin-left: 250px;
     padding: 20px;
+    transition: background-color 0.3s; /* Add transition */
 }
 
 .top-bar {
@@ -144,9 +260,10 @@
     align-items: center;
     margin-bottom: 20px;
     padding: 10px 0;
+    border-bottom: 1px solid var(--border-color); /* Use variable */
 }
 
-/* Search Bar */
+/* Search Bar - UPDATED */
 .search-container {
     display: flex;
     width: 60%;
@@ -155,21 +272,33 @@
 #search-input {
     flex-grow: 1;
     padding: 10px 15px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--input-border); /* Use variable */
     border-radius: 5px 0 0 5px;
     font-size: 16px;
+    background-color: var(--input-bg); /* Use variable */
+    color: var(--text-color); /* Use variable */
+    transition: background-color 0.3s, border-color 0.3s;
 }
+#search-input::placeholder {
+    color: var(--text-secondary);
+}
+
 
 #search-button {
     padding: 10px 15px;
-    background-color: #6f42c1;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 0 5px 5px 0;
     cursor: pointer;
+    transition: background-color 0.3s;
+}
+#search-button:hover {
+    background-color: var(--primary-hover-color);
 }
 
-/* Account Dropdown */
+
+/* Account Dropdown - UPDATED */
 .account-menu {
     position: relative;
 }
@@ -177,7 +306,7 @@
 #account-button {
     background: none;
     border: none;
-    color: #333;
+    color: var(--text-secondary); /* Use variable */
     font-size: 24px;
     cursor: pointer;
     padding: 5px;
@@ -185,33 +314,43 @@
     align-items: center;
     justify-content: center;
 }
+#account-button:hover {
+    color: var(--primary-color);
+}
+body.dark-mode #account-button:hover {
+    color: #c0c0ff;
+}
+
 
 .account-dropdown {
     display: none;
     position: absolute;
     top: 100%;
     right: 0;
-    background: white;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    background: var(--content-bg); /* Use variable */
+    box-shadow: 0px 4px 10px var(--shadow-color); /* Use variable */
+    border: 1px solid var(--border-color); /* Add border */
     border-radius: 8px;
     width: 200px;
     padding: 16px;
     z-index: 1000;
     margin-top: 10px;
+    transition: background-color 0.3s, border-color 0.3s;
 }
+
 
 .account-dropdown.show {
     display: block;
 }
 
-/* Dropdown Header */
+/* Dropdown Header - UPDATED */
 .dropdown-header {
     margin-bottom: 16px;
 }
 
 .currently-in {
     font-size: 12px;
-    color: #666;
+    color: var(--text-secondary); /* Use variable */
     margin-bottom: 12px;
 }
 
@@ -226,15 +365,15 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: #ddd;
+    background-color: var(--border-color); /* Use variable */
 }
 
 .user-status {
     font-size: 14px;
-    color: #333;
+    color: var(--text-color); /* Use variable */
 }
 
-/* Dropdown Buttons */
+/* Dropdown Buttons - UPDATED */
 .account-dropdown button {
     width: 100%;
     padding: 12px;
@@ -244,56 +383,75 @@
     cursor: pointer;
     margin-bottom: 8px;
     text-align: center;
+    transition: background-color 0.3s;
 }
 
 .add-account {
-    background-color: #6f42c1;
+    background-color: var(--primary-color);
     color: white;
 }
 
 .logout {
-    background-color: #e9ecef;
-    color: #333;
+    background-color: var(--button-secondary-bg); /* Use variable */
+    color: var(--button-secondary-text); /* Use variable */
 }
 
 .add-account:hover {
-    background-color: #5a32a3;
+    background-color: var(--primary-hover-color);
 }
 
 .logout:hover {
-    background-color: #dde2e6;
+    background-color: var(--button-secondary-hover-bg); /* Use variable */
 }
 
 /* =======================
-   PRODUCT STYLES
+   PRODUCT STYLES - UPDATED
    ======================= */
+h2.section-title { /* Style the category title */
+    color: var(--text-color);
+    margin-bottom: 25px;
+    font-weight: bold;
+}
+
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
 }
 
-/* Product Card */
+/* Product Card - UPDATED */
 .product-card {
-    background: white;
+    background: var(--card-bg); /* Use variable */
+    border: 1px solid var(--border-color); /* Add border */
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
+    box-shadow: 0 2px 10px var(--shadow-color); /* Use variable */
+    transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
 }
 
 .product-card:hover {
     transform: translateY(-5px);
+    border-color: var(--primary-color); /* Highlight border on hover */
 }
 
 .product-image {
     height: 200px;
-    background-color: #eee;
+    background-color: rgba(0,0,0,0.05); /* Slightly darker bg for image area */
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #666;
+    color: var(--text-secondary); /* Use variable */
+    overflow: hidden; /* Ensure image fits */
 }
+.product-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+body.dark-mode .product-image {
+     background-color: rgba(255,255,255,0.05);
+}
+
 
 .product-info {
     padding: 15px;
@@ -302,42 +460,46 @@
 .product-title {
     font-weight: bold;
     margin-bottom: 5px;
+    color: var(--text-color); /* Use variable */
 }
 
-.product-stock {
-    color: #28a745;
+.product-stock { /* This class wasn't in HTML but styled */
+    color: #28a745; /* Keep green */
     font-size: 14px;
     margin-bottom: 10px;
 }
+body.dark-mode .product-stock {
+     color: #34d399; /* Lighter green */
+}
+
 
 .product-price {
     font-weight: bold;
-    color: #6f42c1;
+    color: var(--primary-color); /* Keep primary color */
     margin-bottom: 15px;
 }
 
 /* =======================
-   BUTTONS
+   BUTTONS - UPDATED
    ======================= */
 .btn-purple {
-    background-color: #6f42c1;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     padding: 8px 15px;
     border-radius: 5px;
     cursor: pointer;
-    margin-right: 10px;
     transition: background-color 0.3s;
 }
 
 .btn-purple:hover {
-    background-color: #5a32a3;
+    background-color: var(--primary-hover-color);
 }
 
 .btn-save {
     background-color: transparent;
-    color: #6f42c1;
-    border: 1px solid #6f42c1;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
     padding: 8px 15px;
     border-radius: 5px;
     cursor: pointer;
@@ -345,16 +507,20 @@
 }
 
 .btn-save:hover {
-    background-color: #f0e6ff;
+    background-color: rgba(111, 66, 193, 0.1);
+}
+body.dark-mode .btn-save:hover {
+    background-color: rgba(111, 66, 193, 0.2);
 }
 
+
 .btn-save.saved {
-    background-color: #6f42c1;
+    background-color: var(--primary-color);
     color: white;
 }
 
 .btn-save.saved:hover {
-    background-color: #5a32a3;
+    background-color: var(--primary-hover-color);
 }
 
 .product-actions {
@@ -363,28 +529,19 @@
     margin-top: 10px;
 }
 
-.cart-footer {
-    margin-top: 20px;
-    grid-column: 1 / -1;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.checkout-btn {
-    padding: 12px 24px;
-    font-size: 16px;
-}
 
 /* =======================
-   MODAL STYLES
+   MODAL STYLES - UPDATED
    ======================= */
 .modal-overlay {
+    /* Keep overlay dark */
+    background-color: rgba(0, 0, 0, 0.6);
+    /* ... existing styles */
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
     display: none;
     justify-content: center;
     align-items: center;
@@ -396,13 +553,20 @@
 }
 
 .modal-content {
-    background: white;
+    background: var(--content-bg); /* Use variable */
+    color: var(--text-color); /* Use variable */
     padding: 30px;
     border-radius: 8px;
     width: 100%;
     max-width: 400px;
     position: relative;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px var(--shadow-color); /* Use variable */
+    border: 1px solid var(--border-color); /* Add border */
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.modal-content h2 {
+    color: var(--text-color);
 }
 
 /* Close Modal Button */
@@ -414,87 +578,91 @@
     background: none;
     border: none;
     cursor: pointer;
-    color: #666;
+    color: var(--text-secondary); /* Use variable */
 }
 
 .close-modal:hover {
-    color: #6f42c1;
+    color: var(--primary-color);
+}
+body.dark-mode .close-modal:hover {
+    color: #c0c0ff;
 }
 
-/* Centered Forms */
-.centered-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
+/* Modal Forms - Updated */
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary); /* Use variable */
+    font-size: 14px;
 }
 
-.centered-form .form-group {
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"] {
     width: 100%;
-    margin-bottom: 20px;
+    padding: 12px 15px;
+    border: 1px solid var(--input-border); /* Use variable */
+    border-radius: 6px;
+    font-size: 16px;
+    background-color: var(--input-bg); /* Use variable */
+    color: var(--text-color); /* Use variable */
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.form-group input::placeholder { /* Target placeholders */
+    color: var(--text-secondary);
+    opacity: 0.7;
 }
 
-.centered-form .btn-purple {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
+.password-input {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 0px; /* Adjust */
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary); /* Use variable */
+    cursor: pointer;
+    padding: 10px; /* Increase clickable area */
 }
 
 .form-footer {
     margin-top: 20px;
     text-align: center;
     font-size: 14px;
-    color: #666;
+    color: var(--text-secondary); /* Use variable */
 }
 
 .form-footer a {
-    color: #6f42c1;
+    color: var(--primary-color);
     text-decoration: none;
 }
-
 .form-footer a:hover {
     text-decoration: underline;
 }
-
-/* Input with icon */
-.input-with-icon {
-    position: relative;
-    width: 100%;
+body.dark-mode .form-footer a {
+    color: #a0a0ff; /* Lighter link in dark mode */
 }
 
-.input-with-icon input {
-    width: 100%;
-    padding: 12px 40px 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-}
 
-.toggle-password {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    padding: 5px;
-}
-
-/* Cart Notification */
+/* =======================
+   CART NOTIFICATION - UPDATED
+   ======================= */
 .cart-notification {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: #6f42c1;
-    color: white;
+    background: var(--notification-bg); /* Use variable */
+    color: var(--notification-text); /* Use variable */
     padding: 15px 25px;
     border-radius: 5px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px var(--shadow-color); /* Use variable */
     transform: translateY(100px);
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: all 0.3s ease, background-color 0.3s, color 0.3s; /* Add bg/color transition */
     z-index: 1000;
 }
 
@@ -503,124 +671,88 @@
     opacity: 1;
 }
 
-/* =======================
-   ADD TO CART ANIMATION
-   ======================= */
-   .product-image-fly {
-    position: fixed; /* Use fixed positioning for viewport-relative movement */
-    z-index: 1001; /* Make sure it's above other elements */
-    border-radius: 5px; /* Optional: style the flying element */
-    transition: transform 0.7s ease-in, opacity 0.7s ease-in, width 0.7s ease-in, height 0.7s ease-in; /* Smooth animation */
-    pointer-events: none; /* Prevent interaction with the clone */
-    object-fit: cover; /* Ensure image covers the area if resized */
-}
-/* =======================
-   CART ITEM STYLES
-   ======================= */
-   .cart-items-container {
-    margin-bottom: 20px;
-    /* Add if items should be in a column */
-    /* display: flex; */
-    /* flex-direction: column; */
-    /* gap: 15px; */
-}
 
+/* =======================
+   CART ITEM STYLES - UPDATED
+   ======================= */
 .cart-item-card {
     display: flex;
     align-items: center;
-    background: #fff;
+    background: var(--card-bg); /* Use variable */
     padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 15px; /* Space between cards */
-    position: relative; /* Needed for absolute positioning of remove button */
-    overflow: hidden; /* Ensures remove button stays within bounds if needed */
-    transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* For potential future animations */
+    box-shadow: 0 2px 5px var(--shadow-color); /* Use variable */
+    border: 1px solid var(--border-color); /* Use variable */
+    margin-bottom: 15px;
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
 .cart-item-image {
-    width: 70px;
-    height: 70px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-right: 15px;
-    border: 1px solid #eee; /* Subtle border */
-}
-
-.cart-item-details {
-    flex-grow: 1; /* Takes up remaining space */
+    /* ... */
+    border: 1px solid var(--border-color); /* Use variable */
 }
 
 .cart-item-name {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
+    /* ... */
+    color: var(--text-color); /* Use variable */
 }
 
 .cart-item-price {
-    font-size: 0.95em;
-    color: #555;
-    margin-bottom: 3px;
+    /* ... */
+    color: var(--text-secondary); /* Use variable */
 }
 
 .cart-item-quantity {
-    font-size: 0.9em;
-    color: #777;
+    /* ... */
+    color: var(--text-secondary); /* Use variable */
 }
 
 .btn-remove-item {
-    background: transparent;
-    border: none;
-    color: #dc3545; /* Red color for removal */
-    font-size: 1.4em; /* Make X larger */
-    cursor: pointer;
-    position: absolute;
-    top: 10px;       /* Position top right */
-    right: 10px;
-    padding: 5px;
-    line-height: 1; /* Ensure tight fit */
-    transition: color 0.2s;
+    /* Keep red color */
+    /* ... */
+    color: #dc3545;
 }
-
+body.dark-mode .btn-remove-item {
+    color: #f87171; /* Lighter red */
+}
 .btn-remove-item:hover {
-    color: #a71d2a; /* Darker red on hover */
+    color: #a71d2a;
+}
+body.dark-mode .btn-remove-item:hover {
+    color: #ef4444; /* Brighter red on hover */
 }
 
 .cart-summary {
-    background: #f8f9fa; /* Light background for summary */
+    background: var(--bg-color); /* Use main bg for slight contrast */
     padding: 20px;
     border-radius: 8px;
     margin-top: 20px;
     text-align: right;
-    border: 1px solid #eee;
+    border: 1px solid var(--border-color); /* Use variable */
+    transition: background-color 0.3s, border-color 0.3s;
 }
 .cart-summary h3 {
     text-align: left;
     margin-bottom: 15px;
     font-size: 1.2em;
-    color: #333;
+    color: var(--text-color); /* Use variable */
 }
 .cart-summary p {
     margin-bottom: 15px;
     font-size: 1.1em;
+    color: var(--text-color); /* Use variable */
 }
 
+/* Ensure checkout button uses primary style */
 .checkout-btn {
+    /* Inherits .btn-purple styling */
     padding: 10px 20px;
     font-size: 1em;
 }
 
-
-/* =======================
-   EXPLOSION ANIMATION
-   ======================= */
-.particle {
-    position: fixed; /* Use fixed so it's relative to viewport */
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    pointer-events: none; /* Prevent interaction */
-    z-index: 1005; /* Above most other elements */
-    background-color: #6f42c1; /* Example color, can be randomized */
-    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.6s ease-out; /* Animation timing */
+/* Particle Color */
+body.dark-mode .particle {
+    background-color: #a0a0ff; /* Lighter purple for particles in dark mode */
 }
