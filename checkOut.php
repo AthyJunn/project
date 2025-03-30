@@ -399,7 +399,7 @@
                 subtotal += itemTotal;
                 return `
                     <div class="cart-item">
-                        <img src="src/${name.replace(/ /g, '_')}.jpg" alt="${item.name}">
+                        <img src="src/${name.replace(/ /g, '_')}.jpg alt="${item.name}">
                         <div class="item-details">
                             <div class="item-name">${item.name}</div>
                             <div class="item-quantity">${item.quantity}x</div>
