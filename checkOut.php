@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* --- Existing Styles --- */
         :root {
             --primary-color: #6f42c1;
             --hover-color: #5a32a3;
@@ -182,6 +183,33 @@
             margin-top: 20px;
         }
 
+        /* Updated: Ensure discount input and button align nicely */
+        .discount-input {
+            display: flex;
+            gap: 10px; /* Add gap between input and button */
+            margin-bottom: 20px; /* Existing margin */
+        }
+        .discount-input input {
+            flex-grow: 1; /* Allow input to take available space */
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .discount-input button { /* Target the button specifically */
+            white-space: nowrap; /* Prevent button text wrapping */
+        }
+        /* Style for applied discount message */
+        .discount-applied-msg {
+            color: green;
+            font-size: 0.9em;
+            margin-top: -10px; /* Pull up slightly */
+            margin-bottom: 15px;
+            text-align: left; /* Align to left under input */
+            display: none; /* Hide initially */
+        }
+
+
         .summary-row {
             display: flex;
             justify-content: space-between;
@@ -205,7 +233,15 @@
             border: none;
             border-radius: 6px;
             cursor: pointer;
+            transition: background-color 0.3s, opacity 0.3s; /* Add opacity transition */
         }
+        /* Style for disabled apply button */
+        .btn-apply:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
 
         .btn-pay {
             width: 100%;
@@ -277,6 +313,7 @@
             font-size: 1.1em;
             margin-left: 15px;
         }
+        /* --- End Existing Styles --- */
     </style>
 </head>
 <body>
@@ -288,7 +325,7 @@
         <div class="checkout-grid">
             <div class="section">
                 <h2 class="section-title">Shipping Information</h2>
-                
+
                 <div class="delivery-options">
                     <div class="delivery-option active" onclick="selectDeliveryOption('delivery')">
                         <i class="fas fa-truck"></i>
@@ -352,13 +389,13 @@
 
                 <div class="payment-methods">
                     <h3 class="section-title">Payment Method</h3>
-                    
-                    <div class="payment-option" data-method="card">
+
+                    <div class="payment-option active" data-method="card"> <!-- Set card as default active -->
                         <div class="payment-header">
                             <i class="fas fa-credit-card"></i>
                             <span>Credit/Debit Card</span>
                         </div>
-                        <div class="card-details">
+                        <div class="card-details active"> <!-- Show card details by default -->
                             <div class="form-group">
                                 <label>Card Number<span class="required">*</span></label>
                                 <input type="text" placeholder="1234 5678 9012 3456" required>
@@ -381,6 +418,7 @@
                             <i class="fas fa-wallet"></i>
                             <span>Touch n Go eWallet</span>
                         </div>
+                         <!-- No extra details needed for TNG -->
                     </div>
 
                     <div class="payment-option" data-method="shopee">
@@ -388,6 +426,7 @@
                             <i class="fas fa-shopping-bag"></i>
                             <span>ShopeePay</span>
                         </div>
+                         <!-- No extra details needed for ShopeePay -->
                     </div>
                 </div>
             </div>
@@ -398,27 +437,30 @@
                     <!-- Cart items will be loaded here -->
                 </div>
 
+                <!-- Updated Discount Section -->
                 <div class="discount-input form-group">
-                    <input type="text" placeholder="Discount code">
-                    <button class="btn-apply">Apply</button>
+                    <input type="text" placeholder="Discount code" id="discount-code-input">
+                    <button class="btn-apply" id="apply-discount-btn">Apply</button>
                 </div>
+                <!-- Added element for success message -->
+                <div class="discount-applied-msg" id="discount-message">10% Discount Applied!</div>
 
                 <div class="cart-summary">
                     <div class="summary-row">
                         <span>Subtotal</span>
-                        <span>RM 0.00</span>
+                        <span id="summary-subtotal">RM 0.00</span> <!-- Added ID -->
                     </div>
                     <div class="summary-row">
                         <span>Shipping</span>
-                        <span>RM 5.00</span>
+                        <span id="summary-shipping">RM 5.00</span> <!-- Added ID -->
                     </div>
                     <div class="summary-row">
                         <span>Discount</span>
-                        <span>-RM 0.00</span>
+                        <span id="summary-discount">-RM 0.00</span> <!-- Added ID -->
                     </div>
                     <div class="summary-row total-row">
                         <span>Total</span>
-                        <span>RM 5.00</span>
+                        <span id="summary-total">RM 5.00</span> <!-- Added ID -->
                     </div>
                 </div>
 
@@ -433,129 +475,200 @@
     </div>
 
     <script>
+        // --- Constants and State Variables ---
+        const validDiscountCodes = ['SAVE10', 'BEADS10', 'HAMSA10']; // Your valid codes
+        let currentDiscountRate = 0; // 0 means no discount, 0.10 means 10%
+        let currentSubtotal = 0; // Keep track of subtotal globally in this script
+
+        // --- DOM Element References ---
+        const discountInput = document.getElementById('discount-code-input');
+        const applyDiscountBtn = document.getElementById('apply-discount-btn');
+        const discountMessage = document.getElementById('discount-message');
+        const subtotalEl = document.getElementById('summary-subtotal');
+        const shippingEl = document.getElementById('summary-shipping');
+        const discountEl = document.getElementById('summary-discount');
+        const totalEl = document.getElementById('summary-total');
+        const cartContainer = document.querySelector('.cart-items');
+
+        // --- Functions ---
+
         // Load cart items from localStorage
         function loadCartItems() {
             const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            const cartContainer = document.querySelector('.cart-items');
-            let subtotal = 0;
+            currentSubtotal = 0; // Reset subtotal before calculating
+
+            if (!cartContainer) return; // Safety check
 
             cartContainer.innerHTML = cart.map(item => {
-                const itemTotal = item.price * item.quantity;
-                subtotal += itemTotal;
+                // Validate item structure slightly
+                const name = item.name || 'Unknown Item';
+                const price = typeof item.price === 'number' ? item.price : 0;
+                const quantity = typeof item.quantity === 'number' ? item.quantity : 1;
+
+                const itemTotal = price * quantity;
+                currentSubtotal += itemTotal; // Update global subtotal
+
+                // Construct image path safely
+                const imageName = name.replace(/ /g, '_');
+                const imageSrc = `src/${imageName}.jpg`; // Adjust path if needed
+
                 return `
                     <div class="cart-item">
-                        <img src="src/${item.name.replace(/ /g, '_')}.jpg" alt="${item.name}" onerror="this.onerror=null; this.src='images/placeholder.jpg';">
+                        <img src="${imageSrc}" alt="${name}" onerror="this.onerror=null; this.src='images/placeholder.jpg';">
                         <div class="item-details">
-                            <div class="item-name">${item.name}</div>
-                            <div class="item-quantity">Quantity: ${item.quantity}</div>
+                            <div class="item-name">${name}</div>
+                            <div class="item-quantity">Quantity: ${quantity}</div>
                         </div>
                         <div class="item-price">RM ${itemTotal.toFixed(2)}</div>
                     </div>
                 `;
             }).join('');
 
-            updateSummary(subtotal);
+            updateSummary(); // Update summary after loading items and calculating subtotal
         }
 
-        // Update cart summary
-        function updateSummary(subtotal) {
-            const shipping = document.querySelector('.delivery-option.active').querySelector('span').textContent === 'Delivery' ? 5.00 : 0.00;
-            const discount = 0.00;
-            const total = subtotal + shipping - discount;
+        // Update cart summary based on current state
+        function updateSummary() {
+            const deliveryOptionElement = document.querySelector('.delivery-option.active span');
+            const isDelivery = deliveryOptionElement ? deliveryOptionElement.textContent === 'Delivery' : true; // Default to delivery if not found
+            const shippingCost = isDelivery ? 5.00 : 0.00;
 
-            document.querySelector('.summary-row:nth-child(1) span:last-child').textContent = `RM ${subtotal.toFixed(2)}`;
-            document.querySelector('.summary-row:nth-child(2) span:last-child').textContent = `RM ${shipping.toFixed(2)}`;
-            document.querySelector('.summary-row:nth-child(3) span:last-child').textContent = `-RM ${discount.toFixed(2)}`;
-            document.querySelector('.total-row span:last-child').textContent = `RM ${total.toFixed(2)}`;
+            const discountAmount = currentSubtotal * currentDiscountRate; // Calculate discount based on current rate
+            const total = currentSubtotal + shippingCost - discountAmount;
+
+            // Update DOM elements safely
+            if (subtotalEl) subtotalEl.textContent = `RM ${currentSubtotal.toFixed(2)}`;
+            if (shippingEl) shippingEl.textContent = `RM ${shippingCost.toFixed(2)}`;
+            if (discountEl) discountEl.textContent = `-RM ${discountAmount.toFixed(2)}`;
+            if (totalEl) totalEl.textContent = `RM ${total.toFixed(2)}`;
         }
 
         // Handle delivery option selection
         function selectDeliveryOption(option) {
             const deliveryOptions = document.querySelectorAll('.delivery-option');
             deliveryOptions.forEach(opt => opt.classList.remove('active'));
-            
-            const selectedOption = document.querySelector(`.delivery-option:${option === 'delivery' ? 'first-child' : 'last-child'}`);
-            selectedOption.classList.add('active');
 
-            // Update shipping cost
-            const subtotalText = document.querySelector('.summary-row:nth-child(1) span:last-child').textContent;
-            const subtotal = parseFloat(subtotalText.replace('RM ', ''));
-            updateSummary(subtotal);
+            // Find the correct option based on the clicked one
+            const selectedOption = document.querySelector(`.delivery-option i.${option === 'delivery' ? 'fa-truck' : 'fa-store'}`).closest('.delivery-option');
+            if(selectedOption) {
+                selectedOption.classList.add('active');
+            }
+
+            updateSummary(); // Recalculate summary as shipping cost might change
         }
-
-        // Initialize payment method handlers
-        document.addEventListener('DOMContentLoaded', function() {
-            const paymentOptions = document.querySelectorAll('.payment-option');
-            
-            paymentOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const method = this.dataset.method;
-                    selectPaymentMethod(method);
-                });
-            });
-
-            // Set initial payment method
-            selectPaymentMethod('card');
-        });
 
         // Handle payment method selection
         function selectPaymentMethod(method) {
             console.log('Selecting payment method:', method); // Debug log
-            
+
             const paymentOptions = document.querySelectorAll('.payment-option');
             const cardDetails = document.querySelector('.card-details');
-            
-            // Remove active class from all options
+
             paymentOptions.forEach(opt => opt.classList.remove('active'));
-            
-            // Find the selected option using data-method attribute
+
             const selectedOption = document.querySelector(`.payment-option[data-method="${method}"]`);
-            
             if (!selectedOption) {
                 console.error('Payment option not found:', method);
                 return;
             }
-            
-            // Add active class to selected option
             selectedOption.classList.add('active');
-            
-            // Handle card details
-            if (method === 'card') {
-                cardDetails.classList.add('active');
-                cardDetails.querySelectorAll('input').forEach(input => {
-                    input.required = true;
-                });
-            } else {
+
+            // Reset all card inputs requirement first
+             if (cardDetails) {
                 cardDetails.classList.remove('active');
-                cardDetails.querySelectorAll('input').forEach(input => {
-                    input.required = false;
-                });
+                cardDetails.querySelectorAll('input').forEach(input => input.required = false);
+             }
+
+            // Activate card details and set required only if 'card' is selected
+            if (method === 'card' && cardDetails) {
+                cardDetails.classList.add('active');
+                cardDetails.querySelectorAll('input').forEach(input => input.required = true);
             }
         }
 
-        // Process payment
+        // Process payment (basic validation)
         function processPayment() {
             const form = document.getElementById('shipping-form');
-            const activePayment = document.querySelector('.payment-option.active');
-            
-            if (!activePayment) {
-                alert('Please select a payment method');
+            const activePaymentOption = document.querySelector('.payment-option.active');
+
+            if (!activePaymentOption) {
+                alert('Please select a payment method.');
                 return;
             }
 
-            if (form.checkValidity()) {
+            // Check validity of the shipping form AND potentially the card details form
+            let isFormValid = form.checkValidity();
+
+            // If card payment is active, also check its inputs
+            const paymentMethod = activePaymentOption.dataset.method;
+            if (paymentMethod === 'card') {
+                 const cardDetailsForm = document.querySelector('.card-details');
+                 cardDetailsForm.querySelectorAll('input').forEach(input => {
+                    if (!input.checkValidity()) {
+                        isFormValid = false;
+                        // Optionally highlight the specific invalid card input
+                        input.reportValidity();
+                    }
+                 });
+            }
+
+
+            if (isFormValid) {
                 // Here you would typically send the data to your backend
-                const paymentMethod = activePayment.querySelector('.payment-header').textContent.trim();
-                alert(`Payment processed successfully using ${paymentMethod}!`);
+                const paymentMethodText = activePaymentOption.querySelector('.payment-header span').textContent.trim(); // Get text like "Credit/Debit Card"
+                alert(`Payment processing initiated using ${paymentMethodText}! (Frontend simulation)`);
+                // Potentially clear cart from localStorage and redirect to a thank you page
+                 localStorage.removeItem('cart');
+                // window.location.href = 'thankyou.php'; // Example redirect
             } else {
+                // Trigger browser's default validation reporting on the main form
                 form.reportValidity();
+                 // Card validation errors are reported inside the card check above
+                alert('Please fill in all required fields correctly.');
             }
         }
 
-        // Initialize page
+        // --- Event Listeners Setup ---
         document.addEventListener('DOMContentLoaded', function() {
-            loadCartItems();
+            loadCartItems(); // Load items and calculate initial subtotal/summary
+
+            // Payment Method Listeners
+            const paymentOptions = document.querySelectorAll('.payment-option');
+            paymentOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    selectPaymentMethod(this.dataset.method);
+                });
+            });
+            // Default payment method selection ('card' is already active via HTML)
+            // selectPaymentMethod('card'); // No longer needed if HTML sets active default
+
+            // Discount Code Listener
+            if (applyDiscountBtn && discountInput) {
+                applyDiscountBtn.addEventListener('click', function() {
+                    const enteredCode = discountInput.value.trim().toUpperCase(); // Case-insensitive
+
+                    if (validDiscountCodes.includes(enteredCode)) {
+                        currentDiscountRate = 0.10; // Apply 10% discount
+                        discountMessage.style.display = 'block'; // Show success message
+                        applyDiscountBtn.disabled = true; // Disable button after success
+                        applyDiscountBtn.textContent = 'Applied ✓'; // Change button text
+                        discountInput.disabled = true; // Optional: disable input too
+                        updateSummary(); // Update summary with discount
+                    } else {
+                        // Optional: Only reset if a discount WAS previously applied
+                        // if (currentDiscountRate > 0) {
+                        //    currentDiscountRate = 0;
+                        //    updateSummary();
+                        // }
+                        alert('Invalid discount code.'); // Simple feedback for invalid code
+                        discountInput.value = ''; // Clear the input
+                        // Do not disable button on invalid attempt, allow retry
+                    }
+                });
+            } else {
+                console.error("Discount input or apply button not found.");
+            }
         });
     </script>
 </body>
-</html> 
+</html>
