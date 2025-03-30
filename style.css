@@ -403,91 +403,135 @@ body.dark-mode #account-button:hover {
 .logout:hover {
     background-color: var(--button-secondary-hover-bg); /* Use variable */
 }
-
 /* =======================
    PRODUCT STYLES - UPDATED
    ======================= */
-h2.section-title { /* Style the category title */
+   :root {
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --text-color: #333333;
+    --text-secondary: #666666;
+    --primary-color: #6f42c1;
+}
+
+.dark-mode {
+    --card-bg: #2d2d2d;
+    --border-color: #444444;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --text-color: #f0f0f0;
+    --text-secondary: #aaaaaa;
+}
+
+h2.section-title {
     color: var(--text-color);
     margin-bottom: 25px;
     font-weight: bold;
+    font-size: 1.5rem;
 }
 
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    gap: 25px;
 }
 
-/* Product Card - UPDATED */
+/* Product Card - Enhanced */
 .product-card {
-    background: var(--card-bg); /* Use variable */
-    border: 1px solid var(--border-color); /* Add border */
-    border-radius: 10px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 10px var(--shadow-color); /* Use variable */
-    transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
+    box-shadow: 0 3px 12px var(--shadow-color);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .product-card:hover {
     transform: translateY(-5px);
-    border-color: var(--primary-color); /* Highlight border on hover */
+    box-shadow: 0 5px 15px var(--shadow-color);
+    border-color: var(--primary-color);
 }
 
+/* Image Container - Perfect Fit */
 .product-image-container {
     position: relative;
     width: 100%;
     padding-top: 100%; /* 1:1 Aspect Ratio */
+    background: rgba(0,0,0,0.03);
     overflow: hidden;
-    background: #f8f9fa;
-    border-radius: 8px;
-    transition: all 0.3s ease;
 }
 
-.product-image {
-    height: 200px;
-    background-color: rgba(0,0,0,0.05); /* Slightly darker bg for image area */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-secondary); /* Use variable */
-    overflow: hidden; /* Ensure image fits */
+.dark-mode .product-image-container {
+    background: rgba(255,255,255,0.03);
 }
-.product-image img {
-    max-width: 100%;
-    max-height: 100%;
+
+.product-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     object-position: center;
-}
-body.dark-mode .product-image {
-     background-color: rgba(255,255,255,0.05);
+    transition: transform 0.5s ease;
 }
 
+.product-card:hover .product-image-container img {
+    transform: scale(1.05);
+}
 
+/* Product Info Section */
 .product-info {
-    padding: 15px;
+    padding: 18px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .product-title {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: var(--text-color); /* Use variable */
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    line-height: 1.4;
 }
 
-.product-stock { /* This class wasn't in HTML but styled */
-    color: #28a745; /* Keep green */
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-body.dark-mode .product-stock {
-     color: #34d399; /* Lighter green */
+.product-stock {
+    color: #28a745;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
 }
 
+.dark-mode .product-stock {
+    color: #34d399;
+}
 
 .product-price {
-    font-weight: bold;
-    color: var(--primary-color); /* Keep primary color */
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--primary-color);
     margin-bottom: 15px;
+}
+
+.product-actions {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .product-info {
+        padding: 15px;
+    }
 }
 
 /* =======================
