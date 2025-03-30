@@ -327,20 +327,31 @@ body.dark-mode #account-button:hover {
     position: absolute;
     top: 100%;
     right: 0;
-    background: var(--content-bg); /* Use variable */
-    box-shadow: 0px 4px 10px var(--shadow-color); /* Use variable */
-    border: 1px solid var(--border-color); /* Add border */
+    background: var(--content-bg);
+    box-shadow: 0px 4px 10px var(--shadow-color);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     width: 200px;
     padding: 16px;
     z-index: 1000;
     margin-top: 10px;
-    transition: background-color 0.3s, border-color 0.3s;
+    transition: all 0.3s ease;
 }
-
 
 .account-dropdown.show {
     display: block;
+    animation: dropdownFadeIn 0.3s ease;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Dropdown Header - UPDATED */

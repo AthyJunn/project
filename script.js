@@ -146,37 +146,48 @@ function initAccountDropdown() {
     const logoutBtn = document.getElementById('logout-btn');
 
     if (!accountButton || !accountDropdown) {
-        // console.error("Account button or dropdown not found!");
+        console.error("Account button or dropdown not found!");
         return;
     }
 
-    accountButton.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent click from bubbling to document listener
+    // Toggle dropdown visibility when clicking the button
+    accountButton.addEventListener('click', function(e) {
+        e.stopPropagation();
         accountDropdown.classList.toggle('show');
     });
 
-    // Close dropdown if clicking outside
-    document.addEventListener('click', (e) => {
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
         if (!accountDropdown.contains(e.target) && !accountButton.contains(e.target)) {
             accountDropdown.classList.remove('show');
         }
     });
 
+    // Prevent dropdown from closing when clicking inside it
+    accountDropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+
+    // Handle Add Account click
     if (addAccountBtn) {
-        addAccountBtn.addEventListener('click', (e) => {
+        addAccountBtn.addEventListener('click', function(e) {
             e.preventDefault();
             accountDropdown.classList.remove('show');
-            showModalById('register-modal');
+            // Show register modal if you have one
+            const registerModal = document.getElementById('register-modal');
+            if (registerModal) {
+                registerModal.classList.add('active');
+            }
         });
     }
 
+    // Handle Logout click
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
+        logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
             accountDropdown.classList.remove('show');
-            // Add actual logout logic here (clear user session/data)
+            // Add your logout logic here
             alert('Logged out successfully!');
-            // Update UI to guest state if necessary
         });
     }
 }
