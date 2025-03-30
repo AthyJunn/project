@@ -116,12 +116,12 @@
                     <label for="register-confirm">Confirm Password</label>
                     <div class="password-input">
                         <input type="password" id="register-confirm" required>
-                        <br>
                         <button type="button" class="toggle-password" aria-label="Show password">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
+                <br>
                 <button type="submit" class="btn-purple">Register</button>
                 <div class="form-footer">
                     Already have an account? <a href="#" id="show-login">Log in here</a>
