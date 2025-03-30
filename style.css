@@ -434,6 +434,16 @@ h2.section-title { /* Style the category title */
     border-color: var(--primary-color); /* Highlight border on hover */
 }
 
+.product-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 100%; /* 1:1 Aspect Ratio */
+    overflow: hidden;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
 .product-image {
     height: 200px;
     background-color: rgba(0,0,0,0.05); /* Slightly darker bg for image area */
