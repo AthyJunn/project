@@ -224,8 +224,18 @@
                 const isSaved = savedItems.includes(parseInt(product.id));
                 if (isSaved) {
                     const saveBtn = document.getElementById('save-product-btn');
-                    saveBtn.innerHTML = '<i class="fas fa-heart"></i> Saved';
+                    saveBtn.innerHTML = '<i class="fas fa-heart"></i> Unsave';
                     saveBtn.classList.add('saved');
+                }
+
+                // Check if product is in cart
+                const isInCart = cart.some(item => item.id === parseInt(product.id));
+                if (isInCart) {
+                    const addToCartBtn = document.getElementById('add-to-cart-btn');
+                    addToCartBtn.textContent = 'Added to Cart';
+                    addToCartBtn.disabled = true;
+                    addToCartBtn.style.backgroundColor = '#28a745';
+                    addToCartBtn.style.cursor = 'default';
                 }
             }
             
@@ -236,6 +246,12 @@
                     const mockButton = document.createElement('button');
                     mockButton.classList.add('add-to-cart');
                     document.body.appendChild(mockButton);
+                    
+                    // Update the actual button state
+                    this.textContent = 'Added to Cart';
+                    this.disabled = true;
+                    this.style.backgroundColor = '#28a745';
+                    this.style.cursor = 'default';
                     
                     animateAddToCart(mockButton);
                     setTimeout(() => {

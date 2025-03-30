@@ -1209,3 +1209,68 @@ body.dark-mode .logout:hover {
 .back-button i {
     font-size: 16px;
 }
+
+.btn-purple.add-to-cart.added {
+    background-color: #28a745;
+    cursor: default;
+}
+
+.btn-purple.add-to-cart.added:hover {
+    background-color: #28a745;
+}
+
+.btn-purple.add-to-cart:disabled {
+    opacity: 1;
+    cursor: default;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border-color);
+    background-color: var(--content-bg);
+    color: var(--text-color);
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.quantity-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.quantity-value {
+    min-width: 30px;
+    text-align: center;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+body.dark-mode .quantity-btn {
+    background-color: var(--dark-content-bg);
+    border-color: var(--dark-border-color);
+    color: var(--dark-text-color);
+}
+
+body.dark-mode .quantity-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .quantity-value {
+    color: var(--dark-text-color);
+}

@@ -382,6 +382,7 @@ function displayProducts(products) {
             const imageSrc = `src/${name.replace(/ /g, '_')}.jpg`; // Assuming image naming convention
 
             const isSaved = savedItems.includes(id); // Check if item is in saves
+            const isInCart = cart.some(item => item.id === id); // Check if item is in cart
 
             return `
             <div class="product-card" data-product-id="${id}" data-product-name="${name}" data-product-price="${price}">
@@ -395,7 +396,9 @@ function displayProducts(products) {
                     </div>
                 </a>
                     <div class="product-actions">
-                        <button class="btn-purple add-to-cart">Add to Cart</button>
+                        <button class="btn-purple add-to-cart ${isInCart ? 'added' : ''}" ${isInCart ? 'disabled' : ''}>
+                            ${isInCart ? 'Added to Cart' : 'Add to Cart'}
+                        </button>
                     <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${id}">
                             <i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Unsave' : 'Save'}
                         </button>
@@ -517,7 +520,6 @@ function animateAddToCart(button) {
 
     const productId = parseInt(productCard.dataset.productId);
     const productName = productCard.dataset.productName;
-    // const productPrice = parseFloat(productCard.dataset.productPrice); // Not currently used in cart logic below, but available
 
     if (isNaN(productId)) {
         console.error("Invalid Product ID found:", productCard.dataset.productId);
@@ -528,7 +530,7 @@ function animateAddToCart(button) {
 
     // --- Animation Setup ---
     const productImage = productCard.querySelector('.product-image img');
-    const cartTarget = document.querySelector('.sidebar-menu a[data-category="cart"] i'); // Target the cart icon
+    const cartTarget = document.querySelector('.sidebar-menu a[data-category="cart"] i');
 
     if (productImage && cartTarget) {
         const imgClone = productImage.cloneNode(true);
@@ -545,11 +547,11 @@ function animateAddToCart(button) {
         imgClone.style.width = `${imgRect.width}px`;
         imgClone.style.height = `${imgRect.height}px`;
         imgClone.style.opacity = '1';
-        imgClone.style.pointerEvents = 'none'; // Prevent interaction
+        imgClone.style.pointerEvents = 'none';
         imgClone.style.zIndex = '1001';
 
         requestAnimationFrame(() => {
-             // Calculate target position (center of cart icon, adjusted for final scale)
+            // Calculate target position (center of cart icon, adjusted for final scale)
             const targetX = cartRect.left + (cartRect.width / 2) - (imgRect.width / 2 * 0.1);
             const targetY = cartRect.top + (cartRect.height / 2) - (imgRect.height / 2 * 0.1);
 
@@ -561,39 +563,43 @@ function animateAddToCart(button) {
         imgClone.addEventListener('transitionend', () => {
             imgClone.remove();
             console.log("Animation clone removed.");
-        }, { once: true }); // Use { once: true } for cleanup safety
+        }, { once: true });
     } else {
         console.warn("Could not find product image or cart target for animation.");
     }
 
     // --- Actual Cart Update Logic ---
-    console.log("Current 'cart' array STATE at start of cart logic:", JSON.stringify(cart)); // CRITICAL LOG
+    console.log("Current 'cart' array STATE at start of cart logic:", JSON.stringify(cart));
 
     const productData = getAllMockProducts().find(p => p.id === productId);
     if (!productData) {
         console.error(`Product data not found in mock data for ID: ${productId}`);
-        return; // Stop if product details aren't available
+        return;
     }
 
-    const existingItemIndex = cart.findIndex(item => item.id === productId); // Use findIndex for potential replacement/update
+    const existingItemIndex = cart.findIndex(item => item.id === productId);
 
     if (existingItemIndex > -1) {
-        // Item exists, increment quantity
         console.log(`FOUND existing item in cart at index ${existingItemIndex} for ID ${productId}. Incrementing quantity.`);
-        cart[existingItemIndex].quantity++; // Directly modify the item in the array
+        cart[existingItemIndex].quantity++;
         console.log(`Incremented quantity. New quantity: ${cart[existingItemIndex].quantity}`);
     } else {
-        // Item does not exist, add new item
         console.log(`Did NOT find existing item for ID ${productId}. Adding new item.`);
-        const newItem = { ...productData, quantity: 1 }; // Create new item object
-        cart.push(newItem); // Add to the global cart array
+        const newItem = { ...productData, quantity: 1 };
+        cart.push(newItem);
         console.log(`Pushed new item: ${JSON.stringify(newItem)}`);
     }
 
     console.log("Cart array STATE before saveCart:", JSON.stringify(cart));
-    saveCart(); // Persist the updated cart to localStorage
-    updateCartCount(); // Update the visual counter
-    showCartNotification(productName); // Show user feedback
+    saveCart();
+    updateCartCount();
+    showCartNotification(productName);
+
+    // Update button to show "Added to Cart" state
+    button.textContent = 'Added to Cart';
+    button.disabled = true;
+    button.style.backgroundColor = '#28a745';
+    button.style.cursor = 'default';
 
     console.log(`--- Animate Add To Cart End --- ID: ${productId}`);
 }
@@ -709,8 +715,11 @@ function displayCart() {
                     <div class="cart-item-name">${name}</div>
                     <div class="cart-item-price">RM ${totalPrice}</div>
                     <div class="cart-item-quantity">
-                        <i class="fas fa-box"></i>
-                        Quantity: ${quantity}
+                        <div class="quantity-controls">
+                            <button class="quantity-btn minus" data-id="${id}">-</button>
+                            <span class="quantity-value">${quantity}</span>
+                            <button class="quantity-btn plus" data-id="${id}">+</button>
+                        </div>
                     </div>
                 </div>
                 <button class="btn-remove-item" data-id="${id}" aria-label="Remove ${name}">
@@ -762,6 +771,14 @@ function displayCart() {
                         console.error("Could not find parent card element for remove button.");
                     }
                 }
+            }
+
+            // Handle quantity controls
+            const quantityBtn = event.target.closest('.quantity-btn');
+            if (quantityBtn) {
+                const productId = parseInt(quantityBtn.dataset.id);
+                const isPlus = quantityBtn.classList.contains('plus');
+                updateCartQuantity(productId, isPlus);
             }
         });
 
@@ -1153,5 +1170,29 @@ function updateSaveButtonState(button, isSaved) {
         // Add a space after the icon
         button.insertBefore(document.createTextNode(' '), button.lastChild);
     }
+}
+
+// Add new function to handle quantity updates
+function updateCartQuantity(productId, isPlus) {
+    const itemIndex = cart.findIndex(item => item.id === productId);
+    if (itemIndex === -1) return;
+
+    if (isPlus) {
+        cart[itemIndex].quantity++;
+    } else {
+        if (cart[itemIndex].quantity > 1) {
+            cart[itemIndex].quantity--;
+        } else {
+            // If quantity would go below 1, remove the item
+            const cardElement = document.querySelector(`.cart-item-card[data-id="${productId}"]`);
+            if (cardElement) {
+                removeFromCart(productId, cardElement);
+            }
+        }
+    }
+
+    // Update localStorage and UI
+    saveCart();
+    displayCart(); // Re-render the entire cart to update all values
 }
 
