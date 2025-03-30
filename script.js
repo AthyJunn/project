@@ -148,17 +148,21 @@ function initAccountDropdown() {
         return;
     }
 
+    console.log("Account button and dropdown found."); // Debugging statement
+
     // Toggle dropdown visibility when clicking the button
     accountButton.addEventListener('click', function(e) {
         console.log("Account button clicked"); // Debugging statement
         e.stopPropagation();
         accountDropdown.classList.toggle('show');
+        console.log("Dropdown visibility toggled."); // Debugging statement
     });
 
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         if (!accountDropdown.contains(e.target) && !accountButton.contains(e.target)) {
             accountDropdown.classList.remove('show');
+            console.log("Dropdown closed."); // Debugging statement
         }
     });
 
@@ -189,7 +193,6 @@ function initAccountDropdown() {
         });
     }
 }
-
 
 // ==========================
 // Modals (Login/Register)
