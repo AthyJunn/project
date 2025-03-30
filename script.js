@@ -360,7 +360,7 @@ function displayProducts(products) {
             const id = product.id ?? 'unknown';
             const name = product.name ?? 'Unnamed Product';
             const price = typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A';
-            const imageSrc = `images/products/${id}.jpg`; // Assuming image naming convention
+            const imageSrc = `src/${name.replace(/ /g, '_')}.jpg`; // Assuming image naming convention
 
             const isSaved = savedItems.includes(id); // Check if item is in saves
 
