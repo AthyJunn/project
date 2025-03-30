@@ -444,6 +444,16 @@ body.dark-mode #account-button:hover {
     border-color: var(--primary-color); /* Highlight border on hover */
 }
 
+.product-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    flex-grow: 1;
+}
+
+.product-card-link:hover {
+    text-decoration: none;
+}
 
 .product-image {
     height: 200px;
