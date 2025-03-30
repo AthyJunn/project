@@ -563,6 +563,56 @@ body.dark-mode .product-stock {
         padding: 12px;
     }
 }
+/* =======================
+   IN CART STATUS INDICATOR
+   ======================= */
+
+   .in-cart-status {
+    display: none; /* Hidden by default */
+    color: #28a745; /* Green color */
+    font-size: 0.9em;
+    font-weight: 500;
+    margin-top: 8px; /* Space above */
+    padding: 4px 8px; /* Some padding */
+    background-color: rgba(40, 167, 69, 0.1); /* Light green background */
+    border: 1px solid rgba(40, 167, 69, 0.2); /* Subtle border */
+    border-radius: 4px;
+    text-align: center; /* Center text */
+}
+
+.in-cart-status.active {
+    display: inline-block; /* Show when active */
+    /* Or use 'display: flex; align-items: center; gap: 5px;' for icon alignment */
+}
+
+.in-cart-status i {
+    margin-right: 5px; /* Space between icon and text */
+    font-size: 0.9em; /* Slightly smaller icon */
+}
+
+/* Specific placement on product card */
+.product-card .product-info .in-cart-status {
+    margin-bottom: 10px; /* Space below on card */
+    display: block; /* Make it block on card to take full width */
+    text-align: center;
+}
+.product-card .product-info .in-cart-status:not(.active) {
+     display: none; /* Ensure it's hidden when not active */
+}
+
+
+/* Specific placement on product detail page */
+#detail-cart-status {
+    margin-bottom: 20px; /* Space below indicator on detail page */
+    display: none; /* Hidden by default */
+    /* width: fit-content; Optional: if you want it only as wide as content */
+}
+
+#detail-cart-status.active {
+    display: inline-block; /* Show when active */
+     padding: 8px 15px; /* More padding on detail page */
+     font-size: 1em;
+}
 
 /* =======================
    BUTTONS - UPDATED
