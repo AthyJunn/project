@@ -1,436 +1,291 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Detail - HAMSA BEADS</title>
+    <title>Product Details - HAMSA BEADS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* =======================
-           COLOR VARIABLES & DARK MODE (from style.css)
-           ======================= */
-        :root {
-            --primary-color: #6f42c1;
-            --primary-hover-color: #5a32a3;
-            --light-bg: #f8f9fa;
-            --light-content-bg: #ffffff;
-            --light-text-color: #333;
-            --light-text-secondary: #666;
-            --light-border-color: #ddd;
-            --light-shadow-color: rgba(0, 0, 0, 0.1);
-
-            --dark-bg: #1a1a2e;
-            --dark-content-bg: #2a2a4e;
-            --dark-text-color: #e0e0ff;
-            --dark-text-secondary: #a0a0cc;
-            --dark-border-color: #4a4a6e;
-            --dark-shadow-color: rgba(0, 0, 0, 0.3);
-
-            --bg-color: var(--light-bg);
-            --content-bg: var(--light-content-bg);
-            --text-color: var(--light-text-color);
-            --text-secondary: var(--light-text-secondary);
-            --border-color: var(--light-border-color);
-            --shadow-color: var(--light-shadow-color);
-            --sidebar-bg: var(--light-content-bg);
-            --card-bg: var(--light-content-bg);
-            --input-bg: var(--light-content-bg);
-            --input-border: var(--light-border-color);
-            --button-secondary-bg: #e9ecef;
-            --button-secondary-hover-bg: #dde2e6;
-            --button-secondary-text: #333;
-            --notification-bg: var(--primary-color);
-            --notification-text: white;
-        }
-
-        body.dark-mode {
-            --bg-color: var(--dark-bg);
-            --content-bg: var(--dark-content-bg);
-            --text-color: var(--dark-text-color);
-            --text-secondary: var(--dark-text-secondary);
-            --border-color: var(--dark-border-color);
-            --shadow-color: var(--dark-shadow-color);
-            --sidebar-bg: var(--dark-content-bg);
-            --card-bg: var(--dark-content-bg);
-            --input-bg: var(--dark-content-bg);
-            --input-border: var(--dark-border-color);
-            --button-secondary-bg: #4a4a6e;
-            --button-secondary-hover-bg: #5a5a8e;
-            --button-secondary-text: var(--dark-text-color);
-            --notification-bg: var(--primary-hover-color);
-            --notification-text: var(--dark-text-color);
-        }
-
-        /* =======================
-           GENERAL STYLES (from style.css)
-           ======================= */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* =======================
-           PRODUCT DETAIL PAGE STYLES
-           ======================= */
-        .product-detail-container {
-            display: flex;
-            gap: 40px;
-            margin-top: 20px;
-        }
-
-        .product-detail-image {
-            flex: 1;
-            background-color: rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            border-radius: 10px;
-            max-height: 500px;
-        }
-
-        body.dark-mode .product-detail-image {
-            background-color: rgba(255,255,255,0.05);
-        }
-
-        .product-detail-image img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        .product-detail-info {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #detail-product-name {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            color: var(--text-color);
-        }
-
-        .product-detail-price {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 25px;
-        }
-
-        .product-detail-description {
-            margin-bottom: 30px;
-            color: var(--text-color);
-            line-height: 1.6;
-            white-space: pre-line;
-        }
-
-        .product-detail-actions {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-
-        .product-detail-actions .btn-purple {
-            flex: 2;
-            padding: 12px;
-            font-size: 16px;
-        }
-
-        .product-detail-actions .btn-save {
-            flex: 1;
-            padding: 12px;
-            font-size: 16px;
-        }
-
-        .product-detail-reviews {
-            border-top: 1px solid var(--border-color);
-            padding-top: 20px;
-        }
-
-        .product-detail-reviews h3 {
-            margin-bottom: 10px;
-            color: var(--text-color);
-        }
-
-        #detail-product-reviews {
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .product-detail-container {
-                flex-direction: column;
-            }
-            
-            .product-detail-image {
-                margin-bottom: 20px;
-                max-height: 300px;
-            }
-        }
-
-        /* =======================
-           BUTTON STYLES (from style.css)
-           ======================= */
-        .btn-purple {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn-purple:hover {
-            background-color: var(--primary-hover-color);
-        }
-
-        .btn-save {
-            background-color: transparent;
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-save:hover {
-            background-color: rgba(111, 66, 193, 0.1);
-        }
-
-        body.dark-mode .btn-save:hover {
-            background-color: rgba(111, 66, 193, 0.2);
-        }
-
-        .btn-save.saved {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-save.saved:hover {
-            background-color: var(--primary-hover-color);
-        }
-    </style>
+    <link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <!-- [Rest of your HTML from previous product-detail.php] -->
+    <!-- Reuse the same sidebar from Main.php -->
     <div class="sidebar">
-        <!-- Your sidebar content -->
+        <div class="logo">HAMSA BEADS</div>
+        <div class="BEADS-name">HAMSA BEADS</div>
+        <br>
+        <ul class="sidebar-menu">
+            <li><a href="Main.php" data-category="recommendation">Recommendation</a></li>
+            <li><a href="Main.php" data-category="butterfly">Butterfly Series</a></li>
+            <li><a href="Main.php" data-category="moonstone">Moonstone Series</a></li>
+            <li><a href="Main.php" data-category="malachite">Mystical Malachite Series</a></li>
+            <li><a href="Main.php" data-category="luxe">LUXE Series</a></li>
+
+            <div class="sidebar-bottom">
+                <li><a href="Main.php" data-category="saves">
+                    <i class="far fa-heart"></i>
+                    <span>Saves</span>
+                    <span class="save-badge">0</span>
+                </a></li>
+                <li><a href="Main.php" data-category="cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Cart</span>
+                    <span class="cart-badge">0</span>
+                </a></li>
+            </div>
+        </ul>
     </div>
 
     <div class="main-content">
-        <!-- Your main content with product detail -->
+        <div class="top-bar">
+            <div class="search-container">
+                <input type="text" placeholder="Search products..." id="search-input">
+                <button id="search-button"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="account-menu">
+                <button id="account-button"><i class="fas fa-user-circle"></i></button>
+                <div class="account-dropdown" id="account-dropdown">
+                    <div class="dropdown-header">
+                        <div class="currently-in">Currently in</div>
+                        <div class="user-info">
+                            <img src="images/guest-avatar.png" alt="Guest" class="user-avatar">
+                            <span class="user-status">Guest</span>
+                        </div>
+                    </div>
+                    <button class="add-account" id="add-account-btn">Add Account</button>
+                    <button class="logout" id="logout-btn">Log out</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Detail Section -->
+        <div class="product-detail-container">
+            <div class="product-detail-image">
+                <img src="src/Healing_Soul.jpg" alt="Healing Soul" id="detail-product-image">
+            </div>
+            <div class="product-detail-info">
+                <h1 id="detail-product-name">Healing Soul</h1>
+                <div class="product-detail-price" id="detail-product-price">RM 140</div>
+                <div class="product-detail-description" id="detail-product-description">
+                    This Bracelet was curated with clear Quartz, the master healer crystal. Full benefit details in highlight labelled benefits.
+                    <br><br>
+                    Clear Quartz : 8mm
+                    <br><br>
+                    1¾k gold plated charms with Zircon. (Moon, Ribbon and Filiqree Heart)
+                </div>
+                <div class="product-detail-actions">
+                    <button class="btn-purple" id="add-to-cart-btn">Add to Cart</button>
+                    <button class="btn-save" id="save-product-btn" data-id="1">
+                        <i class="far fa-heart"></i> Save
+                    </button>
+                </div>
+                
+                <!-- Reviews Section -->
+                <div class="product-detail-reviews">
+                    <h3>Reviews</h3>
+                    <div id="detail-product-reviews">
+                        No reviews at the moment
+                    </div>
+                    <button class="btn-purple" id="write-review-btn" style="margin-top: 15px;">Write a Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <!-- Review Modal -->
+<div class="modal-overlay" id="review-modal">
+    <div class="modal-content">
+        <button class="close-modal">&times;</button>
+        <h2>Write a Review</h2>
+        <form id="review-form">
+            <?php if(!isset($_SESSION['username'])): ?>
+            <div class="form-group">
+                <label for="review-name">Your Name</label>
+                <input type="text" id="review-name" required>
+            </div>
+            <?php endif; ?>
+            <div class="form-group">
+                <label for="review-rating">Rating</label>
+                <select id="review-rating" required>
+                    <option value="">Select rating</option>
+                    <option value="5">★★★★★ (5 stars)</option>
+                    <option value="4">★★★★☆ (4 stars)</option>
+                    <option value="3">★★★☆☆ (3 stars)</option>
+                    <option value="2">★★☆☆☆ (2 stars)</option>
+                    <option value="1">★☆☆☆☆ (1 star)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="review-comment">Your Review</label>
+                <textarea id="review-comment" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn-purple">Submit Review</button>
+        </form>
+    </div>
+</div>
+
+    <!-- Reuse the same modals from Main.php -->
+    <div class="modal-overlay" id="login-modal">
+        <!-- ... same as Main.php ... -->
+    </div>
+
+    <div class="modal-overlay" id="register-modal">
+        <!-- ... same as Main.php ... -->
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+    
+    <!-- Add this to your style.css -->
+    <style>
+        /* Additional styles for product detail page */
+        .product-detail-image img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+        }
+        
+        #review-form select, #review-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            margin-top: 5px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+        
+        #review-form textarea {
+            min-height: 100px;
+        }
+        
+        .review-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .review-author {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .review-rating {
+            color: #FFD700;
+            margin-bottom: 5px;
+        }
+        
+        .review-date {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+        
+        .review-content {
+            margin-top: 10px;
+        }
+    </style>
+    
     <script>
-        // Global state variables
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
-
+        // This should be added to your script.js file
+        
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize dark mode toggle
-            initDarkModeToggle();
-            
-            // Get product ID from URL
+            // Initialize the page with product details from URL parameters
             const urlParams = new URLSearchParams(window.location.search);
-            const productId = parseInt(urlParams.get('id'));
+            const productId = urlParams.get('id');
             
-            if (productId) {
-                loadProductDetail(productId);
-            } else {
-                window.location.href = 'Main.php';
+            // Load product details based on ID (using mock data for this example)
+            const product = getProductById(productId);
+            if (product) {
+                document.getElementById('detail-product-name').textContent = product.name;
+                document.getElementById('detail-product-price').textContent = `RM ${product.price}`;
+                document.getElementById('detail-product-image').src = `src/${product.name.replace(/ /g, '_')}.jpg`;
+                document.getElementById('detail-product-image').alt = product.name;
+                document.getElementById('save-product-btn').dataset.id = product.id;
+                
+                // Check if product is saved
+                const isSaved = savedItems.includes(parseInt(product.id));
+                if (isSaved) {
+                    const saveBtn = document.getElementById('save-product-btn');
+                    saveBtn.innerHTML = '<i class="fas fa-heart"></i> Saved';
+                    saveBtn.classList.add('saved');
+                }
             }
-            
-            // Initialize other functionality
-            initSearch();
-            initAccountDropdown();
-            updateCartCount();
-            updateSaveCount();
             
             // Add to cart button
-            document.querySelector('.add-to-cart-detail').addEventListener('click', function() {
-                animateAddToCart(this, productId);
+            document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+                if (product) {
+                    // Create a mock button element for the animation
+                    const mockButton = document.createElement('button');
+                    mockButton.classList.add('add-to-cart');
+                    document.body.appendChild(mockButton);
+                    
+                    animateAddToCart(mockButton);
+                    setTimeout(() => {
+                        mockButton.remove();
+                    }, 1000);
+                    
+                    showCartNotification(product.name);
+                }
             });
             
-            // Save button
-            document.getElementById('save-detail-btn').addEventListener('click', function() {
-                toggleSave(productId, this);
+            // Save product button
+            document.getElementById('save-product-btn').addEventListener('click', function() {
+                const button = this;
+                const productId = parseInt(button.dataset.id);
+                if (!isNaN(productId)) {
+                    toggleSave(productId, button);
+                }
+            });
+            
+            // Write review button
+            document.getElementById('write-review-btn').addEventListener('click', function() {
+                document.getElementById('review-modal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Review form submission
+            document.getElementById('review-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('review-name').value;
+                const rating = document.getElementById('review-rating').value;
+                const comment = document.getElementById('review-comment').value;
+                
+                // Create review HTML
+                const reviewHTML = `
+                    <div class="review-item">
+                        <div class="review-author">${name}</div>
+                        <div class="review-rating">${'★'.repeat(rating)}${'☆'.repeat(5-rating)}</div>
+                        <div class="review-date">${new Date().toLocaleDateString()}</div>
+                        <div class="review-content">${comment}</div>
+                    </div>
+                `;
+                
+                // Add review to the page
+                const reviewsContainer = document.getElementById('detail-product-reviews');
+                if (reviewsContainer.textContent === 'No reviews at the moment') {
+                    reviewsContainer.innerHTML = reviewHTML;
+                } else {
+                    reviewsContainer.insertAdjacentHTML('afterbegin', reviewHTML);
+                }
+                
+                // Close modal and reset form
+                document.getElementById('review-modal').classList.remove('active');
+                document.body.style.overflow = '';
+                this.reset();
+                
+                // Show success message
+                alert('Thank you for your review!');
             });
         });
-
-        function initDarkModeToggle() {
-            const toggleButton = document.getElementById('dark-mode-toggle');
-            const body = document.body;
-            const icon = toggleButton?.querySelector('i');
-
-            if (!toggleButton || !icon) return;
-
-            const applyMode = (isDark) => {
-                if (isDark) {
-                    body.classList.add('dark-mode');
-                    icon.classList.remove('fa-moon');
-                    icon.classList.add('fa-sun');
-                    localStorage.setItem('darkMode', 'enabled');
-                } else {
-                    body.classList.remove('dark-mode');
-                    icon.classList.remove('fa-sun');
-                    icon.classList.add('fa-moon');
-                    localStorage.setItem('darkMode', 'disabled');
-                }
-            };
-
-            const prefersDark = localStorage.getItem('darkMode') === 'enabled';
-            applyMode(prefersDark);
-
-            toggleButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                const isCurrentlyDark = body.classList.contains('dark-mode');
-                applyMode(!isCurrentlyDark);
-            });
+        
+        // Helper function to get product by ID (should be in script.js)
+        function getProductById(id) {
+            const allProducts = getAllMockProducts();
+            return allProducts.find(product => product.id === parseInt(id));
         }
-
-        function loadProductDetail(productId) {
-            const product = getAllMockProducts().find(p => p.id === productId);
-            
-            if (!product) {
-                window.location.href = 'Main.php';
-                return;
-            }
-            
-            // Update page content
-            document.getElementById('detail-product-name').textContent = product.name;
-            document.getElementById('detail-product-price').textContent = `RM ${product.price.toFixed(2)}`;
-            document.title = `${product.name} - HAMSA BEADS`;
-            
-            // Set image
-            const imageSrc = `src/${product.name.replace(/ /g, '_')}.jpg`;
-            const imgElement = document.getElementById('detail-product-image');
-            imgElement.src = imageSrc;
-            imgElement.alt = product.name;
-            imgElement.onerror = function() {
-                this.onerror = null;
-                this.src = 'images/placeholder.jpg';
-            };
-            
-            // Set description
-            const description = product.description || "This product description is coming soon.";
-            document.getElementById('detail-product-description').textContent = description;
-            
-            // Update save button state
-            const saveButton = document.getElementById('save-detail-btn');
-            const isSaved = savedItems.includes(productId);
-            
-            if (isSaved) {
-                saveButton.innerHTML = '<i class="fas fa-heart"></i> <span>Saved</span>';
-                saveButton.classList.add('saved');
-            } else {
-                saveButton.innerHTML = '<i class="far fa-heart"></i> <span>Save</span>';
-                saveButton.classList.remove('saved');
-            }
-        }
-
-        function getAllMockProducts() {
-            return [
-                { 
-                    id: 1, 
-                    name: 'Healing Soul', 
-                    price: 110,
-                    description: 'This Bracelet was curated with clear Quartz, the master healer crystal. Full benefit details in highlight labelled benefits.\n\nClear Quartz: 8mm\n\n1¾k gold plated charms with Zircon. (Moon, Ribbon and Filiqree Heart)'
-                },
-                // Add all other products
-                { id: 2, name: 'Calm Butterfly', price: 160, description: '...' },
-                // ...
-            ];
-        }
-
-        function animateAddToCart(button, productId) {
-            // Your existing animateAddToCart implementation
-            // Make sure to use the passed productId parameter
-            console.log(`Adding product ${productId} to cart`);
-            
-            const productData = getAllMockProducts().find(p => p.id === productId);
-            if (!productData) return;
-
-            const existingItemIndex = cart.findIndex(item => item.id === productId);
-            if (existingItemIndex > -1) {
-                cart[existingItemIndex].quantity++;
-            } else {
-                cart.push({ ...productData, quantity: 1 });
-            }
-
-            saveCart();
-            updateCartCount();
-            showCartNotification(productData.name);
-        }
-
-        function toggleSave(productId, buttonElement) {
-            const index = savedItems.indexOf(productId);
-            if (index === -1) {
-                savedItems.push(productId);
-                buttonElement.innerHTML = '<i class="fas fa-heart"></i> <span>Saved</span>';
-                buttonElement.classList.add('saved');
-            } else {
-                savedItems.splice(index, 1);
-                buttonElement.innerHTML = '<i class="far fa-heart"></i> <span>Save</span>';
-                buttonElement.classList.remove('saved');
-            }
-            saveSavedItems();
-            updateSaveCount();
-        }
-
-        function saveCart() {
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
-
-        function saveSavedItems() {
-            localStorage.setItem('savedItems', JSON.stringify(savedItems));
-        }
-
-        function updateCartCount() {
-            const count = cart.reduce((total, item) => total + (item.quantity || 0), 0);
-            const cartBadge = document.querySelector('.cart-badge');
-            if (cartBadge) {
-                cartBadge.textContent = count;
-                cartBadge.style.display = count > 0 ? 'inline-flex' : 'none';
-            }
-        }
-
-        function updateSaveCount() {
-            const saveBadge = document.querySelector('.save-badge');
-            if (saveBadge) {
-                saveBadge.textContent = savedItems.length;
-                saveBadge.style.display = savedItems.length > 0 ? 'inline-flex' : 'none';
-            }
-        }
-
-        function showCartNotification(productName) {
-            const notification = document.createElement('div');
-            notification.className = 'cart-notification';
-            notification.textContent = `${productName} added to cart!`;
-            document.body.appendChild(notification);
-
-            requestAnimationFrame(() => {
-                setTimeout(() => { notification.classList.add('show'); }, 10);
-            });
-
-            setTimeout(() => {
-                notification.classList.remove('show');
-                notification.addEventListener('transitionend', () => {
-                    notification.remove();
-                }, { once: true });
-            }, 3000);
-        }
-
-        // Include other necessary functions (initSearch, initAccountDropdown, etc.)
+        
     </script>
 </body>
 </html>
