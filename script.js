@@ -638,7 +638,7 @@ function displayCart() {
             const name = item.name ?? 'Unnamed Product';
             const price = typeof item.price === 'number' ? item.price.toFixed(2) : 'N/A';
             const quantity = item.quantity ?? 1;
-            const imageSrc = `images/products/${id}.jpg`;
+            const imageSrc = `src/${name.replace(/ /g, '_')}.jpg`;
 
             return `
             <div class="cart-item-card" data-id="${id}">
