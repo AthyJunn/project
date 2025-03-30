@@ -393,11 +393,12 @@ function displayProducts(products) {
                 <div class="product-info">
                         <div class="product-title">${name}</div>
                         <div class="product-price">RM ${price}</div>
+                        ${isInCart ? '<div class="cart-status">In Cart</div>' : ''}
                     </div>
                 </a>
                     <div class="product-actions">
-                        <button class="btn-purple add-to-cart ${isInCart ? 'added' : ''}" ${isInCart ? 'disabled' : ''}>
-                            ${isInCart ? 'Added to Cart' : 'Add to Cart'}
+                        <button class="btn-purple add-to-cart">
+                            Add to Cart
                         </button>
                     <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${id}">
                             <i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Unsave' : 'Save'}
@@ -594,12 +595,6 @@ function animateAddToCart(button) {
     saveCart();
     updateCartCount();
     showCartNotification(productName);
-
-    // Update button to show "Added to Cart" state
-    button.textContent = 'Added to Cart';
-    button.disabled = true;
-    button.style.backgroundColor = '#28a745';
-    button.style.cursor = 'default';
 
     console.log(`--- Animate Add To Cart End --- ID: ${productId}`);
 }
@@ -1041,6 +1036,13 @@ function initProductDetailPage() {
     document.getElementById('detail-product-price').textContent = `RM ${product.price.toFixed(2)}`;
     document.getElementById('detail-product-image').src = `src/${product.name.replace(/ /g, '_')}.jpg`;
     document.getElementById('detail-product-image').alt = product.name;
+
+    // Add cart status indicator
+    const isInCart = cart.some(item => item.id === productId);
+    const cartStatusDiv = document.createElement('div');
+    cartStatusDiv.className = 'cart-status';
+    cartStatusDiv.textContent = isInCart ? 'In Cart' : '';
+    document.querySelector('.product-detail-info').insertBefore(cartStatusDiv, document.querySelector('.product-detail-actions'));
 
     // Initialize save button
     const saveButton = document.getElementById('save-product-btn');
