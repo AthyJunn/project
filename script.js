@@ -109,8 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadProducts('recommendation'); // Load initial products
 });
 
-// ... rest of your script.js code remains the same ...
-
 // ==========================
 // Search Functionality
 // ==========================
@@ -152,6 +150,7 @@ function initAccountDropdown() {
 
     // Toggle dropdown visibility when clicking the button
     accountButton.addEventListener('click', function(e) {
+        console.log("Account button clicked"); // Debugging statement
         e.stopPropagation();
         accountDropdown.classList.toggle('show');
     });
@@ -190,6 +189,7 @@ function initAccountDropdown() {
         });
     }
 }
+
 
 // ==========================
 // Modals (Login/Register)
