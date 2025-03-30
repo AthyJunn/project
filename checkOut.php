@@ -23,6 +23,28 @@
             padding: 20px;
         }
 
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        .back-button i {
+            font-size: 16px;
+        }
+
         .checkout-grid {
             display: grid;
             grid-template-columns: 1.5fr 1fr;
@@ -214,6 +236,10 @@
 </head>
 <body>
     <div class="checkout-container">
+        <button class="back-button" onclick="window.location.href='Main.php'">
+            <i class="fas fa-arrow-left"></i>
+            Back to Shop
+        </button>
         <div class="checkout-grid">
             <div class="section">
                 <h2 class="section-title">Shipping Information</h2>
