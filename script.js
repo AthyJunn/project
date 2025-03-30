@@ -12,11 +12,39 @@ document.addEventListener('DOMContentLoaded', function() {
     initSearch();
     initAccountDropdown();
     initModals();
-    initCartDisplay(); // Renamed for clarity
-    initSavesDisplay(); // Renamed for clarity
-    updateCartCount(); // Initial count based on loaded cart
-    updateSaveCount(); // Initial count based on loaded saves
-    loadProducts('recommendation'); // Load initial products
+    initCartDisplay();
+    initSavesDisplay();
+    updateCartCount();
+    updateSaveCount();
+    loadProducts('recommendation');
+
+    // Add event listeners for cart and saves buttons
+    const cartLink = document.querySelector('.action-link[data-category="cart"]');
+    const savesLink = document.querySelector('.action-link[data-category="saves"]');
+
+    if (cartLink) {
+        cartLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            displayCart();
+            // Update category title
+            const categoryTitle = document.getElementById('current-category');
+            if (categoryTitle) categoryTitle.textContent = 'Shopping Cart';
+            // Remove active class from sidebar menu items
+            document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
+        });
+    }
+
+    if (savesLink) {
+        savesLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            displaySavedProducts();
+            // Update category title
+            const categoryTitle = document.getElementById('current-category');
+            if (categoryTitle) categoryTitle.textContent = 'Saved Items';
+            // Remove active class from sidebar menu items
+            document.querySelectorAll('.sidebar-menu a').forEach(item => item.classList.remove('active'));
+        });
+    }
 });
 
 // ==========================
@@ -92,12 +120,10 @@ function initAccountDropdown() {
 
     console.log("Account button and dropdown found."); // Debugging statement
 
-    // Toggle dropdown visibility when clicking the button
+    // Toggle dropdown when clicking the account button
     accountButton.addEventListener('click', function(e) {
-        console.log("Account button clicked"); // Debugging statement
         e.stopPropagation();
         accountDropdown.classList.toggle('show');
-        console.log("Dropdown visibility toggled."); // Debugging statement
     });
 
     // Close dropdown when clicking outside
@@ -113,25 +139,24 @@ function initAccountDropdown() {
         e.stopPropagation();
     });
 
-    // Handle Add Account click
+    // Handle Add Account button click
     if (addAccountBtn) {
-        addAccountBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+        addAccountBtn.addEventListener('click', function() {
+            // Show login modal
+            const loginModal = document.getElementById('login-modal');
+            if (loginModal) {
+                loginModal.classList.add('active');
             accountDropdown.classList.remove('show');
-            const registerModal = document.getElementById('register-modal');
-            if (registerModal) {
-                registerModal.classList.add('active');
-                document.body.style.overflow = 'hidden';
             }
         });
     }
 
-    // Handle Logout click
+    // Handle Logout button click
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+        logoutBtn.addEventListener('click', function() {
+            // Add your logout logic here
+            alert('Logging out...');
             accountDropdown.classList.remove('show');
-            alert('Logged out successfully!');
         });
     }
 }
@@ -416,12 +441,37 @@ function getAllMockProducts() {
 // Cart Functionality
 // ==========================
 
-// Initialize event listeners related to cart display
 function initCartDisplay() {
-    const cartLink = document.querySelector('.sidebar-menu a[data-category="cart"]');
-    if (cartLink) {
-        // The main listener for switching views is in initSidebar
-        // This function is mainly a placeholder if other cart-specific init is needed
+    // This function is now mainly for initialization
+    // The click handler is in the DOMContentLoaded event
+    updateCartCount();
+}
+
+function updateCartCount() {
+    const cartBadge = document.querySelector('.cart-badge');
+    if (cartBadge) {
+        const count = cart.reduce((total, item) => total + (item.quantity || 0), 0);
+        cartBadge.textContent = count;
+        cartBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+    }
+}
+
+// ==========================
+// Save Functionality
+// ==========================
+
+function initSavesDisplay() {
+    // This function is now mainly for initialization
+    // The click handler is in the DOMContentLoaded event
+    updateSaveCount();
+}
+
+function updateSaveCount() {
+    const saveBadge = document.querySelector('.save-badge');
+    if (saveBadge) {
+        const count = savedItems.length;
+        saveBadge.textContent = count;
+        saveBadge.style.display = count > 0 ? 'inline-flex' : 'none';
     }
 }
 
@@ -693,27 +743,6 @@ function displayCart() {
     }
 }
 
-function updateCartCount() {
-    console.log("--- updateCartCount called ---");
-    // Ensure cart is an array before reducing
-    const currentCart = Array.isArray(cart) ? cart : [];
-    console.log("Calculating count based on cart:", JSON.stringify(currentCart));
-
-    const cartBadge = document.querySelector('.cart-badge');
-    if (cartBadge) {
-        // Calculate total quantity of all items
-        const count = currentCart.reduce((total, item) => total + (item.quantity || 0), 0);
-        console.log("Calculated total quantity:", count);
-        cartBadge.textContent = count;
-        // Show badge only if count > 0
-        cartBadge.style.display = count > 0 ? 'inline-flex' : 'none';
-    } else {
-        console.warn("Cart badge element not found.");
-    }
-     console.log("--- updateCartCount finished ---");
-}
-
-
 function showCartNotification(productName) {
     // Simple alert for now, can replace with fancier notification
     // alert(`${productName} added to cart!`);
@@ -736,16 +765,6 @@ function showCartNotification(productName) {
             notification.remove();
         }, { once: true });
     }, 3000); // Notification visible for 3 seconds
-}
-
-// ==========================
-// Save Functionality
-// ==========================
-function initSavesDisplay() {
-    const savesLink = document.querySelector('.sidebar-menu a[data-category="saves"]');
-    if (savesLink) {
-        // Listener is handled in initSidebar
-    }
 }
 
 function toggleSave(productId, buttonElement) {
@@ -793,15 +812,6 @@ function saveSavedItems() {
          console.log("Saved items saved to localStorage:", JSON.stringify(savedItems));
     } catch (e) {
         console.error("Error saving savedItems to localStorage:", e);
-    }
-}
-
-function updateSaveCount() {
-    const saveBadge = document.querySelector('.save-badge');
-    if (saveBadge) {
-        const count = savedItems.length;
-        saveBadge.textContent = count;
-        saveBadge.style.display = count > 0 ? 'inline-flex' : 'none';
     }
 }
 

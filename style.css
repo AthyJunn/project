@@ -148,9 +148,7 @@ body.dark-mode .sidebar-menu a.active .cart-badge {
 
 /* Sidebar Bottom - UPDATED */
 .sidebar-bottom {
-    margin-top: auto;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color); /* Use variable */
+    display: none;
 }
 
 /* Keep same styling for bottom links as main menu links */
@@ -264,8 +262,78 @@ body.dark-mode .sidebar-bottom a:hover {
     background-color: var(--primary-hover-color);
 }
 
+/* User Actions Section - NEW */
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
 
-/* Account Dropdown - UPDATED */
+.action-link {
+    position: relative;
+    color: var(--text-secondary);
+    font-size: 24px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    transition: all 0.3s;
+    transform-origin: center;
+}
+
+.action-link:hover {
+    color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.action-link:active {
+    transform: scale(0.95);
+}
+
+/* Add ripple effect container */
+.action-link::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s;
+}
+
+.action-link:active::after {
+    opacity: 0.2;
+    transform: scale(1);
+    transition: 0s;
+}
+
+.save-badge,
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+    border: 1px solid var(--primary-color);
+}
+
+.save-badge:not(:empty),
+.cart-badge:not(:empty) {
+    display: flex;
+}
+
+/* Account Menu - UPDATED */
 .account-menu {
     position: relative;
 }
@@ -273,114 +341,61 @@ body.dark-mode .sidebar-bottom a:hover {
 #account-button {
     background: none;
     border: none;
-    color: var(--text-secondary); /* Use variable */
+    color: var(--text-secondary);
     font-size: 24px;
     cursor: pointer;
     padding: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s;
+    transform-origin: center;
+    position: relative;
 }
+
 #account-button:hover {
     color: var(--primary-color);
+    transform: scale(1.1);
 }
+
+#account-button:active {
+    transform: scale(0.95);
+}
+
+#account-button::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s;
+}
+
+#account-button:active::after {
+    opacity: 0.2;
+    transform: scale(1);
+    transition: 0s;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .action-link:hover,
 body.dark-mode #account-button:hover {
     color: #c0c0ff;
 }
 
+body.dark-mode .action-link::after,
+body.dark-mode #account-button::after {
+    background: #c0c0ff;
+}
 
-.account-dropdown {
+/* Remove old sidebar bottom styles */
+.sidebar-bottom {
     display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: var(--content-bg);
-    box-shadow: 0px 4px 10px var(--shadow-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    width: 200px;
-    padding: 16px;
-    z-index: 1000;
-    margin-top: 10px;
-    transition: all 0.3s ease;
 }
 
-.account-dropdown.show {
-    display: block;
-    animation: dropdownFadeIn 0.3s ease;
-}
-
-@keyframes dropdownFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Dropdown Header - UPDATED */
-.dropdown-header {
-    margin-bottom: 16px;
-}
-
-.currently-in {
-    font-size: 12px;
-    color: var(--text-secondary); /* Use variable */
-    margin-bottom: 12px;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: var(--border-color); /* Use variable */
-}
-
-.user-status {
-    font-size: 14px;
-    color: var(--text-color); /* Use variable */
-}
-
-/* Dropdown Buttons - UPDATED */
-.account-dropdown button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    margin-bottom: 8px;
-    text-align: center;
-    transition: background-color 0.3s;
-}
-
-.add-account {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.logout {
-    background-color: var(--button-secondary-bg); /* Use variable */
-    color: var(--button-secondary-text); /* Use variable */
-}
-
-.add-account:hover {
-    background-color: var(--primary-hover-color);
-}
-
-.logout:hover {
-    background-color: var(--button-secondary-hover-bg); /* Use variable */
-}
 /* =======================
    PRODUCT STYLES - UPDATED
    ======================= */
@@ -975,4 +990,126 @@ body.dark-mode .product-detail-image {
         margin-bottom: 20px;
         max-height: 300px;
     }
+}
+
+/* Account Menu Dropdown Styles */
+.account-menu {
+    position: relative;
+}
+
+#account-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#account-button:hover {
+    color: var(--primary-color);
+}
+
+.account-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 250px;
+    background: var(--content-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    padding: 15px;
+    display: none;
+    z-index: 1000;
+}
+
+.account-dropdown.show {
+    display: block;
+}
+
+.dropdown-header {
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+}
+
+.currently-in {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-status {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.add-account, .logout {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 8px;
+    text-align: left;
+    transition: background-color 0.3s;
+}
+
+.add-account {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.add-account:hover {
+    background-color: var(--primary-hover-color);
+}
+
+.logout {
+    background-color: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+}
+
+.logout:hover {
+    background-color: var(--button-secondary-hover-bg);
+}
+
+/* Dark mode adjustments */
+body.dark-mode .account-dropdown {
+    background-color: var(--dark-content-bg);
+    border-color: var(--dark-border-color);
+}
+
+body.dark-mode .dropdown-header {
+    border-color: var(--dark-border-color);
+}
+
+body.dark-mode .user-status {
+    color: var(--dark-text-color);
+}
+
+body.dark-mode .logout {
+    background-color: var(--dark-content-bg);
+    color: var(--dark-text-color);
+}
+
+body.dark-mode .logout:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
