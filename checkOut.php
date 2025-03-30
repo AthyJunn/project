@@ -233,6 +233,50 @@
             color: #666;
             font-size: 14px;
         }
+
+        .cart-items {
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 15px;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+
+        .item-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .item-quantity {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .item-price {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1em;
+            margin-left: 15px;
+        }
     </style>
 </head>
 <body>
@@ -400,10 +444,10 @@
                 subtotal += itemTotal;
                 return `
                     <div class="cart-item">
-                        <img src="src/${name.replace(/ /g, '_')}.jpg alt="${item.name}">
+                        <img src="src/${item.name.replace(/ /g, '_')}.jpg" alt="${item.name}" onerror="this.onerror=null; this.src='images/placeholder.jpg';">
                         <div class="item-details">
                             <div class="item-name">${item.name}</div>
-                            <div class="item-quantity">${item.quantity}x</div>
+                            <div class="item-quantity">Quantity: ${item.quantity}</div>
                         </div>
                         <div class="item-price">RM ${itemTotal.toFixed(2)}</div>
                     </div>
