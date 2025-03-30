@@ -571,11 +571,11 @@ async function removeFromCart(productId, cardElement) { // Accept cardElement
 
 function saveCart() {
     try {
-        localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('cart', JSON.stringify(cart));
         console.log("Cart saved to localStorage:", JSON.stringify(cart));
     } catch (e) {
         console.error("Error saving cart to localStorage:", e);
-    }
+}
 }
 
 // NOTE: loadCart is only called once on initial page load now.
@@ -585,7 +585,7 @@ function displayCart() {
     const cartContainer = document.getElementById('product-container');
     const categoryTitle = document.getElementById('current-category');
 
-    if(categoryTitle) categoryTitle.textContent = 'Your Cart'; // Set title
+    if(categoryTitle) categoryTitle.textContent = 'Shopping Cart';
     if (!cartContainer) {
         console.error("Cart container not found!");
         return;
@@ -597,7 +597,14 @@ function displayCart() {
     cartContainer.innerHTML = '';
 
     if (cart.length === 0) {
-        cartContainer.innerHTML = '<p>Your cart is empty.</p>';
+        cartContainer.innerHTML = `
+            <div class="cart-empty-message">
+                <i class="fas fa-shopping-cart" style="font-size: 2.5em; color: var(--primary-color);"></i>
+                <p style="margin: 0;">Your shopping cart is empty</p>
+                <button class="btn-purple" onclick="window.location.href='Main.php'" style="margin-top: 15px; padding: 12px 25px;">
+                    Continue Shopping
+                </button>
+            </div>`;
     } else {
         // Create a container for the items themselves
         const itemsContainer = document.createElement('div');
@@ -609,20 +616,26 @@ function displayCart() {
             const name = item.name ?? 'Unnamed Product';
             const price = typeof item.price === 'number' ? item.price.toFixed(2) : 'N/A';
             const quantity = item.quantity ?? 1;
+            const totalPrice = (item.price * quantity).toFixed(2);
             const imageSrc = `src/${name.replace(/ /g, '_')}.jpg`;
 
             return `
             <div class="cart-item-card" data-id="${id}">
-                <img src="${imageSrc}" alt="${name}" class="cart-item-image" onerror="this.onerror=null; this.src='images/placeholder.jpg';">
+                <img src="${imageSrc}" alt="${name}" class="cart-item-image" 
+                    onerror="this.onerror=null; this.src='images/placeholder.jpg';">
                 <div class="cart-item-details">
                     <div class="cart-item-name">${name}</div>
-                    <div class="cart-item-price">RM ${price}</div>
-                    <div class="cart-item-quantity">Quantity: ${quantity}</div>
-                    <!-- Add +/- buttons here later if needed -->
+                    <div class="cart-item-price">RM ${totalPrice}</div>
+                    <div class="cart-item-quantity">
+                        <i class="fas fa-box"></i>
+                        Quantity: ${quantity}
+                    </div>
                 </div>
-                <button class="btn-remove-item" data-id="${id}" aria-label="Remove ${name}">×</button>
+                <button class="btn-remove-item" data-id="${id}" aria-label="Remove ${name}">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>`;
-            }).join('');
+        }).join('');
 
         // Calculate Subtotal
         let subtotal = cart.reduce((sum, item) => {
@@ -635,33 +648,39 @@ function displayCart() {
         const summaryContainer = document.createElement('div');
         summaryContainer.className = 'cart-summary';
         summaryContainer.innerHTML = `
-            <h3>Summary</h3>
-            <p>Subtotal: RM ${subtotal.toFixed(2)}</p>
-            <button class="btn-purple checkout-btn">Proceed to Checkout</button>
+            <h3>Order Summary</h3>
+            <p>
+                <span>Subtotal (${cart.reduce((total, item) => total + (item.quantity || 0), 0)} items)</span>
+                <span>RM ${subtotal.toFixed(2)}</span>
+            </p>
+            <p>
+                <span>Total</span>
+                <span>RM ${subtotal.toFixed(2)}</span>
+            </p>
+            <button class="checkout-btn">
+                Proceed to Checkout
+            </button>
         `;
 
         // Append items and summary to the main container
         cartContainer.appendChild(itemsContainer);
         cartContainer.appendChild(summaryContainer);
 
-
         // --- Event Listeners (using delegation on itemsContainer) ---
         itemsContainer.addEventListener('click', function(event) {
-            if (event.target.classList.contains('btn-remove-item')) {
-                const button = event.target;
+            const button = event.target.closest('.btn-remove-item');
+            if (button) {
                 const productIdToRemove = parseInt(button.dataset.id);
                 console.log(`Remove button clicked for ID: ${productIdToRemove}`);
                 if (!isNaN(productIdToRemove)) {
-                    // Find the card element associated with this button
                     const cardToRemove = button.closest('.cart-item-card');
                     if (cardToRemove) {
-                         removeFromCart(productIdToRemove, cardToRemove); // Pass the element
+                        removeFromCart(productIdToRemove, cardToRemove);
                     } else {
                         console.error("Could not find parent card element for remove button.");
                     }
                 }
             }
-            // Add listeners for quantity buttons here if implemented later
         });
 
         // Add listener for checkout button
@@ -704,7 +723,7 @@ function showCartNotification(productName) {
     notification.className = 'cart-notification';
     notification.textContent = `${productName} added to cart!`; // Use textContent for safety
     document.body.appendChild(notification);
-
+    
     // Trigger animation
     requestAnimationFrame(() => {
         setTimeout(() => { notification.classList.add('show'); }, 10); // Add slight delay
@@ -752,9 +771,9 @@ function toggleSave(productId, buttonElement) {
         const currentCategoryTitle = document.getElementById('current-category')?.textContent;
         if (currentCategoryTitle === 'Saved Items' || currentCategoryTitle === 'Saves') {
              const productCard = buttonElement.closest('.product-card');
-             if (productCard) {
+            if (productCard) {
                  console.log("Removing product card from Saved Items view.");
-                 productCard.remove();
+                productCard.remove();
                  // Check if saves list is now empty
                  if(savedItems.length === 0) {
                     const container = document.getElementById('product-container');
@@ -770,7 +789,7 @@ function toggleSave(productId, buttonElement) {
 
 function saveSavedItems() {
     try {
-        localStorage.setItem('savedItems', JSON.stringify(savedItems));
+    localStorage.setItem('savedItems', JSON.stringify(savedItems));
          console.log("Saved items saved to localStorage:", JSON.stringify(savedItems));
     } catch (e) {
         console.error("Error saving savedItems to localStorage:", e);
