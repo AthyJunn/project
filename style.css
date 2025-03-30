@@ -421,6 +421,7 @@ body.dark-mode #account-button::after {
     transition: transform 0.3s, background-color 0.3s, border-color 0.3s;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 .product-card:hover {
@@ -443,6 +444,7 @@ body.dark-mode #account-button::after {
 
 .product-image {
     height: 200px;
+    width: 100%;
     background-color: rgba(0,0,0,0.05);
     display: flex;
     align-items: center;
@@ -450,6 +452,7 @@ body.dark-mode #account-button::after {
     color: var(--text-secondary);
     overflow: hidden;
     transition: transform 0.3s;
+    position: relative;
 }
 
 .product-card:hover .product-image {
@@ -457,8 +460,8 @@ body.dark-mode #account-button::after {
 }
 
 .product-image img {
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     object-position: center;
     transition: transform 0.3s;
@@ -467,6 +470,9 @@ body.dark-mode #account-button::after {
 .product-info {
     padding: 15px;
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .product-title {
@@ -474,6 +480,8 @@ body.dark-mode #account-button::after {
     margin-bottom: 5px;
     color: var(--text-color);
     transition: color 0.3s;
+    font-size: 1.1em;
+    line-height: 1.4;
 }
 
 .product-card:hover .product-title {
@@ -494,6 +502,7 @@ body.dark-mode .product-stock {
     font-weight: bold;
     color: var(--primary-color);
     margin-bottom: 15px;
+    font-size: 1.2em;
 }
 
 .product-actions {
@@ -511,8 +520,12 @@ body.dark-mode .product-stock {
         gap: 15px;
     }
     
+    .product-image {
+        height: 180px;
+    }
+    
     .product-info {
-        padding: 15px;
+        padding: 12px;
     }
 }
 
