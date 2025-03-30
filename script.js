@@ -453,12 +453,15 @@ function initCartDisplay() {
 }
 
 function updateCartCount() {
-    const cartBadge = document.querySelector('.cart-badge');
-    if (cartBadge) {
-        const count = cart.reduce((total, item) => total + (item.quantity || 0), 0);
-        cartBadge.textContent = count;
-        cartBadge.style.display = count > 0 ? 'inline-flex' : 'none';
-    }
+    const cartBadges = document.querySelectorAll('.cart-badge');
+    const count = cart.reduce((total, item) => total + (item.quantity || 0), 0);
+    
+    cartBadges.forEach(badge => {
+        if (badge) {
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
+    });
 }
 
 // ==========================
@@ -472,12 +475,15 @@ function initSavesDisplay() {
 }
 
 function updateSaveCount() {
-    const saveBadge = document.querySelector('.save-badge');
-    if (saveBadge) {
-        const count = savedItems.length;
-        saveBadge.textContent = count;
-        saveBadge.style.display = count > 0 ? 'inline-flex' : 'none';
-    }
+    const saveBadges = document.querySelectorAll('.save-badge');
+    const count = savedItems.length;
+    
+    saveBadges.forEach(badge => {
+        if (badge) {
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
+    });
 }
 
 // --- Core Cart Logic within Animation Function ---
@@ -981,49 +987,150 @@ function initProductDetailPage() {
     cart = JSON.parse(localStorage.getItem('cart')) || [];
     savedItems = JSON.parse(localStorage.getItem('savedItems')) || [];
 
-    // Update cart and save badges
+    // Update cart and save badges in both the top bar and sidebar
     updateCartCount();
     updateSaveCount();
 
-    // Check if current product is saved
-    const isSaved = savedItems.includes(productId);
-    const saveButtonText = document.querySelector('.btn-save');
-    if (saveButtonText) {
-        saveButtonText.innerHTML = `<i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Saved' : 'Save'}`;
-        saveButtonText.classList.toggle('saved', isSaved);
+    // Get product data
+    const product = getProductById(productId);
+    if (!product) {
+        console.error('Product not found:', productId);
+        return;
     }
 
-    // Add to cart button functionality
+    // Update product details in the UI
+    document.getElementById('detail-product-name').textContent = product.name;
+    document.getElementById('detail-product-price').textContent = `RM ${product.price.toFixed(2)}`;
+    document.getElementById('detail-product-image').src = `src/${product.name.replace(/ /g, '_')}.jpg`;
+    document.getElementById('detail-product-image').alt = product.name;
+
+    // Initialize save button
+    const saveButton = document.getElementById('save-product-btn');
+    if (saveButton) {
+        saveButton.dataset.id = productId;
+        const isSaved = savedItems.includes(productId);
+        updateSaveButtonState(saveButton, isSaved);
+        
+        saveButton.addEventListener('click', function() {
+            const isCurrentlySaved = savedItems.includes(productId);
+            toggleSave(productId, this);
+            updateSaveButtonState(this, !isCurrentlySaved);
+            // Update both top bar and sidebar badges
+            updateSaveCount();
+        });
+    }
+
+    // Initialize add to cart button
     const addToCartBtn = document.getElementById('add-to-cart-btn');
     if (addToCartBtn) {
         addToCartBtn.addEventListener('click', function() {
-            const product = getProductById(productId);
-            if (product) {
-                // Create a mock button element for the animation
-                const mockButton = document.createElement('button');
-                mockButton.classList.add('add-to-cart');
-                document.body.appendChild(mockButton);
-                
-                animateAddToCart(mockButton);
-                setTimeout(() => {
-                    mockButton.remove();
-                }, 1000);
-                
-                showCartNotification(product.name);
+            // Create a mock button element for the animation
+            const mockButton = document.createElement('button');
+            mockButton.classList.add('add-to-cart');
+            document.body.appendChild(mockButton);
+            
+            // Add the product to cart
+            const existingItemIndex = cart.findIndex(item => item.id === productId);
+            if (existingItemIndex > -1) {
+                cart[existingItemIndex].quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            
+            // Save cart and update UI
+            saveCart();
+            // Update both top bar and sidebar badges
+            updateCartCount();
+            
+            // Animate and show notification
+            animateAddToCart(mockButton);
+            setTimeout(() => {
+                mockButton.remove();
+            }, 1000);
+            
+            showCartNotification(product.name);
+        });
+    }
+
+    // Initialize write review button
+    const writeReviewBtn = document.getElementById('write-review-btn');
+    if (writeReviewBtn) {
+        writeReviewBtn.addEventListener('click', function() {
+            const reviewModal = document.getElementById('review-modal');
+            if (reviewModal) {
+                reviewModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
             }
         });
     }
 
-    // Save product button functionality
-    const saveProductBtn = document.getElementById('save-product-btn');
-    if (saveProductBtn) {
-        saveProductBtn.addEventListener('click', function() {
-            const button = this;
-            const productId = parseInt(button.dataset.id);
-            if (!isNaN(productId)) {
-                toggleSave(productId, button);
+    // Initialize review form
+    const reviewForm = document.getElementById('review-form');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('review-name').value;
+            const rating = document.getElementById('review-rating').value;
+            const comment = document.getElementById('review-comment').value;
+            
+            // Create review HTML
+            const reviewHTML = `
+                <div class="review-item">
+                    <div class="review-author">${name}</div>
+                    <div class="review-rating">${'★'.repeat(rating)}${'☆'.repeat(5-rating)}</div>
+                    <div class="review-date">${new Date().toLocaleDateString()}</div>
+                    <div class="review-content">${comment}</div>
+                </div>
+            `;
+            
+            // Add review to the page
+            const reviewsContainer = document.getElementById('detail-product-reviews');
+            if (reviewsContainer.textContent === 'No reviews at the moment') {
+                reviewsContainer.innerHTML = reviewHTML;
+            } else {
+                reviewsContainer.insertAdjacentHTML('afterbegin', reviewHTML);
             }
+            
+            // Close modal and reset form
+            const reviewModal = document.getElementById('review-modal');
+            if (reviewModal) {
+                reviewModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            this.reset();
+            
+            // Show success message
+            alert('Thank you for your review!');
         });
+    }
+
+    // Initialize back button
+    const backButton = document.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = 'Main.php';
+        });
+    }
+}
+
+// Helper function to update save button state
+function updateSaveButtonState(button, isSaved) {
+    if (!button) return;
+    
+    const icon = button.querySelector('i');
+    if (icon) {
+        icon.className = isSaved ? 'fas fa-heart' : 'far fa-heart';
+    }
+    button.textContent = isSaved ? 'Saved' : 'Save';
+    button.classList.toggle('saved', isSaved);
+    
+    // Re-append the icon since textContent overwrote it
+    if (icon) {
+        button.insertBefore(icon, button.firstChild);
+        // Add a space after the icon
+        button.insertBefore(document.createTextNode(' '), button.lastChild);
     }
 }
 

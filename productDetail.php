@@ -92,7 +92,8 @@
                 <div class="product-detail-actions">
                     <button class="btn-purple" id="add-to-cart-btn">Add to Cart</button>
                     <button class="btn-save" id="save-product-btn" data-id="1">
-                        <i class="far fa-heart"></i> Save
+                        <i class="far fa-heart"></i>
+                        Save
                     </button>
                 </div>
                 

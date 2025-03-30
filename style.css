@@ -968,16 +968,50 @@ body.dark-mode .product-detail-image {
     margin-bottom: 40px;
 }
 
+/* Updated button styles */
 .product-detail-actions .btn-purple {
-    flex: 2;
+    flex: 1;
     padding: 12px;
     font-size: 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.product-detail-actions .btn-purple:hover {
+    background-color: var(--primary-hover-color);
 }
 
 .product-detail-actions .btn-save {
     flex: 1;
     padding: 12px;
     font-size: 16px;
+    background-color: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.product-detail-actions .btn-save:hover {
+    background-color: rgba(111, 66, 193, 0.1);
+}
+
+.product-detail-actions .btn-save.saved {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.product-detail-actions .btn-save.saved:hover {
+    background-color: var(--primary-hover-color);
 }
 
 .product-detail-reviews {
@@ -1004,6 +1038,10 @@ body.dark-mode .product-detail-image {
     .product-detail-image {
         margin-bottom: 20px;
         max-height: 300px;
+    }
+    
+    .product-detail-actions {
+        flex-direction: column;
     }
 }
 
