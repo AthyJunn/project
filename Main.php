@@ -80,6 +80,7 @@
                         </button>
                     </div>
                 </div>
+                <br>
                 <button type="submit" class="btn-purple">Log in</button>
                 <div class="form-footer">
                     Don't have an account? <a href="#" id="show-register">Register now</a>
@@ -115,6 +116,7 @@
                     <label for="register-confirm">Confirm Password</label>
                     <div class="password-input">
                         <input type="password" id="register-confirm" required>
+                        <br>
                         <button type="button" class="toggle-password" aria-label="Show password">
                             <i class="fas fa-eye"></i>
                         </button>
