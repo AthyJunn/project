@@ -4,7 +4,7 @@ function getDBConnection() {
     static $conn = null;
     
     if ($conn === null) {
-        $conn = mysqli_connect("localhost", "root", "", "hamsabeads");
+        $conn = mysqli_connect("localhost", "HBAdmin", "hb@Admin", "hamsabeads");
         
         if (!$conn) {
             die("Database connection failed: " . mysqli_connect_error());
