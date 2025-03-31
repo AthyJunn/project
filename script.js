@@ -124,14 +124,46 @@ function initAccountDropdown() {
 
     if (!accountButton || !accountDropdown) return;
 
-    accountButton.addEventListener('click', (e) => { e.stopPropagation(); accountDropdown.classList.toggle('show'); });
-    document.addEventListener('click', (e) => { if (!accountDropdown.contains(e.target) && !accountButton.contains(e.target)) accountDropdown.classList.remove('show'); });
-    if (addAccountBtn) addAccountBtn.addEventListener('click', (e) => { e.preventDefault(); accountDropdown.classList.remove('show'); showModalById('register-modal'); });
-    if (logoutBtn) logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault(); accountDropdown.classList.remove('show'); alert('Logged out successfully! (Simulation)');
-        const userStatus = document.querySelector('.user-status'); const userAvatar = document.querySelector('.user-avatar');
-        if(userStatus) userStatus.textContent = 'Guest'; if(userAvatar) userAvatar.src = 'images/guest-avatar.png';
+    accountButton.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        accountDropdown.classList.toggle('show'); 
     });
+
+    document.addEventListener('click', (e) => { 
+        if (!accountDropdown.contains(e.target) && !accountButton.contains(e.target)) 
+            accountDropdown.classList.remove('show'); 
+    });
+
+    if (addAccountBtn) {
+        addAccountBtn.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            accountDropdown.classList.remove('show'); 
+            showModalById('login-modal'); 
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            accountDropdown.classList.remove('show');
+            
+            // Update user status and avatar
+            const userStatus = document.querySelector('.user-status');
+            const userAvatar = document.querySelector('.user-avatar');
+            const addAccountBtn = document.getElementById('add-account-btn');
+            
+            if (userStatus) userStatus.textContent = 'Guest';
+            if (userAvatar) userAvatar.src = 'images/guest-avatar.png';
+            
+            // Show the Sign In button again
+            if (addAccountBtn) {
+                addAccountBtn.style.display = 'block';
+                addAccountBtn.textContent = 'Sign In';
+            }
+            
+            alert('Logged out successfully!');
+        });
+    }
 }
 
 // ==========================
@@ -550,8 +582,15 @@ if (loginForm) {
                 // Update UI for logged-in user
                 const userStatus = document.querySelector('.user-status');
                 const userAvatar = document.querySelector('.user-avatar');
+                const addAccountBtn = document.getElementById('add-account-btn');
+                
                 if (userStatus) userStatus.textContent = result.user.username;
-                if (userAvatar) userAvatar.src = 'images/user-avatar.png'; // You can customize this
+                if (userAvatar) userAvatar.src = 'images/user-avatar.png';
+                
+                // Hide the Sign In button
+                if (addAccountBtn) {
+                    addAccountBtn.style.display = 'none';
+                }
                 
                 // Hide login modal
                 hideModalById('login-modal');
@@ -561,13 +600,6 @@ if (loginForm) {
                 
                 // Show success message
                 alert('Login successful!');
-                
-                // Update account dropdown buttons
-                const addAccountBtn = document.getElementById('add-account-btn');
-                if (addAccountBtn) addAccountBtn.style.display = 'none';
-                
-                // Optional: Refresh page or update necessary components
-                // location.reload();
             } else {
                 alert(result.message || 'Login failed. Please try again.');
             }
