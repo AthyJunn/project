@@ -136,4 +136,25 @@ function closeDBConnection() {
 
 // Register shutdown function to ensure connection is closed
 register_shutdown_function('closeDBConnection');
+
+// Get admin by login (username or email)
+function getAdminByLogin($login) {
+    $con = getDBConnection();
+    $is_email = filter_var($login, FILTER_VALIDATE_EMAIL);
+    $field = $is_email ? "adminMail" : "adminName";
+    
+    $sql = "SELECT * FROM admin WHERE $field = ?";
+    $stmt = mysqli_prepare($con, $sql);
+    
+    if (!$stmt) {
+        error_log("Prepare failed: " . mysqli_error($con));
+        return null;
+    }
+    
+    mysqli_stmt_bind_param($stmt, "s", $login);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    
+    return mysqli_fetch_assoc($result);
+}
 ?>

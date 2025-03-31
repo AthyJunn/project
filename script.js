@@ -125,19 +125,19 @@ function initAccountDropdown() {
     if (!accountButton || !accountDropdown) return;
 
     accountButton.addEventListener('click', (e) => { 
-        e.stopPropagation(); 
-        accountDropdown.classList.toggle('show'); 
+        e.stopPropagation();
+        accountDropdown.classList.toggle('show');
     });
 
     document.addEventListener('click', (e) => { 
         if (!accountDropdown.contains(e.target) && !accountButton.contains(e.target)) 
-            accountDropdown.classList.remove('show'); 
+            accountDropdown.classList.remove('show');
     });
 
     if (addAccountBtn) {
         addAccountBtn.addEventListener('click', (e) => { 
-            e.preventDefault(); 
-            accountDropdown.classList.remove('show'); 
+            e.preventDefault();
+            accountDropdown.classList.remove('show');
             showModalById('login-modal'); 
         });
     }
@@ -522,7 +522,7 @@ function saveSavedItems() { try { localStorage.setItem('savedItems', JSON.string
 
 function updateSaveCount() { const count = savedItems.length; console.log("Updating save count:", count); document.querySelectorAll('.save-badge').forEach(badge => { badge.textContent = count; badge.style.display = count > 0 ? 'inline-flex' : 'none'; }); }
 
-function displaySavedProducts() { 
+function displaySavedProducts() {
     const container = document.getElementById('product-container'); 
     const categoryTitle = document.getElementById('current-category'); 
     if(categoryTitle) categoryTitle.textContent = 'Saved Items'; 
@@ -541,7 +541,7 @@ function displaySavedProducts() {
                 <p>Items you save will appear here</p>
                 <button class="btn-purple" onclick="loadProducts('recommendation'); document.getElementById('current-category').textContent='Recommendation'; document.querySelector('.sidebar-menu a[data-category=recommendation]')?.classList.add('active');">
                     Browse Products
-                </button>
+                    </button>
             </div>
         `;
         // Add styles for empty state
@@ -746,8 +746,16 @@ if (loginForm) {
                 const userAvatar = document.querySelector('.user-avatar');
                 const addAccountBtn = document.getElementById('add-account-btn');
                 
-                if (userStatus) userStatus.textContent = result.user.username;
-                if (userAvatar) userAvatar.src = 'images/user-avatar.png';
+                if (userStatus) {
+                    userStatus.textContent = result.user.is_admin ? 
+                        `${result.user.username} (Admin)` : 
+                        result.user.username;
+                }
+                if (userAvatar) {
+                    userAvatar.src = result.user.is_admin ? 
+                        'images/admin-avatar.png' : 
+                        'images/user-avatar.png';
+                }
                 
                 // Hide the Sign In button
                 if (addAccountBtn) {
@@ -761,7 +769,7 @@ if (loginForm) {
                 loginForm.reset();
                 
                 // Show success message
-                alert('Login successful!');
+                alert(result.message);
             } else {
                 alert(result.message || 'Login failed. Please try again.');
             }

@@ -19,21 +19,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (empty($errors)) {
         try {
-            // Get user from database
+            // First check if it's an admin login
+            $admin = getAdminByLogin($username);
+            
+            if ($admin && $admin['adminPW'] === $password) {
+                // Admin login successful
+                $_SESSION['user_id'] = $admin['adminID'];
+                $_SESSION['username'] = $admin['adminName'];
+                $_SESSION['email'] = $admin['adminMail'];
+                $_SESSION['is_admin'] = true;
+                
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Admin login successful',
+                    'user' => [
+                        'username' => $admin['adminName'],
+                        'email' => $admin['adminMail'],
+                        'is_admin' => true
+                    ]
+                ]);
+                exit();
+            }
+            
+            // If not admin, check regular user login
             $user = getUserByLogin($username);
             
             if ($user && password_verify($password, $user['password'])) {
-                // Login successful
+                // User login successful
                 $_SESSION['user_id'] = $user['userID'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['email'] = $user['email'];
+                $_SESSION['is_admin'] = false;
                 
                 echo json_encode([
                     'status' => 'success',
                     'message' => 'Login successful',
                     'user' => [
                         'username' => $user['username'],
-                        'email' => $user['email']
+                        'email' => $user['email'],
+                        'is_admin' => false
                     ]
                 ]);
                 exit();
