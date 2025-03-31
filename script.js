@@ -201,6 +201,7 @@ function loadProducts(category) {
     const container = document.getElementById('product-container');
     if(!container) return;
     container.innerHTML = '<p>Loading products...</p>';
+    container.classList.add('product-grid');
     const products = getMockProducts(category);
     displayProducts(products);
 }
@@ -354,7 +355,14 @@ function displayCart() {
     cartContainer.classList.remove('product-grid');
 
     if (cart.length === 0) {
-        cartContainer.innerHTML = `<div class="cart-empty-message"> <i class="fas fa-shopping-cart" style="font-size: 3em; color: #ccc;"></i> <p>Your cart is empty.</p> <button class="btn-purple" onclick="loadProducts('recommendation'); document.getElementById('current-category').textContent='Recommendation'; document.querySelector('.sidebar-menu a[data-category=recommendation]')?.classList.add('active');">Continue Shopping</button> </div>`;
+        cartContainer.innerHTML = `<div class="cart-empty-message">
+            <i class="fas fa-shopping-cart" style="font-size: 3em; color: #ccc;"></i>
+            <p>Your cart is empty.</p>
+            <button class="btn-purple" onclick="loadProducts('recommendation'); document.getElementById('current-category').textContent='Recommendation'; document.querySelector('.sidebar-menu a[data-category=recommendation]')?.classList.add('active');">
+                Continue Shopping
+            </button>
+        </div>`;
+        return;
     } else {
         const itemsHtml = cart.map(item => { /* ... Same item card HTML as before ... */
             const id = item.id ?? 'unknown'; const name = item.name ?? 'Unnamed Product';
