@@ -66,15 +66,15 @@
         <div class="modal-content">
             <button class="close-modal">&times;</button>
             <h2>Log In</h2>
-            <form id="login-form">
+            <form id="login-form" action="config/hbLogin.php" method="POST">
                 <div class="form-group">
                     <label for="login-username">Username</label>
-                    <input type="text" id="login-username" required>
+                    <input type="text" id="login-username" name="username" required>
                 </div>
                 <div class="form-group password-group">
                     <label for="login-password">Password</label>
                     <div class="password-input">
-                        <input type="password" id="login-password" required>
+                        <input type="password" id="login-password" name="password" required>
                         <button type="button" class="toggle-password" aria-label="Show password">
                             <i class="fas fa-eye"></i>
                         </button>

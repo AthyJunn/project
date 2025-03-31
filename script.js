@@ -511,15 +511,65 @@ if (registerForm) {
                 body: formData
             });
 
-            const result = await response.text();
+            const result = await response.json();
             
-            if (result.includes('success')) {
+            if (result.status === 'success') {
                 alert('Registration successful! Please login.');
-                closeModal('register-modal');
-                showModal('login-modal');
+                hideModalById('register-modal');
+                showModalById('login-modal');
                 registerForm.reset();
             } else {
-                alert(result || 'Registration failed. Please try again.');
+                alert(result.message || 'Registration failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+}
+
+// Login form handling
+const loginForm = document.getElementById('login-form');
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+
+        try {
+            const formData = new FormData(loginForm);
+            const response = await fetch('config/hbLogin.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                // Update UI for logged-in user
+                const userStatus = document.querySelector('.user-status');
+                const userAvatar = document.querySelector('.user-avatar');
+                if (userStatus) userStatus.textContent = result.user.username;
+                if (userAvatar) userAvatar.src = 'images/user-avatar.png'; // You can customize this
+                
+                // Hide login modal
+                hideModalById('login-modal');
+                
+                // Clear form
+                loginForm.reset();
+                
+                // Show success message
+                alert('Login successful!');
+                
+                // Update account dropdown buttons
+                const addAccountBtn = document.getElementById('add-account-btn');
+                if (addAccountBtn) addAccountBtn.style.display = 'none';
+                
+                // Optional: Refresh page or update necessary components
+                // location.reload();
+            } else {
+                alert(result.message || 'Login failed. Please try again.');
             }
         } catch (error) {
             console.error('Error:', error);

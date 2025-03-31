@@ -35,53 +35,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (empty($errors)) {
         try {
-            // Test database connection first
-            $con = getDBConnection();
-            if (!$con) {
-                throw new Exception("Could not connect to database");
-            }
-
             // Check if username or email already exists
             if (isUserExists($username, $email)) {
                 // Check specifically which one exists
                 $user = getUserByLogin($username);
                 if ($user) {
-                    echo "Username already exists";
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Username already exists'
+                    ]);
                     exit();
                 }
                 
                 $user = getUserByLogin($email);
                 if ($user) {
-                    echo "Email already exists";
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Email already exists'
+                    ]);
                     exit();
-                }
-            } else {
-                // Attempt to register the user
-                if (registerUser($username, $email, $password)) {
-                    $_SESSION['registration_success'] = true;
-                    echo "success";
-                    exit();
-                } else {
-                    throw new Exception("Failed to create user account");
                 }
             }
+            
+            // Attempt to register the user
+            if (registerUser($username, $email, $password)) {
+                $_SESSION['registration_success'] = true;
+                echo json_encode([
+                    'status' => 'success',
+                    'message' => 'Registration successful'
+                ]);
+                exit();
+            } else {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Failed to create user account'
+                ]);
+                exit();
+            }
+            
         } catch (Exception $e) {
             error_log("Registration Error: " . $e->getMessage());
-            // Check for specific MySQL errors
-            if ($e->getCode() == 1062) {
-                echo "Username or email already exists";
-            } else if ($e->getCode() == 1045) {
-                echo "Database access denied. Please contact administrator.";
-            } else {
-                echo "Registration failed: " . $e->getMessage();
-            }
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Registration failed. Please try again later.'
+            ]);
             exit();
         }
     }
-
+    
     // If there are validation errors, return them
     if (!empty($errors)) {
-        echo implode("\n", $errors);
+        echo json_encode([
+            'status' => 'error',
+            'message' => implode("\n", $errors)
+        ]);
         exit();
     }
 }
