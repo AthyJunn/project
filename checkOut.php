@@ -331,7 +331,7 @@
         <div class="checkout-grid">
             <div class="section">
                 <h2 class="section-title">Shipping Information</h2>
-
+                
                 <div class="delivery-options">
                     <div class="delivery-option active" data-option="delivery">
                         <i class="fas fa-truck"></i>
