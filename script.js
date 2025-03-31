@@ -514,7 +514,17 @@ function saveSavedItems() { try { localStorage.setItem('savedItems', JSON.string
 
 function updateSaveCount() { const count = savedItems.length; console.log("Updating save count:", count); document.querySelectorAll('.save-badge').forEach(badge => { badge.textContent = count; badge.style.display = count > 0 ? 'inline-flex' : 'none'; }); }
 
-function displaySavedProducts() { const container = document.getElementById('product-container'); const categoryTitle = document.getElementById('current-category'); if(categoryTitle) categoryTitle.textContent = 'Saved Items'; if (!container) return; console.log("Displaying Saved Products:", JSON.stringify(savedItems)); const savedProductsDetails = getAllMockProducts().filter(product => savedItems.includes(product.id)); displayProducts(savedProductsDetails); }
+function displaySavedProducts() { 
+    const container = document.getElementById('product-container'); 
+    const categoryTitle = document.getElementById('current-category'); 
+    if(categoryTitle) categoryTitle.textContent = 'Saved Items'; 
+    if (!container) return; 
+    console.log("Displaying Saved Products:", JSON.stringify(savedItems)); 
+    container.innerHTML = '';
+    container.classList.add('product-grid');
+    const savedProductsDetails = getAllMockProducts().filter(product => savedItems.includes(product.id)); 
+    displayProducts(savedProductsDetails); 
+}
 
 function updateSaveButtonState(button, isSaved) { if (!button) return; const iconClass = isSaved ? 'fas fa-heart' : 'far fa-heart'; const text = isSaved ? ' Saved' : ' Save'; const ariaLabel = isSaved ? 'Unsave' : 'Save'; const productName = getProductById(parseInt(button.dataset.id))?.name || 'this item'; button.innerHTML = `<i class="${iconClass}"></i>${text}`; button.classList.toggle('saved', isSaved); button.setAttribute('aria-label', `${ariaLabel} ${productName}`); }
 
