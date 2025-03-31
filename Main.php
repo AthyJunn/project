@@ -47,7 +47,7 @@
                                 <span class="user-status">Guest</span>
                             </div>
                         </div>
-                        <button class="add-account" id="add-account-btn">Add Account</button>
+                        <button class="add-account" id="add-account-btn">Sign In</button>
                         <button class="logout" id="logout-btn">Log out</button>
                     </div>
                 </div>
