@@ -814,7 +814,7 @@ body.dark-mode .form-footer a {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    margin-bottom: 30px;
+    margin: 30px;
 }
 
 .cart-item-card {
@@ -879,7 +879,7 @@ body.dark-mode .form-footer a {
 }
 
 .cart-summary {
-    position: fixed;
+    position: right;
     top: 100px;
     right: 30px;
     width: 320px;
