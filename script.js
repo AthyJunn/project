@@ -523,7 +523,57 @@ function displaySavedProducts() {
     container.innerHTML = '';
     container.classList.add('product-grid');
     const savedProductsDetails = getAllMockProducts().filter(product => savedItems.includes(product.id)); 
-    displayProducts(savedProductsDetails); 
+    
+    if (savedProductsDetails.length === 0) {
+        container.classList.remove('product-grid');
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="far fa-heart" style="font-size: 3em; color: #ccc; margin-bottom: 15px;"></i>
+                <h3>No Saved Items</h3>
+                <p>Items you save will appear here</p>
+                <button class="btn-purple" onclick="loadProducts('recommendation'); document.getElementById('current-category').textContent='Recommendation'; document.querySelector('.sidebar-menu a[data-category=recommendation]')?.classList.add('active');">
+                    Browse Products
+                </button>
+            </div>
+        `;
+        // Add styles for empty state
+        const styleId = 'empty-state-styles';
+        if (!document.getElementById(styleId)) {
+            const css = `
+                .empty-state {
+                    text-align: center;
+                    padding: 40px 20px;
+                    background: var(--content-bg, #fff);
+                    border-radius: 12px;
+                    border: 1px solid var(--border-color, #ddd);
+                    width: 100%;
+                    max-width: 800px;
+                    margin: 20px auto;
+                    box-sizing: border-box;
+                }
+                .empty-state h3 {
+                    font-size: 1.4em;
+                    margin: 0 0 10px 0;
+                    color: var(--text-color, #333);
+                }
+                .empty-state p {
+                    color: var(--text-secondary, #666);
+                    margin-bottom: 25px;
+                }
+                .empty-state .btn-purple {
+                    padding: 12px 24px;
+                    font-size: 1.1em;
+                }
+            `;
+            const styleSheet = document.createElement("style");
+            styleSheet.id = styleId;
+            styleSheet.type = "text/css";
+            styleSheet.innerText = css;
+            document.head.appendChild(styleSheet);
+        }
+    } else {
+        displayProducts(savedProductsDetails); 
+    }
 }
 
 function updateSaveButtonState(button, isSaved) { if (!button) return; const iconClass = isSaved ? 'fas fa-heart' : 'far fa-heart'; const text = isSaved ? ' Saved' : ' Save'; const ariaLabel = isSaved ? 'Unsave' : 'Save'; const productName = getProductById(parseInt(button.dataset.id))?.name || 'this item'; button.innerHTML = `<i class="${iconClass}"></i>${text}`; button.classList.toggle('saved', isSaved); button.setAttribute('aria-label', `${ariaLabel} ${productName}`); }
