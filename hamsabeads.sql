@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Mar 31, 2025 at 06:20 AM
+-- Generation Time: Mar 31, 2025 at 03:07 PM
 -- Server version: 8.2.0
 -- PHP Version: 8.3.0
 
@@ -39,7 +39,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`adminID`, `adminName`, `adminMail`, `adminPW`) VALUES
-('A0001', 'Administrator', 'admin@gmail.com', 'admin123');
+('HBAdmin', 'Administrator', 'hbadmin@gmail.com', 'hb@Admin');
 
 -- --------------------------------------------------------
 
@@ -51,8 +51,17 @@ CREATE TABLE `useraccount` (
   `userID` varchar(30) NOT NULL,
   `username` varchar(30) NOT NULL,
   `email` varchar(30) NOT NULL,
-  `password` varchar(30) NOT NULL
+  `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `useraccount`
+--
+
+INSERT INTO `useraccount` (`userID`, `username`, `email`, `password`) VALUES
+('HB0000', 'Athy', 'athyjunn@gmail.com', '$2y$10$j7u4l455gJ8zcWBsP7D.nuDwl11dMJMszdgA6r9pry5oCV8nkMkdu'),
+('HB0001', 'MichiBaka1', 'michibaka1@gmail.com', '$2y$10$SALwaDh1peihcW5Z14dQceN1cRB.nSbs9b4ZPfhLpst.l8MfnoyM2'),
+('HB0002', 'MichiBaka2', 'michibaka2@gmail.com', '$2y$10$z8NQndLbwgfq7qW7EHa/tumiTMLkzy2P4RpCHdMG5oF6uo7wNuzMa');
 
 --
 -- Indexes for dumped tables
