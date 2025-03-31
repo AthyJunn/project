@@ -693,7 +693,7 @@ body.dark-mode .btn-save:hover {
     padding: 30px;
     border-radius: 8px;
     width: 100%;
-    max-width: 800px;
+    max-width: 500px;
     position: relative;
     box-shadow: 0 4px 20px var(--shadow-color); /* Use variable */
     border: 1px solid var(--border-color); /* Add border */
