@@ -94,19 +94,19 @@
         <div class="modal-content">
             <button class="close-modal">&times;</button>
             <h2>Create New Account</h2>
-            <form id="register-form">
+            <form id="register-form" action="config/hbRegister.php" method="POST">
                 <div class="form-group">
                     <label for="register-username">Username</label>
-                    <input type="text" id="register-username" required>
+                    <input type="text" id="register-username" name="username" required>
                 </div>
                 <div class="form-group">
                     <label for="register-email">Email</label>
-                    <input type="email" id="register-email" required>
+                    <input type="email" id="register-email" name="email" required>
                 </div>
                 <div class="form-group password-group">
                     <label for="register-password">Password</label>
                     <div class="password-input">
-                        <input type="password" id="register-password" required>
+                        <input type="password" id="register-password" name="password" required>
                         <button type="button" class="toggle-password" aria-label="Show password">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -115,7 +115,7 @@
                 <div class="form-group password-group">
                     <label for="register-confirm">Confirm Password</label>
                     <div class="password-input">
-                        <input type="password" id="register-confirm" required>
+                        <input type="password" id="register-confirm" name="confirm_password" required>
                         <button type="button" class="toggle-password" aria-label="Show password">
                             <i class="fas fa-eye"></i>
                         </button>

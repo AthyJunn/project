@@ -217,7 +217,7 @@ function displayProducts(products) {
                     <div class="in-cart-status ${isInCart ? 'active' : ''}" data-status-for="${id}"> <i class="fas fa-check-circle"></i> In Cart </div>
                 </div>
             </a>
-            <div class="product-actions">
+                    <div class="product-actions">
                 <button class="btn-purple add-to-cart" data-id="${id}" aria-label="Add ${name} to cart">Add to Cart</button>
                 <button class="btn-save ${isSaved ? 'saved' : ''}" data-id="${id}" aria-label="${isSaved ? 'Unsave' : 'Save'} ${name}"> <i class="${isSaved ? 'fas' : 'far'} fa-heart"></i> ${isSaved ? 'Saved' : 'Save'} </button>
                 </div>
@@ -269,14 +269,14 @@ function getAllMockProducts() {
         { id: 2, name: 'Calm Butterfly', price: 160, description: 'Features calming stones like Amethyst and Lepidolite combined with elegant butterfly charms. Perfect for easing anxiety and promoting peace.' },
         { id: 3, name: 'Ethereal Butterfly', price: 170, description: 'A delicate design featuring high-grade Moonstone and Aquamarine, evoking grace, intuition, and transformation. Accented with silver butterfly charms.' },
         { id: 4, name: 'Sweet Butterfly', price: 90, description: 'A charming and affordable bracelet with Rose Quartz and colorful beads, accented with a sweet butterfly charm. Promotes love and joy.' },
-        { id: 5, name: 'Moon Candies', price: 110, description: 'A playful mix of colorful moonstone beads resembling sweet candies. Connects with lunar energy and enhances intuition.' },
+        { id: 5, name: 'Moon Candies', price: 110, description: 'A playful mix of colorful moonstone beads resembling sweet candies. conects with lunar energy and enhances intuition.' },
         { id: 6, name: 'Moon Phase', price: 160, description: 'Represents the waxing and waning phases of the moon using carefully selected Labradorite and Moonstone beads. Enhances psychic abilities and inner knowing.' },
         { id: 7, name: 'Ethereal Moon', price: 170, description: 'Showcases high-quality Rainbow Moonstones with a mystical blue flash. A powerful stone for new beginnings and emotional balance.' },
         { id: 8, name: 'Healing Transformation', price: 70, description: 'Deep green Malachite paired with Smoky Quartz promotes healing, absorbs negativity, and encourages positive transformation.' },
         { id: 9, name: 'Breezy Transformation', price: 75, description: 'A lighter take on the malachite transformation theme, incorporating Chrysocolla for communication and calm change.' },
         { id: 10, name: 'Wealthy Transformation', price: 70, description: 'Malachite combined with Citrine and Pyrite to attract abundance while navigating personal growth and transformation.' },
         { id: 11, name: 'Amplified Transformation', price: 75, description: 'Combines the transformative power of Malachite with the amplifying energy of Clear Quartz for focused change.' },
-        { id: 12, name: 'Angel Self Love Edition', price: 140, description: 'A LUXE series bracelet featuring premium Rose Quartz, Kunzite, and Angelite beads. Fosters self-love, compassion, and angelic connections.' },
+        { id: 12, name: 'Angel Self Love Edition', price: 140, description: 'A LUXE series bracelet featuring premium Rose Quartz, Kunzite, and Angelite beads. Fosters self-love, compassion, and angelic conections.' },
         { id: 13, name: 'Chunk of Abundance', price: 180, description: 'A statement LUXE piece featuring large, high-quality Green Aventurine, Citrine, and Pyrite nuggets designed to be a powerful magnet for abundance and prosperity.' }
     ];
 }
@@ -480,3 +480,50 @@ function initActionButtons() {
 // ==========================
 function addParticleStyle() { const styleId = 'particle-dynamic-styles'; if (document.getElementById(styleId)) return; const css = `.particle { position: fixed; pointer-events: none; border-radius: 50%; }`; const styleSheet = document.createElement("style"); styleSheet.id = styleId; styleSheet.type = "text/css"; styleSheet.innerText = css; document.head.appendChild(styleSheet); }
 addParticleStyle();
+
+// Registration form handling
+const registerForm = document.getElementById('register-form');
+if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('register-username').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const confirmPassword = document.getElementById('register-confirm').value;
+
+        // Basic validation
+        if (password !== confirmPassword) {
+            alert('Passwords do not match!');
+            return;
+        }
+
+        if (password.length < 8) {
+            alert('Password must be at least 8 characters long!');
+            return;
+        }
+
+        // Submit form
+        try {
+            const formData = new FormData(registerForm);
+            const response = await fetch('config/hbRegister.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.text();
+            
+            if (result.includes('success')) {
+                alert('Registration successful! Please login.');
+                closeModal('register-modal');
+                showModal('login-modal');
+                registerForm.reset();
+            } else {
+                alert(result || 'Registration failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+}
