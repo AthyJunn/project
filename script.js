@@ -174,23 +174,101 @@ function initModals() {
     const closeModalButtons = document.querySelectorAll('.close-modal');
     const modalOverlays = document.querySelectorAll('.modal-overlay');
 
-    if (showRegisterLink) showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); hideModalById('login-modal'); showModalById('register-modal'); });
-    if (showLoginLink) showLoginLink.addEventListener('click', (e) => { e.preventDefault(); hideModalById('register-modal'); showModalById('login-modal'); });
-    closeModalButtons.forEach(button => button.addEventListener('click', function () { const modal = this.closest('.modal-overlay'); if(modal) hideModal(modal); }));
-    modalOverlays.forEach(overlay => overlay.addEventListener('click', function (e) { if (e.target === this) hideModal(this); }));
+    // Initialize modal show/hide functionality
+    if (showRegisterLink) {
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideModalById('login-modal');
+            showModalById('register-modal');
+        });
+    }
+
+    if (showLoginLink) {
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideModalById('register-modal');
+            showModalById('login-modal');
+        });
+    }
+
+    // Initialize close buttons
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal-overlay');
+            if (modal) {
+                hideModal(modal);
+            }
+        });
+    });
+
+    // Initialize overlay clicks
+    modalOverlays.forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideModal(this);
+            }
+        });
+    });
+
+    // Initialize password toggle buttons
     document.querySelectorAll('.toggle-password').forEach(button => {
         button.addEventListener('click', function() {
-            const passwordInput = this.previousElementSibling; const icon = this.querySelector('i');
-            if (passwordInput.type === "password") { passwordInput.type = "text"; icon.classList.replace('fa-eye', 'fa-eye-slash'); this.setAttribute('aria-label', 'Hide password'); }
-            else { passwordInput.type = "password"; icon.classList.replace('fa-eye-slash', 'fa-eye'); this.setAttribute('aria-label', 'Show password'); }
+            const passwordInput = this.previousElementSibling;
+            const icon = this.querySelector('i');
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+                this.setAttribute('aria-label', 'Hide password');
+            } else {
+                passwordInput.type = "password";
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+                this.setAttribute('aria-label', 'Show password');
+            }
         });
     });
 }
 
-function showModalById(modalId) { const modal = document.getElementById(modalId); if (modal) showModal(modal); }
-function hideModalById(modalId) { const modal = document.getElementById(modalId); if (modal) hideModal(modal); }
-function showModal(modalElement) { if (modalElement) { modalElement.classList.add('active'); document.body.style.overflow = 'hidden'; } }
-function hideModal(modalElement) { if (modalElement) { modalElement.classList.remove('active'); document.body.style.overflow = ''; } }
+function showModalById(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        console.log(`Showing modal: ${modalId}`);
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    } else {
+        console.error(`Modal not found: ${modalId}`);
+    }
+}
+
+function hideModalById(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        console.log(`Hiding modal: ${modalId}`);
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    } else {
+        console.error(`Modal not found: ${modalId}`);
+    }
+}
+
+function showModal(modalElement) {
+    if (modalElement) {
+        console.log('Adding active class to modal');
+        modalElement.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    } else {
+        console.error('Invalid modal element');
+    }
+}
+
+function hideModal(modalElement) {
+    if (modalElement) {
+        console.log('Removing active class from modal');
+        modalElement.classList.remove('active');
+        document.body.style.overflow = '';
+    } else {
+        console.error('Invalid modal element');
+    }
+}
 
 // ==========================
 // Product Handling (Main Page)
@@ -771,6 +849,195 @@ if (loginForm) {
                 alert(result.message);
             } else {
                 alert(result.message || 'Login failed. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+}
+
+// Password Reset Functionality
+const forgotPasswordLink = document.getElementById('forgot-password-link');
+const forgotPasswordModal = document.getElementById('forgot-password-modal');
+const resetCodeModal = document.getElementById('reset-code-modal');
+const newPasswordModal = document.getElementById('new-password-modal');
+const forgotPasswordForm = document.getElementById('forgot-password-form');
+const resetCodeForm = document.getElementById('reset-code-form');
+const newPasswordForm = document.getElementById('new-password-form');
+const showLoginFromReset = document.getElementById('show-login-from-reset');
+const resendCode = document.getElementById('resend-code');
+
+let resetEmail = '';
+let resetToken = '';
+
+if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Forgot password link clicked');
+        const loginModal = document.getElementById('login-modal');
+        const forgotPasswordModal = document.getElementById('forgot-password-modal');
+        
+        if (loginModal && forgotPasswordModal) {
+            console.log('Found both modals');
+            loginModal.classList.remove('active');
+            forgotPasswordModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else {
+            console.error('Could not find modals:', {
+                loginModal: !!loginModal,
+                forgotPasswordModal: !!forgotPasswordModal
+            });
+        }
+    });
+}
+
+if (showLoginFromReset) {
+    showLoginFromReset.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideModalById('forgot-password-modal');
+        showModalById('login-modal');
+    });
+}
+
+if (forgotPasswordForm) {
+    forgotPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('reset-email').value;
+        resetEmail = email;
+
+        try {
+            const formData = new FormData();
+            formData.append('action', 'request_reset');
+            formData.append('email', email);
+
+            const response = await fetch('config/hb_connect.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                alert(result.message);
+                hideModalById('forgot-password-modal');
+                showModalById('reset-code-modal');
+            } else {
+                alert(result.message || 'Failed to send reset code');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+}
+
+if (resetCodeForm) {
+    resetCodeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const code = document.getElementById('reset-code').value;
+
+        try {
+            const formData = new FormData();
+            formData.append('action', 'verify_code');
+            formData.append('email', resetEmail);
+            formData.append('code', code);
+
+            const response = await fetch('config/hb_connect.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                resetToken = result.token;
+                hideModalById('reset-code-modal');
+                showModalById('new-password-modal');
+            } else {
+                alert(result.message || 'Invalid reset code');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+}
+
+if (resendCode) {
+    resendCode.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (!resetEmail) {
+            alert('Please request a new reset code');
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('action', 'request_reset');
+            formData.append('email', resetEmail);
+
+            const response = await fetch('config/hb_connect.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                alert(result.message);
+            } else {
+                alert(result.message || 'Failed to resend reset code');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+}
+
+if (newPasswordForm) {
+    newPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-new-password').value;
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+
+        if (password.length < 8) {
+            alert('Password must be at least 8 characters long');
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('action', 'reset_password');
+            formData.append('token', resetToken);
+            formData.append('password', password);
+            formData.append('confirm_password', confirmPassword);
+
+            const response = await fetch('config/hb_connect.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                alert(result.message);
+                hideModalById('new-password-modal');
+                showModalById('login-modal');
+                // Reset forms
+                forgotPasswordForm.reset();
+                resetCodeForm.reset();
+                newPasswordForm.reset();
+                resetEmail = '';
+                resetToken = '';
+            } else {
+                alert(result.message || 'Failed to reset password');
             }
         } catch (error) {
             console.error('Error:', error);

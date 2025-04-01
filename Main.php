@@ -81,11 +81,82 @@
                         </button>
                     </div>
                 </div>
+                <div class="form-footer">
+                    <a href="#" id="forgot-password-link">Forgot Password?</a>
+                </div>
                 <br>
                 <button type="submit" class="btn-purple">Log in</button>
                 <div class="form-footer">
                     Don't have an account? <a href="#" id="show-register">Register now</a>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal-overlay" id="forgot-password-modal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2>Reset Password</h2>
+            <form id="forgot-password-form">
+                <div class="form-group">
+                    <label for="reset-email">Email Address</label>
+                    <input type="email" id="reset-email" name="email" required>
+                </div>
+                <br>
+                <button type="submit" class="btn-purple">Send Reset Code</button>
+                <div class="form-footer">
+                    Remember your password? <a href="#" id="show-login-from-reset">Log in here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reset Code Verification Modal -->
+    <div class="modal-overlay" id="reset-code-modal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2>Enter Reset Code</h2>
+            <form id="reset-code-form">
+                <div class="form-group">
+                    <label for="reset-code">Enter the code sent to your email</label>
+                    <input type="text" id="reset-code" name="code" required>
+                </div>
+                <br>
+                <button type="submit" class="btn-purple">Verify Code</button>
+                <div class="form-footer">
+                    Didn't receive the code? <a href="#" id="resend-code">Resend Code</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Password Modal -->
+    <div class="modal-overlay" id="new-password-modal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2>Set New Password</h2>
+            <form id="new-password-form">
+                <div class="form-group password-group">
+                    <label for="new-password">New Password</label>
+                    <div class="password-input">
+                        <input type="password" id="new-password" name="password" required>
+                        <button type="button" class="toggle-password" aria-label="Show password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group password-group">
+                    <label for="confirm-new-password">Confirm New Password</label>
+                    <div class="password-input">
+                        <input type="password" id="confirm-new-password" name="confirm_password" required>
+                        <button type="button" class="toggle-password" aria-label="Show password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <br>
+                <button type="submit" class="btn-purple">Reset Password</button>
             </form>
         </div>
     </div>
