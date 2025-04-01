@@ -7,11 +7,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <link href="style.css" rel="stylesheet">
+    
 </head>
 <body>
-<div class="sidebar">
-            <div class="logo">HAMSA BEADS</div>
-            <div class="BEADS-name">HAMSA BEADS</div>
+<div class="sidebar">           
+            <div class="logo"><img src="src/HamsaBeadsLogo.png" alt="HAMSA BEADS Logo" 
+            style="max-width: 100%; height: auto;"></div>
+
             <br>
             <ul class="sidebar-menu">
                 <li><a href="#" class="active" data-category="recommendation">Recommendation</a></li>
