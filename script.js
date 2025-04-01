@@ -153,7 +153,6 @@ function initAccountDropdown() {
             const addAccountBtn = document.getElementById('add-account-btn');
             
             if (userStatus) userStatus.textContent = 'Guest';
-            if (userAvatar) userAvatar.src = 'images/guest-avatar.png';
             
             // Show the Sign In button again
             if (addAccountBtn) {

@@ -107,7 +107,6 @@
                         <div class="dropdown-header">
                             <div class="currently-in">Currently in</div>
                             <div class="user-info">
-                                <img src="images/guest-avatar.png" alt="Guest" class="user-avatar">
                                 <span class="user-status">Guest</span>
                             </div>
                         </div>
