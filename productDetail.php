@@ -74,8 +74,7 @@
 <body>
     <!-- Sidebar -->
     <div class="sidebar">
-        <div class="logo">HAMSA BEADS</div>
-        <div class="BEADS-name">HAMSA BEADS</div>
+    <div class="logo"><img src="src/HamsaBeadsLogo.png" alt="HAMSA BEADS Logo" style="max-width: 100%; height: auto;"></div>
         <br>
         <ul class="sidebar-menu">
             <li><a href="Main.php">Recommendation</a></li>
