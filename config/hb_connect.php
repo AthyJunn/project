@@ -52,64 +52,56 @@ function generateResetToken() {
 
 // Send reset code email
 function sendResetEmail($email, $code) {
-    require_once 'PHPMailer/PHPMailer.php';
-    require_once 'PHPMailer/SMTP.php';
-    require_once 'PHPMailer/Exception.php';
-
-    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-
-    try {
-        // Server settings
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'hamsabeads@gmail.com'; // Replace with your Gmail address
-        $mail->Password = 'xxxx xxxx xxxx xxxx'; // Replace with your Gmail App Password
-        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-
-        // Recipients
-        $mail->setFrom('hamsabeads@gmail.com', 'HAMSA BEADS'); // Replace with your Gmail address
-        $mail->addAddress($email);
-
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = 'Password Reset Code - HAMSA BEADS';
-        
-        // HTML email body
-        $mail->Body = "
-            <html>
-            <head>
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .code { font-size: 24px; font-weight: bold; color: #6f42c1; padding: 10px; background: #f8f9fa; border-radius: 5px; text-align: center; margin: 20px 0; }
-                    .footer { margin-top: 30px; font-size: 12px; color: #666; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <h2>Password Reset Request</h2>
-                    <p>You have requested to reset your password. Use the following code to proceed:</p>
-                    <div class='code'>$code</div>
-                    <p>This code will expire in 15 minutes.</p>
-                    <p>If you didn't request this reset, please ignore this email.</p>
-                    <div class='footer'>
-                        <p>This is an automated message, please do not reply to this email.</p>
-                    </div>
+    $to = $email;
+    $subject = 'Password Reset Code - HAMSA BEADS';
+    
+    // HTML email body
+    $htmlBody = "
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .code { font-size: 24px; font-weight: bold; color: #6f42c1; padding: 10px; background: #f8f9fa; border-radius: 5px; text-align: center; margin: 20px 0; }
+                .footer { margin-top: 30px; font-size: 12px; color: #666; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <h2>Password Reset Request</h2>
+                <p>You have requested to reset your password. Use the following code to proceed:</p>
+                <div class='code'>$code</div>
+                <p>This code will expire in 15 minutes.</p>
+                <p>If you didn't request this reset, please ignore this email.</p>
+                <div class='footer'>
+                    <p>This is an automated message, please do not reply to this email.</p>
                 </div>
-            </body>
-            </html>
-        ";
+            </div>
+        </body>
+        </html>
+    ";
 
-        // Plain text version
-        $mail->AltBody = "Your password reset code is: $code\n\nThis code will expire in 15 minutes.\n\nIf you didn't request this reset, please ignore this email.";
+    // Plain text version
+    $plainBody = "Your password reset code is: $code\n\nThis code will expire in 15 minutes.\n\nIf you didn't request this reset, please ignore this email.";
 
-        return $mail->send();
-    } catch (Exception $e) {
-        error_log("Email sending failed: " . $mail->ErrorInfo);
+    // Email headers
+    $headers = array(
+        'MIME-Version: 1.0',
+        'Content-type: text/html; charset=utf-8',
+        'From: HAMSA BEADS <hamsabeads@gmail.com>',
+        'Reply-To: hamsabeads@gmail.com',
+        'X-Mailer: PHP/' . phpversion()
+    );
+
+    // Send email
+    $success = mail($to, $subject, $htmlBody, implode("\r\n", $headers));
+
+    if (!$success) {
+        error_log("Email sending failed for address: $email");
         return false;
     }
+
+    return true;
 }
 
 // Handle POST requests
